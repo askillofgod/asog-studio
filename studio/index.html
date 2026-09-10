@@ -135,9 +135,13 @@ input:focus{border-color:var(--brand);outline:none}
 .pj-form input:focus,.pj-form select:focus,.pj-form textarea:focus{border-color:var(--brand);outline:none}
 .pj-wide{grid-column:1/-1}
 .pj-lk{display:flex;gap:8px;margin-bottom:8px}
-.pj-lk .lk-label{max-width:190px}
-.pj-lk .lk-del{flex:none;width:46px;height:46px;border:1.5px solid var(--rule);border-radius:4px;
-  background:var(--ground);color:var(--ink-2);font-size:20px;line-height:1;cursor:pointer;padding:0}
+.pj-lk .lk-label{max-width:170px}
+.pj-lk .lk-mv,.pj-lk .lk-del{flex:none;width:42px;height:46px;border:1.5px solid var(--rule);
+  border-radius:4px;background:var(--ground);color:var(--ink-2);font-size:17px;line-height:1;
+  cursor:pointer;padding:0}
+.pj-lk .lk-mv:hover:not(:disabled){border-color:var(--brand);color:var(--brand)}
+.pj-lk .lk-mv:disabled{opacity:.3;cursor:default}
+.pj-lk .lk-del{font-size:20px}
 .pj-lk .lk-del:hover{border-color:var(--error);color:var(--error)}
 .pj-save{display:flex;align-items:center;gap:8px;margin-top:20px}
 .pj-err{margin-left:6px;font-size:15px;color:var(--error)}
@@ -871,6 +875,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     return '<div class="pj-lk">' +
       '<input class="lk-label" placeholder="이름" value="' + att(l.label || "") + '">' +
       '<input class="lk-url" placeholder="https://" value="' + att(l.url || "") + '">' +
+      '<button type="button" class="lk-mv lk-up" title="위로">↑</button>' +
+      '<button type="button" class="lk-mv lk-dn" title="아래로">↓</button>' +
       '<button type="button" class="lk-del" title="이 줄 지우기">×</button></div>';
   }
 
@@ -943,19 +949,35 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     $("pf-cancel").addEventListener("click", function(){ projEdit = false; renderMain(); });
     $("pf-add").addEventListener("click", function(){
       $("pf-links").insertAdjacentHTML("beforeend", pjLinkRow({}));
-      bindLinkDel();
+      bindLinkRows();
       $("pf-links").lastElementChild.querySelector(".lk-label").focus();
     });
-    bindLinkDel();
+    bindLinkRows();
     $("pf-save").addEventListener("click", function(){ projSave(r); });
   }
 
-  function bindLinkDel(){
-    $("pf-links").querySelectorAll(".lk-del").forEach(function(b){
-      b.onclick = function(){
-        var box = $("pf-links");
-        if(box.children.length > 1) b.parentNode.remove();
-        else box.querySelectorAll("input").forEach(function(i){ i.value = ""; });
+  /* 화면에 보이는 줄 순서가 곧 저장되는 순서다. 위·아래로 옮기면
+     프로젝트 정보 아래 버튼 순서도 그대로 따라간다. */
+  function bindLinkRows(){
+    var box = $("pf-links"), rows = [].slice.call(box.children);
+    rows.forEach(function(row, i){
+      var up = row.querySelector(".lk-up"),
+          dn = row.querySelector(".lk-dn"),
+          del = row.querySelector(".lk-del");
+      up.disabled = (i === 0);
+      dn.disabled = (i === rows.length - 1);
+      up.onclick = function(){
+        if(row.previousElementSibling) box.insertBefore(row, row.previousElementSibling);
+        bindLinkRows();
+      };
+      dn.onclick = function(){
+        if(row.nextElementSibling) box.insertBefore(row.nextElementSibling, row);
+        bindLinkRows();
+      };
+      del.onclick = function(){
+        if(box.children.length > 1) row.remove();
+        else row.querySelectorAll("input").forEach(function(x){ x.value = ""; });
+        bindLinkRows();
       };
     });
   }
