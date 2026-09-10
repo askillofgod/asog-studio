@@ -153,8 +153,39 @@ input::placeholder,textarea::placeholder{color:#9AA4B8}
 .done-card p{font-size:17px;line-height:1.7;max-width:56ch}
 .done-card p+p{margin-top:12px}
 
-.foot{border-top:1px solid var(--rule);padding:28px 24px 56px;
-  font-family:var(--mono);font-size:13px;color:var(--ink-2);text-align:center;letter-spacing:.05em}
+.foot{border-top:1px solid var(--rule);margin-top:56px;padding:36px 24px 64px;
+  color:var(--ink-2);text-align:center}
+.foot-b{font-family:var(--mono);font-size:13px;letter-spacing:.2em;color:var(--ink)}
+.foot-c{margin-top:14px;display:flex;justify-content:center;align-items:center;
+  flex-wrap:wrap;gap:8px 18px;font-size:16px}
+.foot-c b{font-weight:700;color:var(--ink)}
+.foot-c a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+.foot-c a:hover{color:var(--brand);border-color:var(--brand)}
+.foot-n{margin-top:18px;font-family:var(--mono);font-size:13px;letter-spacing:.05em}
+
+/* 오른쪽 아래 떠 있는 버튼. 링크가 잘못돼 질문지가 안 열려도 연락은 되도록
+   질문지 화면(#app) 바깥에 둔다. */
+.fab{position:fixed;right:20px;bottom:20px;z-index:40;
+  display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.fab-b{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;
+  border:0;padding:0;cursor:pointer;text-decoration:none;
+  box-shadow:0 4px 14px rgba(12,33,65,.18);transition:transform .15s ease,background-color .15s ease}
+.fab-b:hover{transform:translateY(-2px)}
+.fab-b svg{width:26px;height:26px;display:block}
+.fab-b.kakao{background:#FEE500;color:#3C1E1E}
+.fab-b.kakao:hover{background:#FFDE00}
+.fab-b.tel{background:var(--brand);color:#fff}
+.fab-b.tel:hover{background:#0037AC}
+.fab-b.top{background:var(--ground);color:var(--ink-2);
+  box-shadow:0 4px 14px rgba(12,33,65,.18),inset 0 0 0 1.5px var(--rule);display:none}
+.fab-b.top.on{display:grid}
+.fab-b.top:hover{color:var(--brand)}
+@media (max-width:860px){
+  .fab{right:14px;bottom:14px;gap:8px}
+  .fab-b{width:48px;height:48px}
+  .fab-b svg{width:24px;height:24px}
+}
+@media print{.fab{display:none}}
 
 @media (max-width:860px){
   .shell{grid-template-columns:1fr;gap:0}
@@ -222,10 +253,48 @@ input::placeholder,textarea::placeholder{color:#9AA4B8}
       </div>
     </main>
   </div>
-  <p class="foot">ASOG · 작성하신 내용은 자동으로 저장됩니다</p>
+  <footer class="foot">
+    <div class="foot-b">ASOG · 어소그</div>
+    <div class="foot-c">
+      <b>정영철</b>
+      <a href="tel:01028355878">010-2835-5878</a>
+      <a href="mailto:xxxAskillOfGodxxx@gmail.com">xxxAskillOfGodxxx@gmail.com</a>
+    </div>
+    <p class="foot-n">작성하신 내용은 자동으로 저장됩니다</p>
+  </footer>
+</div>
+
+<!-- 맨 위로 · 전화 · 카카오톡 -->
+<div class="fab">
+  <button type="button" class="fab-b top" id="fab-top" aria-label="맨 위로">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor"
+      d="M12 4.6l7.4 7.4-1.5 1.5-4.9-4.9V20h-2V8.6l-4.9 4.9L4.6 12 12 4.6z"/></svg>
+  </button>
+  <a class="fab-b tel" href="tel:01028355878" aria-label="전화 010-2835-5878">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor"
+      d="M6.9 10.7c1.5 2.9 3.9 5.3 6.8 6.8l2.3-2.3c.3-.3.7-.4 1.1-.2 1.2.4 2.4.6 3.7.6.6 0 1.1.5 1.1 1.1V20c0 .6-.5 1.1-1.1 1.1C11.1 21.1 2.9 12.9 2.9 2.7c0-.6.5-1.1 1.1-1.1h3.4c.6 0 1.1.5 1.1 1.1 0 1.3.2 2.6.6 3.7.1.4 0 .8-.2 1.1l-2 2.2z"/></svg>
+  </a>
+  <a class="fab-b kakao" href="https://pf.kakao.com/_rVGxjX/chat"
+     target="_blank" rel="noopener noreferrer" aria-label="카카오톡 상담">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor"
+      d="M12 3.4c-5 0-9.1 3.2-9.1 7.1 0 2.5 1.7 4.7 4.2 6-.2.7-.7 2.5-.8 2.9-.1.5.2.5.4.4.2-.1 2.7-1.8 3.8-2.6.5.1 1 .1 1.5.1 5 0 9.1-3.2 9.1-7.1S17 3.4 12 3.4z"/></svg>
+  </a>
 </div>
 
 <script src="questions.js"></script>
+<script>
+/* ── 맨 위로 ─────────────────────────────────────── */
+(function(){
+  var b = document.getElementById("fab-top");
+  if(!b) return;
+  function sync(){ b.classList.toggle("on", window.scrollY > 400); }
+  window.addEventListener("scroll", sync, { passive: true });
+  sync();
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+</script>
 <script>
 /* ── Supabase 연결 정보 ────────────────────────────── */
 var SUPABASE_URL = "https://qtiazentdzwzkgrsjbob.supabase.co";
