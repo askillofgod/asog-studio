@@ -304,19 +304,6 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
    local: true 로 두면 "내 컴퓨터에서만 열림" 표시가 붙습니다.
    주소를 바꾸거나 줄을 추가·삭제하시면 그대로 반영됩니다.
    ══════════════════════════════════════════════════════════ */
-var SHORTCUTS = [
-  // 배포본을 가리킨다. 개발 서버가 꺼져 있어도 열리고, 고객이 보는 화면과 같다.
-  { title: "비전필름 시안", items: [
-    { label: "시안 선택 화면", note: "고객이 처음 보는 곳", url: "https://visionfilm.pages.dev/" },
-    { label: "시안 A", note: "선택 기준 중심형", url: "https://visionfilm.pages.dev/design-a" },
-    { label: "시안 B", note: "상황·상담 중심형", url: "https://visionfilm.pages.dev/design-b" }
-  ]},
-  { title: "비전필름 참고", items: [
-    { label: "기존 사이트", note: "visionfilm.co.kr", url: "https://visionfilm.co.kr/" },
-    { label: "제안서 PDF", note: "11쪽", url: "https://visionfilm.pages.dev/docs/ASOG_비전필름_홈페이지개편제안.pdf" }
-  ]}
-];
-
 (function(){
   // 코드는 주소(?a=)로도 받고, 한 번 확인되면 이 브라우저에 저장해 둔다.
   // 예전에 쓰던 주소를 눌러도 그대로 열리게 하려고 둘 다 본다.
@@ -457,24 +444,36 @@ var SHORTCUTS = [
   }
 
   /* ── 바로가기 ── */
+  /* 왼쪽 아래 바로가기. 고른 고객의 링크를 그대로 보여 준다.
+     고객마다 자기 링크를 갖게 된 뒤로, 여기에 특정 고객 주소를 박아 둘
+     이유가 없어졌다. 새 고객이 생겨도 이 파일을 고칠 일이 없다. */
   function renderShortcuts(){
-    var hasLocal = false;
-    $("shortcuts").innerHTML = SHORTCUTS.map(function(g){
-      return '<div class="sc"><h3>' + esc(g.title) + '</h3>' +
-        g.items.map(function(it){
-          if(it.local) hasLocal = true;
-          var href = /^https?:/.test(it.url) ? it.url : baseUrl() + it.url;
-          return '<a href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">' +
-            '<span class="dot' + (it.local ? '' : ' live') + '"></span>' +
-            esc(it.label) + '<em>' + esc(it.note || "") + '</em></a>';
-        }).join("") + '</div>';
-    }).join("");
-    if(hasLocal){
-      $("shortcuts").insertAdjacentHTML("beforeend",
-        '<p class="note" style="font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:10px">' +
-        '<b style="color:var(--brand)">●</b> 표시는 <b>내 컴퓨터에서만</b> 열립니다. ' +
-        '개발 서버가 켜져 있어야 합니다.</p>');
+    var box = $("shortcuts");
+    if(!box) return;
+
+    if(!pick){
+      box.innerHTML = '<div class="sc"><h3>바로가기</h3>' +
+        '<p class="note">왼쪽에서 고객을 고르면 그 프로젝트의 시안·제안서가 여기 나옵니다.</p></div>';
+      return;
     }
+
+    var items = [];
+    if(safeUrl(pick.demo_url))     items.push({ label: "시안 보기", note: "", url: safeUrl(pick.demo_url) });
+    if(safeUrl(pick.proposal_url)) items.push({ label: "제안서",    note: "", url: safeUrl(pick.proposal_url) });
+    if(safeUrl(pick.old_site))     items.push({ label: "기존 사이트",
+      note: pick.old_site.replace(/^https?:\/\//, "").replace(/\/$/, ""), url: safeUrl(pick.old_site) });
+    (Array.isArray(pick.links) ? pick.links : []).forEach(function(l){
+      var u = safeUrl(l && l.url);
+      if(u) items.push({ label: l.label || u, note: "", url: u });
+    });
+    items.push({ label: "고객 질문지", note: "고객이 보는 화면", url: linkFor(pick) });
+
+    box.innerHTML = '<div class="sc"><h3>' + esc(pick.company) + '</h3>' +
+      items.map(function(it){
+        return '<a href="' + att(it.url) + '" target="_blank" rel="noopener noreferrer">' +
+          '<span class="dot live"></span>' + esc(it.label) +
+          '<em>' + esc(it.note || "") + '</em></a>';
+      }).join("") + '</div>';
   }
 
   $("tab-a").addEventListener("click", function(){ setView("answers"); });
@@ -606,6 +605,7 @@ var SHORTCUTS = [
         if(!pick || pick.access_key !== r.access_key) projEdit = false;
         pick = (view === "feedback" && pick && pick.access_key === r.access_key) ? null : r;
         renderList();
+        renderShortcuts();
         if(view === "feedback") renderFb(); else renderMain();
       });
     });
@@ -1053,6 +1053,7 @@ var SHORTCUTS = [
       }
       projEdit = false;
       renderList();
+      renderShortcuts();
       renderMain();
     });
   }
