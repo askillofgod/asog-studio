@@ -246,9 +246,11 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
    주소를 바꾸거나 줄을 추가·삭제하시면 그대로 반영됩니다.
    ══════════════════════════════════════════════════════════ */
 var SHORTCUTS = [
+  // 배포본을 가리킨다. 개발 서버가 꺼져 있어도 열리고, 고객이 보는 화면과 같다.
   { title: "비전필름 시안", items: [
-    { label: "시안 A", note: "조건으로 좁혀가기", url: "http://localhost:5173/design-a", local: true },
-    { label: "시안 B", note: "브랜드 먼저 세우기", url: "http://localhost:5173/design-b", local: true }
+    { label: "시안 선택 화면", note: "고객이 처음 보는 곳", url: "https://visionfilm.pages.dev/" },
+    { label: "시안 A", note: "선택 기준 중심형", url: "https://visionfilm.pages.dev/design-a" },
+    { label: "시안 B", note: "상황·상담 중심형", url: "https://visionfilm.pages.dev/design-b" }
   ]},
   { title: "비전필름 참고", items: [
     { label: "기존 사이트", note: "visionfilm.co.kr", url: "https://visionfilm.co.kr/" },
