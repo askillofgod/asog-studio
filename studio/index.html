@@ -125,6 +125,8 @@ input:focus{border-color:var(--brand);outline:none}
   border:1.5px solid var(--rule);background:var(--ground);font-size:15px;font-weight:600;
   text-decoration:none;color:var(--brand)}
 .pj-links a:hover{border-color:var(--brand);background:var(--pale)}
+.pj-links a.key{background:var(--brand);border-color:var(--brand);color:#fff}
+.pj-links a.key:hover{background:#0037AC;border-color:#0037AC}
 .pj-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px 20px}
 .pj-form label{display:block;font-size:13px;color:var(--ink-2);margin-bottom:5px}
 .pj-form input,.pj-form select,.pj-form textarea{width:100%;background:var(--ground);
@@ -893,12 +895,19 @@ var SHORTCUTS = [
 
     if(r.memo) h += '<div class="pj-memo">' + esc(r.memo) + '</div>';
 
-    var ok = links.filter(function(l){ return safeUrl(l && l.url); });
-    if(ok.length){
-      h += '<div class="pj-links">' + ok.map(function(l){
-        var u = safeUrl(l.url);
-        return '<a href="' + att(u) + '" target="_blank" rel="noopener noreferrer">' +
-          esc(l.label || u) + ' ↗</a>';
+    // 시안과 제안서는 자리를 정해 두고 늘 맨 앞에 온다.
+    // 그 뒤는 프로젝트마다 다른 자료들.
+    var chips = [];
+    if(safeUrl(r.demo_url))     chips.push({ label: "시안 보기",  url: safeUrl(r.demo_url),     key: true });
+    if(safeUrl(r.proposal_url)) chips.push({ label: "제안서",     url: safeUrl(r.proposal_url), key: true });
+    links.forEach(function(l){
+      var u = safeUrl(l && l.url);
+      if(u) chips.push({ label: l.label || u, url: u });
+    });
+    if(chips.length){
+      h += '<div class="pj-links">' + chips.map(function(c){
+        return '<a class="' + (c.key ? 'key' : '') + '" href="' + att(c.url) +
+          '" target="_blank" rel="noopener noreferrer">' + esc(c.label) + ' ↗</a>';
       }).join("") + '</div>';
     }
     return h + '</section>';
@@ -958,10 +967,12 @@ var SHORTCUTS = [
       '</div>' +
       '<p class="pj-warn">아이디·비밀번호는 적지 마세요. 스튜디오 코드 하나로 다 열립니다.</p>' +
 
-      '<h3 class="pj-fh">메모와 링크</h3><div class="pj-form">' +
+      '<h3 class="pj-fh">자료와 메모</h3><div class="pj-form">' +
+        pjIn("demo_url", "시안 주소", r.demo_url, "", "https://", true) +
+        pjIn("proposal_url", "제안서 링크", r.proposal_url, "", "https:// (웹 제안서 또는 PDF)", true) +
         '<div class="pj-wide"><label for="pf-memo">메모</label>' +
           '<textarea id="pf-memo">' + esc(r.memo || "") + '</textarea></div>' +
-        '<div class="pj-wide"><label>링크 — 시안 · 제안서 · 참고 자료</label>' +
+        '<div class="pj-wide"><label>그 밖의 링크</label>' +
           '<div id="pf-links">' + links.map(pjLinkRow).join("") + '</div>' +
           '<button class="btn sm ghost" type="button" id="pf-add">줄 추가</button></div>' +
       '</div>' +
@@ -1015,6 +1026,8 @@ var SHORTCUTS = [
       registrar:         $("pf-registrar").value,
       hosting:           $("pf-hosting").value,
       launched_at:       $("pf-launched_at").value,
+      demo_url:          $("pf-demo_url").value,
+      proposal_url:      $("pf-proposal_url").value,
       memo:              $("pf-memo").value,
       links: [].slice.call($("pf-links").querySelectorAll(".pj-lk")).map(function(row){
         return {
