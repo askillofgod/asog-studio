@@ -232,9 +232,11 @@ input:focus{border-color:var(--brand);outline:none}
   </div>
 </div>
 
-<!-- 질문지 정의는 고객 사이트(asog-client)가 원본이다. 여기서 복사본을 두면
-     질문을 고칠 때 두 군데를 고쳐야 하고, 한쪽을 빠뜨리면 조용히 어긋난다. -->
-<script src="https://asog-client.pages.dev/questions.js"></script>
+<!-- 질문지 정의. 원본은 고객 사이트(asog-client)의 questions.js 이고 이것은 사본이다.
+     한때 고객 사이트에서 직접 불러왔는데, 그쪽이 잠깐 죽자 스튜디오까지 통째로
+     열리지 않았다. 남의 사이트가 살아 있어야 내 화면이 열리는 구조는 쓰면 안 된다.
+     질문을 고치면 고객 사이트의 questions.js 를 이 자리에 다시 복사한다. -->
+<script src="questions.js"></script>
 <script src="supabase.js" onerror="window.__sbFail=1"></script>
 <script>
 var SUPABASE_URL = "https://qtiazentdzwzkgrsjbob.supabase.co";
@@ -315,6 +317,7 @@ var SHORTCUTS = [
 
   /* 모든 질문을 한 줄로 펼쳐 둡니다 (모듈 → 단계 → 질문) */
   var ALL = [];
+  var MODULES = window.MODULES || [];
   MODULES.forEach(function(m){
     m.steps.forEach(function(st){
       ALL.push({ mod:m.name, modId:m.id, step:st });
@@ -322,7 +325,7 @@ var SHORTCUTS = [
   });
 
   function boot(){
-    if(window.__sbFail || !window.supabase){
+    if(window.__sbFail || !window.supabase || !MODULES.length){
       return gate("연결 실패", "필요한 파일을 불러오지 못했습니다. 새로고침해 주세요.");
     }
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
