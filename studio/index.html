@@ -139,6 +139,26 @@ input:focus{border-color:var(--brand);outline:none}
 .pj-lk .lk-del:hover{border-color:var(--error);color:var(--error)}
 .pj-save{display:flex;align-items:center;gap:8px;margin-top:20px}
 .pj-err{margin-left:6px;font-size:15px;color:var(--error)}
+.pj-next{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;padding:16px 18px;
+  border-radius:6px;background:var(--pale);margin-bottom:22px}
+.pj-next.late{background:#FDE7EB}
+.pj-next-k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.pj-next.late .pj-next-k{color:var(--error)}
+.pj-next-v{font-size:18px;font-weight:600;line-height:1.4}
+.pj-next-d{font-family:var(--mono);font-size:14px;color:var(--ink-2)}
+.pj-stage{margin-left:auto;font-size:14px;font-weight:700;color:var(--brand);
+  background:var(--ground);border-radius:999px;padding:5px 14px;white-space:nowrap}
+.pj-sec{margin-top:20px;padding-top:18px;border-top:1px solid var(--rule)}
+.pj-sec:first-of-type{margin-top:0;padding-top:0;border-top:0}
+.pj-sec > h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:500;margin-bottom:12px}
+.pj-grid dd a{color:var(--brand);text-decoration:none;font-weight:600}
+.pj-grid dd a:hover{text-decoration:underline}
+.pj-fh{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:500;margin:22px 0 12px}
+.pj-fh:first-of-type{margin-top:0}
+.pj-warn{margin-top:12px;font-size:14px;line-height:1.6;color:#6B4E00;
+  background:#FFF3CD;border-radius:4px;padding:10px 14px}
 
 .addbox{padding:20px;border-radius:6px;background:var(--panel);
   box-shadow:inset 0 0 0 1px var(--rule-soft);margin-bottom:16px}
@@ -778,7 +798,7 @@ var SHORTCUTS = [
   /* ══════════════ 프로젝트 정보 ══════════════
      고객이 쓰는 답변과 달리, 어소그가 직접 적어 두는 값들. */
 
-  var STAGES = ["질문지","기획","시안","개발","검수","오픈","유지보수","보류"];
+  var STAGES = ["미팅준비중","미팅준비완료","질문지","기획","시안","개발","검수","오픈","유지보수","보류"];
   var projEdit = false;
 
   // esc 는 따옴표를 건드리지 않는다. 속성값에 넣을 때는 이걸 쓴다.
@@ -811,23 +831,68 @@ var SHORTCUTS = [
     return isFinite(n) ? n.toLocaleString("ko-KR") + "원" : String(v);
   }
 
-  function pjCell(label, val, extra){
-    return '<div><dt>' + esc(label) + '</dt><dd>' +
-      (val ? esc(val) + (extra || "") : '<span class="none">—</span>') + '</dd></div>';
+  function overdue(v){
+    if(!v) return false;
+    var t = new Date(ymd(v) + "T00:00:00");
+    var now = new Date(); now.setHours(0, 0, 0, 0);
+    return !isNaN(t) && t < now;
+  }
+
+  /* 채워진 것만 보여 준다. 항목이 많아져서, 빈 칸까지 다 그리면
+     "—" 열네 개가 화면을 채운다. 무엇이 비었는지는 고치기에서 본다. */
+  function pjGroup(title, cells){
+    var kept = cells.filter(function(c){ return c; });
+    if(!kept.length) return "";
+    return '<div class="pj-sec"><h3>' + esc(title) + '</h3>' +
+      '<dl class="pj-grid">' + kept.join("") + '</dl></div>';
+  }
+  function pjOne(label, val, extra){
+    if(!val) return "";
+    return '<div><dt>' + esc(label) + '</dt><dd>' + esc(val) + (extra || "") + '</dd></div>';
+  }
+  function pjLink(label, url){
+    var u = safeUrl(url);
+    if(!url) return "";
+    if(!u) return pjOne(label, url);
+    return '<div><dt>' + esc(label) + '</dt><dd><a href="' + att(u) +
+      '" target="_blank" rel="noopener noreferrer">' + esc(url.replace(/^https?:\/\//, "")) + ' ↗</a></dd></div>';
   }
 
   function projView(r){
     var links = Array.isArray(r.links) ? r.links : [];
     var h = '<section class="pj"><div class="pj-top"><h2>프로젝트 정보</h2>' +
-      '<button class="linkbtn" id="pjedit">고치기</button></div><dl class="pj-grid">' +
-      pjCell("진행 단계", r.stage) +
-      pjCell("담당자", r.manager) +
-      pjCell("연락처", r.contact) +
-      pjCell("계약일", dot(r.contract_at)) +
-      pjCell("만료일", dot(r.expires_at), dday(r.expires_at)) +
-      pjCell("금액", won(r.amount)) +
-      '</dl>';
+      '<button class="linkbtn" id="pjedit">고치기</button></div>';
+
+    // 지금 무엇을 기다리는가 — 이 칸이 이 화면의 핵심이라 맨 위에 크게 둔다.
+    h += '<div class="pj-next' + (r.next_at && overdue(r.next_at) ? ' late' : '') + '">' +
+      '<span class="pj-next-k">다음 할 일</span>' +
+      '<span class="pj-next-v">' + (r.next_action ? esc(r.next_action)
+        : '<span class="none">정하지 않음</span>') + '</span>' +
+      (r.next_at ? '<span class="pj-next-d">' + dot(r.next_at) + dday(r.next_at) + '</span>' : '') +
+      '<span class="pj-stage">' + (r.stage ? esc(r.stage) : '단계 미정') + '</span></div>';
+
+    h += pjGroup("연락", [
+      pjOne("담당자", r.manager),
+      pjOne("연락처", r.contact),
+      pjOne("이메일", r.email),
+      pjOne("사업장 주소", r.address)
+    ]);
+    h += pjGroup("계약", [
+      pjOne("계약일", dot(r.contract_at)),
+      pjOne("만료일", dot(r.expires_at), dday(r.expires_at)),
+      pjOne("금액", won(r.amount))
+    ]);
+    h += pjGroup("사이트", [
+      pjLink("기존 사이트", r.old_site),
+      pjOne("도메인", r.domain),
+      pjOne("도메인 만료", dot(r.domain_expires_at), dday(r.domain_expires_at)),
+      pjOne("등록처", r.registrar),
+      pjOne("호스팅", r.hosting),
+      pjOne("오픈일", dot(r.launched_at))
+    ]);
+
     if(r.memo) h += '<div class="pj-memo">' + esc(r.memo) + '</div>';
+
     var ok = links.filter(function(l){ return safeUrl(l && l.url); });
     if(ok.length){
       h += '<div class="pj-links">' + ok.map(function(l){
@@ -847,34 +912,60 @@ var SHORTCUTS = [
       '<button type="button" class="lk-del" title="이 줄 지우기">×</button></div>';
   }
 
+  function pjIn(id, label, val, type, ph, wide){
+    return '<div' + (wide ? ' class="pj-wide"' : '') + '><label for="pf-' + id + '">' + esc(label) + '</label>' +
+      '<input id="pf-' + id + '"' + (type ? ' type="' + type + '"' : '') +
+      (ph ? ' placeholder="' + att(ph) + '"' : '') +
+      ' value="' + att(val == null ? "" : String(val)) + '"></div>';
+  }
+
   function projForm(r){
     var links = (Array.isArray(r.links) ? r.links : []).slice();
     if(!links.length) links = [{}];
     var opts = '<option value="">—</option>' + STAGES.map(function(x){
       return '<option value="' + att(x) + '"' + (r.stage === x ? ' selected' : '') + '>' + esc(x) + '</option>';
     }).join("");
+
     return '<section class="pj"><div class="pj-top"><h2>프로젝트 정보 고치기</h2></div>' +
-      '<div class="pj-form">' +
-        '<div><label for="pf-company">회사·단체명</label>' +
-          '<input id="pf-company" value="' + att(r.company || "") + '"></div>' +
+
+      '<h3 class="pj-fh">지금</h3><div class="pj-form">' +
         '<div><label for="pf-stage">진행 단계</label><select id="pf-stage">' + opts + '</select></div>' +
-        '<div><label for="pf-manager">담당자</label>' +
-          '<input id="pf-manager" value="' + att(r.manager || "") + '"></div>' +
-        '<div><label for="pf-contact">연락처</label>' +
-          '<input id="pf-contact" value="' + att(r.contact || "") + '"></div>' +
-        '<div><label for="pf-c1">계약일</label>' +
-          '<input type="date" id="pf-c1" value="' + att(ymd(r.contract_at)) + '"></div>' +
-        '<div><label for="pf-c2">만료일 · 계약(유지보수)</label>' +
-          '<input type="date" id="pf-c2" value="' + att(ymd(r.expires_at)) + '"></div>' +
-        '<div><label for="pf-amount">금액 (원)</label>' +
-          '<input id="pf-amount" inputmode="numeric" value="' +
-          att(r.amount == null ? "" : String(r.amount)) + '"></div>' +
-        '<div class="pj-wide"><label for="pf-memo">기타 메모</label>' +
+        pjIn("next_action", "다음 할 일", r.next_action, "", "예: 시안 피드백 대기") +
+        pjIn("next_at", "언제까지", ymd(r.next_at), "date") +
+      '</div>' +
+
+      '<h3 class="pj-fh">연락</h3><div class="pj-form">' +
+        pjIn("company", "회사·단체명", r.company) +
+        pjIn("manager", "담당자", r.manager) +
+        pjIn("contact", "연락처", r.contact) +
+        pjIn("email", "이메일", r.email, "email") +
+        pjIn("address", "사업장 주소", r.address, "", "", true) +
+      '</div>' +
+
+      '<h3 class="pj-fh">계약</h3><div class="pj-form">' +
+        pjIn("contract_at", "계약일", ymd(r.contract_at), "date") +
+        pjIn("expires_at", "만료일 · 계약(유지보수)", ymd(r.expires_at), "date") +
+        pjIn("amount", "금액 (원)", r.amount == null ? "" : String(r.amount)) +
+      '</div>' +
+
+      '<h3 class="pj-fh">사이트</h3><div class="pj-form">' +
+        pjIn("old_site", "기존 사이트", r.old_site, "", "https://") +
+        pjIn("domain", "도메인", r.domain, "", "example.co.kr") +
+        pjIn("domain_expires_at", "도메인 만료일", ymd(r.domain_expires_at), "date") +
+        pjIn("registrar", "도메인 등록처", r.registrar, "", "가비아 · 후이즈 …") +
+        pjIn("hosting", "호스팅 위치", r.hosting, "", "Cloudflare · 카페24 …") +
+        pjIn("launched_at", "오픈일", ymd(r.launched_at), "date") +
+      '</div>' +
+      '<p class="pj-warn">아이디·비밀번호는 적지 마세요. 스튜디오 코드 하나로 다 열립니다.</p>' +
+
+      '<h3 class="pj-fh">메모와 링크</h3><div class="pj-form">' +
+        '<div class="pj-wide"><label for="pf-memo">메모</label>' +
           '<textarea id="pf-memo">' + esc(r.memo || "") + '</textarea></div>' +
         '<div class="pj-wide"><label>링크 — 시안 · 제안서 · 참고 자료</label>' +
           '<div id="pf-links">' + links.map(pjLinkRow).join("") + '</div>' +
           '<button class="btn sm ghost" type="button" id="pf-add">줄 추가</button></div>' +
       '</div>' +
+
       '<div class="pj-save"><button class="btn sm" id="pf-save">저장</button>' +
         '<button class="btn sm ghost" id="pf-cancel">취소</button>' +
         '<span class="pj-err" id="pf-err"></span></div></section>';
@@ -907,14 +998,24 @@ var SHORTCUTS = [
 
   function projSave(r){
     var patch = {
-      company:     $("pf-company").value,
-      stage:       $("pf-stage").value,
-      manager:     $("pf-manager").value,
-      contact:     $("pf-contact").value,
-      contract_at: $("pf-c1").value,
-      expires_at:  $("pf-c2").value,
-      amount:      $("pf-amount").value.replace(/[^0-9.]/g, ""),
-      memo:        $("pf-memo").value,
+      company:           $("pf-company").value,
+      stage:             $("pf-stage").value,
+      next_action:       $("pf-next_action").value,
+      next_at:           $("pf-next_at").value,
+      manager:           $("pf-manager").value,
+      contact:           $("pf-contact").value,
+      email:             $("pf-email").value,
+      address:           $("pf-address").value,
+      contract_at:       $("pf-contract_at").value,
+      expires_at:        $("pf-expires_at").value,
+      amount:            $("pf-amount").value.replace(/[^0-9.]/g, ""),
+      old_site:          $("pf-old_site").value,
+      domain:            $("pf-domain").value,
+      domain_expires_at: $("pf-domain_expires_at").value,
+      registrar:         $("pf-registrar").value,
+      hosting:           $("pf-hosting").value,
+      launched_at:       $("pf-launched_at").value,
+      memo:              $("pf-memo").value,
       links: [].slice.call($("pf-links").querySelectorAll(".pj-lk")).map(function(row){
         return {
           label: row.querySelector(".lk-label").value.trim(),
