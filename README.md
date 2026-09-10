@@ -5,10 +5,15 @@
 
 ## 주소
 
-- 스튜디오(내부) : https://asog-studio.pages.dev/?a=<관리자코드>
+- 스튜디오(내부) : https://asog-studio.pages.dev/
 - 고객 사이트    : https://asog-client.pages.dev/  (질문지 · 제안서 · 수정요청)
 
-관리자코드는 Supabase `admin_keys` 테이블에 있습니다.
+스튜디오는 열면 코드를 묻습니다. 코드는 Supabase `admin_keys` 테이블에 있습니다.
+한 번 넣으면 그 브라우저가 기억하고, 헤더의 `잠그기`를 누르면 지워집니다.
+예전 방식(`?a=코드`)도 그대로 열리며, 열린 뒤 주소에서 코드를 지웁니다.
+
+코드가 맞는지는 Supabase의 `admin_ok`가 판단합니다. 화면에서 비교하면
+코드가 파일 안에 남아 아무 의미가 없습니다.
 
 ## 파일
 

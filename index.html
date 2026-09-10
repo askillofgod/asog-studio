@@ -35,8 +35,13 @@ button,input{font-family:inherit;font-size:inherit;color:inherit}
 .gate h1 b{font-weight:700}
 .gate .desc{color:var(--ink-2);font-size:16px;margin-bottom:28px}
 label.f{display:block;font-size:15px;font-weight:600;margin-bottom:8px}
-input[type=email]{width:100%;background:var(--ground);border:1.5px solid var(--rule);
+input[type=email],input[type=password]{width:100%;background:var(--ground);border:1.5px solid var(--rule);
   border-radius:4px;padding:0 16px;height:54px}
+input[type=password]{font-family:var(--mono);letter-spacing:.06em}
+.gate-keep{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:15px;color:var(--ink-2)}
+.gate-keep input{width:17px;height:17px;accent-color:var(--brand);margin:0}
+.gate-err{margin-top:14px;font-size:15px;color:var(--error)}
+.gate-hint{margin-top:22px;font-size:14px;line-height:1.6;color:var(--ink-2)}
 input:focus{border-color:var(--brand);outline:none}
 .btn{display:inline-flex;align-items:center;justify-content:center;height:56px;padding:0 26px;
   border:0;border-radius:4px;font-size:16px;font-weight:600;cursor:pointer;
@@ -186,6 +191,18 @@ input:focus{border-color:var(--brand);outline:none}
     </div>
     <h1 id="gate-h">불러오는 중</h1>
     <p class="desc" id="gate-d">잠시만 기다려 주세요.</p>
+
+    <!-- 코드를 주소에 붙이지 않고 여기서 입력한다. 주소창과 방문기록에
+         열쇠가 남지 않고, 주소는 즐겨찾기에 그냥 넣어 둘 수 있다. -->
+    <form id="gate-form" hidden autocomplete="off">
+      <label class="f" for="gate-key">스튜디오 코드</label>
+      <input type="password" id="gate-key" name="studio-key" placeholder="a-••••••••••••••••••••"
+             autocomplete="current-password" spellcheck="false">
+      <label class="gate-keep"><input type="checkbox" id="gate-keep" checked> 이 브라우저에서 기억하기</label>
+      <button type="submit" class="btn" id="gate-go">열기</button>
+      <p class="gate-err" id="gate-err" hidden></p>
+      <p class="gate-hint">이 화면은 어소그 내부용입니다. 고객에게는 알려주지 않습니다.</p>
+    </form>
   </div>
 </div>
 
@@ -197,6 +214,7 @@ input:focus{border-color:var(--brand);outline:none}
     </div>
     <span class="sp"></span>
     <button class="linkbtn" id="reload">새로고침</button>
+    <button class="linkbtn" id="lock">잠그기</button>
   </header>
 
   <div class="shell">
@@ -239,10 +257,15 @@ var SHORTCUTS = [
 ];
 
 (function(){
-  var AKEY = (function(){
+  // 코드는 주소(?a=)로도 받고, 한 번 확인되면 이 브라우저에 저장해 둔다.
+  // 예전에 쓰던 주소를 눌러도 그대로 열리게 하려고 둘 다 본다.
+  var STORE = "asog-studio-key";
+  var AKEY = "";
+  function savedKey(){
     var m = /[?&]a=([^&#]+)/.exec(location.search);
-    return m ? decodeURIComponent(m[1]) : "";
-  })();
+    if(m) return decodeURIComponent(m[1]);
+    try { return localStorage.getItem(STORE) || ""; } catch(e){ return ""; }
+  }
 
   var sb = null, rows = [], pick = null, hideEmpty = true;
   var view = "answers";      // answers | feedback
@@ -252,7 +275,42 @@ var SHORTCUTS = [
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function gate(t, d){
     $("gate").hidden = false; $("app").hidden = true;
+    $("gate-form").hidden = true;
     $("gate-h").innerHTML = t; $("gate-d").textContent = d;
+  }
+
+  /* 코드를 물어보는 화면 */
+  function askKey(msg){
+    $("gate").hidden = false; $("app").hidden = true;
+    $("gate-h").innerHTML = "ASOG <b>스튜디오</b>";
+    $("gate-d").textContent = "코드를 입력하면 열립니다.";
+    $("gate-form").hidden = false;
+    var err = $("gate-err");
+    if(msg){ err.textContent = msg; err.hidden = false; } else { err.hidden = true; }
+    $("gate-key").value = "";
+    $("gate-key").focus();
+  }
+
+  /* 코드가 맞는지는 서버가 판단한다. 화면에서 비교하면 코드가 파일 안에 남아
+     아무 의미가 없다. onFail 은 "bad"(코드가 틀림) 또는 "net"(연결 실패). */
+  function tryKey(key, keep, onFail){
+    sb.rpc("admin_ok", { p_key: key }).then(function(r){
+      if(r.error) return onFail("net");
+      if(r.data !== true) return onFail("bad");
+      AKEY = key;
+      try {
+        if(keep) localStorage.setItem(STORE, key);
+        else localStorage.removeItem(STORE);
+      } catch(e){}
+      // 주소창과 방문기록에 코드를 남기지 않는다
+      if(/[?&]a=/.test(location.search) && history.replaceState){
+        history.replaceState(null, "", location.pathname);
+      }
+      $("gate").hidden = true;
+      $("app").hidden = false;
+      renderShortcuts();
+      load();
+    });
   }
 
   /* 모든 질문을 한 줄로 펼쳐 둡니다 (모듈 → 단계 → 질문) */
@@ -268,17 +326,37 @@ var SHORTCUTS = [
       return gate("연결 실패", "필요한 파일을 불러오지 못했습니다. 새로고침해 주세요.");
     }
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    if(!AKEY){
-      return gate("주소가 <b>올바르지 않습니다</b>",
-        "스튜디오 주소를 그대로 열어주세요. 주소 뒤쪽이 잘렸을 수 있습니다.");
-    }
-    $("gate").hidden = true;
-    $("app").hidden = false;
-    renderShortcuts();
-    load();
+
+    $("gate-form").addEventListener("submit", function(e){
+      e.preventDefault();
+      var key = $("gate-key").value.trim();
+      if(!key) return;
+      var go = $("gate-go");
+      go.disabled = true; go.textContent = "확인 중…";
+      tryKey(key, $("gate-keep").checked, function(why){
+        go.disabled = false; go.textContent = "열기";
+        askKey(why === "net" ? "연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요."
+                             : "코드가 맞지 않습니다.");
+      });
+    });
+
+    var have = savedKey();
+    if(!have) return askKey("");
+    // 저장해 둔 코드가 아직 유효한지 확인하고 들어간다
+    tryKey(have, true, function(why){
+      if(why === "bad"){
+        try { localStorage.removeItem(STORE); } catch(e){}
+        return askKey("저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요.");
+      }
+      askKey("연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+    });
   }
 
   $("reload").addEventListener("click", function(){ load(); });
+  $("lock").addEventListener("click", function(){
+    try { localStorage.removeItem(STORE); } catch(e){}
+    location.replace(location.pathname);
+  });
 
   function load(){
     $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
