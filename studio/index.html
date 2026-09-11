@@ -186,6 +186,19 @@ input:focus{border-color:var(--brand);outline:none}
 
 /* ── 수정 요청 ── */
 .tabs{display:flex;gap:6px;margin-bottom:16px}
+.inq{border:1px solid var(--rule);border-radius:8px;padding:22px 24px;margin-bottom:14px;background:var(--ground)}
+.inq.new{box-shadow:inset 3px 0 0 var(--brand)}
+.inq-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.inq-top b{font-size:19px}
+.inq-top .when{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.inq-q{font-size:17px;line-height:1.7;white-space:pre-wrap;
+  padding:16px 18px;border-radius:6px;background:var(--panel)}
+.inq-meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;font-size:15px;color:var(--ink-2)}
+.inq-meta b{color:var(--ink);font-weight:600}
+.inq-meta a{color:var(--brand);text-decoration:none;border-bottom:1px solid var(--rule)}
+.inq-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.inq-tags span{font-size:13px;padding:4px 10px;border-radius:99px;background:var(--pale);color:var(--brand);font-weight:600}
+.inq-acts{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule-soft)}
 .tabs button{flex:1;background:none;border:0;cursor:pointer;padding:10px 8px;border-radius:5px;
   font-size:15px;font-weight:600;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--rule-soft)}
 .tabs button[aria-current="true"]{background:var(--pale);color:var(--brand);
@@ -273,6 +286,7 @@ input:focus{border-color:var(--brand);outline:none}
       <div class="tabs">
         <button id="tab-a" aria-current="true">고객 답변</button>
         <button id="tab-f">수정 요청</button>
+        <button id="tab-q">문의</button>
       </div>
       <h2 id="cnt">고객</h2>
       <button class="btn sm" id="add" style="width:100%;margin-bottom:14px">+ 고객 추가</button>
@@ -413,6 +427,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         renderList();
         if(view === "answers") renderMain();
         loadFb();
+        loadInq();
       });
   }
 
@@ -431,19 +446,26 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   function renderTabs(){
     var n = openCount();
     $("tab-f").textContent = n ? "수정 요청 " + n : "수정 요청";
+    var q = inqNewCount();
+    $("tab-q").textContent = q ? "문의 " + q : "문의";
   }
 
   /* ── 바로가기 ── */
   $("tab-a").addEventListener("click", function(){ setView("answers"); });
   $("tab-f").addEventListener("click", function(){ setView("feedback"); });
+  $("tab-q").addEventListener("click", function(){ setView("inquiry"); });
 
   function setView(v){
     view = v;
     $("tab-a").setAttribute("aria-current", v === "answers" ? "true" : "false");
     $("tab-f").setAttribute("aria-current", v === "feedback" ? "true" : "false");
+    $("tab-q").setAttribute("aria-current", v === "inquiry" ? "true" : "false");
     if(v === "feedback"){
       $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
       loadFb();
+    } else if(v === "inquiry"){
+      $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
+      loadInq();
     } else {
       renderMain();
     }
@@ -539,6 +561,12 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   }
 
   function renderList(){
+    if(view === "inquiry"){
+      $("cnt").textContent = "고객 " + rows.length + "곳";
+      $("list").innerHTML = '<p class="blank" style="padding:10px 0;font-size:15px">' +
+        '문의 화면입니다. 고객 답변 탭으로 돌아가면 목록이 다시 보입니다.</p>';
+      return;
+    }
     $("cnt").textContent = "고객 " + rows.length + "곳";
     if(!rows.length){ $("list").innerHTML = '<p class="blank" style="padding:10px 0;font-size:15px">아직 고객이 없습니다.</p>'; return; }
     $("list").innerHTML = rows.map(function(r, i){
@@ -566,6 +594,85 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
           if(view === "feedback") renderFb(); else renderMain();
       });
     });
+  }
+
+  /* ══════════════ 문의 ══════════════
+     공식 사이트에서 방문자가 직접 쓴 내용이다. 반드시 esc 를 거쳐 그린다. */
+  var inqRows = [];
+  var IST = {
+    "new":   { label: "새 문의", color: "#0040C8" },
+    "doing": { label: "연락 중", color: "#B07800" },
+    "done":  { label: "완료",   color: "#0E8A5F" },
+    "drop":  { label: "보류",   color: "#5A6478" }
+  };
+
+  function loadInq(){
+    return sb.rpc("admin_inq", { p_key: AKEY }).then(function(r){
+      inqRows = (r && r.data) || [];
+      renderTabs();
+      if(view === "inquiry") renderInq();
+    });
+  }
+
+  function inqNewCount(){
+    return inqRows.filter(function(x){ return x.status === "new"; }).length;
+  }
+
+  function renderInq(){
+    if(!inqRows.length){
+      $("main").innerHTML = '<p class="blank">아직 들어온 문의가 없습니다.</p>';
+      return;
+    }
+    $("main").innerHTML =
+      '<div class="hd"><div><h1>사이트 <b>문의</b></h1>' +
+      '<div class="meta">' + inqRows.length + '건 · 새 문의 ' + inqNewCount() + '건</div></div></div>' +
+      inqRows.map(inqCard).join("");
+
+    $("main").querySelectorAll("[data-inq]").forEach(function(b){
+      b.addEventListener("click", function(){
+        inqSet(+b.dataset.inq, b.dataset.st);
+      });
+    });
+  }
+
+  function inqCard(r){
+    var st = IST[r.status] || IST["new"];
+    var need = Array.isArray(r.need) ? r.need : [];
+    var m = [];
+    if(r.company) m.push('<span><b>회사</b> ' + esc(r.company) + '</span>');
+    m.push('<span><b>연락처</b> <a href="tel:' + esc(String(r.tel).replace(/[^0-9+]/g, "")) + '">' + esc(r.tel) + '</a></span>');
+    if(r.email) m.push('<span><b>이메일</b> <a href="mailto:' + esc(r.email) + '">' + esc(r.email) + '</a></span>');
+    if(r.when_start) m.push('<span><b>시작</b> ' + esc(r.when_start) + '</span>');
+    if(r.period) m.push('<span><b>기간</b> ' + esc(r.period) + '</span>');
+
+    var acts = Object.keys(IST).filter(function(k){ return k !== r.status; })
+      .map(function(k){
+        return '<button class="btn sm ghost" data-inq="' + r.id + '" data-st="' + k + '">' +
+          IST[k].label + '로</button>';
+      }).join("");
+
+    return '<article class="inq' + (r.status === "new" ? " new" : "") + '">' +
+      '<div class="inq-top">' +
+        '<b>' + esc(r.name) + '</b>' +
+        '<span class="pill" style="color:' + st.color + '">' + st.label + '</span>' +
+        '<span class="when">' + when(r.created_at) + '</span>' +
+      '</div>' +
+      '<div class="inq-q">' + esc(r.q1) + '</div>' +
+      (need.length ? '<div class="inq-tags">' + need.map(function(x){
+        return '<span>' + esc(x) + '</span>'; }).join("") + '</div>' : '') +
+      '<div class="inq-meta">' + m.join("") + '</div>' +
+      '<div class="inq-acts">' + acts + '</div>' +
+    '</article>';
+  }
+
+  function inqSet(id, status){
+    sb.rpc("admin_inq_set", { p_key: AKEY, p_id: id, p_patch: { status: status } })
+      .then(function(r){
+        var row = (r.data || [])[0];
+        if(row) inqRows = inqRows.map(function(x){ return x.id === row.id ? row : x; });
+        renderTabs();
+        renderInq();
+      });
   }
 
   /* ══════════════ 수정 요청 ══════════════ */
