@@ -113,6 +113,15 @@ input:focus{border-color:var(--brand);outline:none}
 .pj-grid dt{font-size:13px;color:var(--ink-2);margin-bottom:4px}
 .pj-grid dd{font-size:17px;line-height:1.45;margin:0}
 .pj-grid dd .none{color:#9AA4B8}
+.cp{vertical-align:-4px;margin-left:7px;width:26px;height:26px;padding:0;flex:none;
+  display:inline-grid;place-items:center;border:1px solid var(--rule);border-radius:6px;
+  background:var(--ground);color:var(--ink-2);cursor:pointer;
+  transition:border-color .15s ease,color .15s ease,background-color .15s ease}
+.cp svg{width:14px;height:14px;display:block}
+.cp:hover{border-color:var(--brand);color:var(--brand)}
+.cp.ok{border-color:var(--ok);background:var(--ok);color:#fff}
+.cp.ok svg{display:none}
+.cp.ok::after{content:"✓";font-size:14px;line-height:1;font-weight:700}
 .pj-dday{margin-left:8px;font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:999px;
   background:var(--pale);color:var(--brand);white-space:nowrap}
 .pj-dday.warn{background:#FFF3CD;color:#6B4E00}
@@ -651,7 +660,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     var m = [];
     if(r.company) m.push('<span><b>회사</b> ' + esc(r.company) + '</span>');
     m.push('<span><b>연락처</b> <a href="tel:' + esc(String(r.tel).replace(/[^0-9+]/g, "")) + '">' + esc(r.tel) + '</a></span>');
-    if(r.email) m.push('<span><b>이메일</b> <a href="mailto:' + esc(r.email) + '">' + esc(r.email) + '</a></span>');
+    if(r.email) m.push('<span><b>이메일</b> <a href="mailto:' + esc(r.email) + '">' +
+      esc(r.email) + '</a>' + copyBtn(r.email) + '</span>');
     if(r.when_start) m.push('<span><b>시작</b> ' + esc(r.when_start) + '</span>');
     if(r.period) m.push('<span><b>기간</b> ' + esc(r.period) + '</span>');
 
@@ -939,6 +949,27 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     if(!val) return "";
     return '<div><dt>' + esc(label) + '</dt><dd>' + esc(val) + (extra || "") + '</dd></div>';
   }
+
+  /* 이메일은 눈으로 옮겨 적기 쉬운 값이 아니다. 한 번에 복사한다. */
+  function copyBtn(v){
+    if(!v) return "";
+    return '<button type="button" class="cp" data-cp="' + att(v) + '" title="복사" aria-label="' +
+      att(v) + ' 복사"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+      '<rect x="9" y="9" width="11" height="11" rx="2"/>' +
+      '<path d="M5 15V5.8A.8.8 0 0 1 5.8 5H15"/></svg></button>';
+  }
+
+  /* 화면을 다시 그려도 다시 붙일 필요가 없게 문서 전체에서 한 번만 듣는다 */
+  document.addEventListener("click", function(ev){
+    var b = ev.target.closest && ev.target.closest(".cp");
+    if(!b) return;
+    ev.preventDefault();
+    navigator.clipboard.writeText(b.dataset.cp).then(function(){
+      b.classList.add("ok");
+      setTimeout(function(){ b.classList.remove("ok"); }, 1400);
+    });
+  });
   function pjLink(label, url){
     var u = safeUrl(url);
     if(!url) return "";
@@ -963,7 +994,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     h += pjGroup("연락", [
       pjOne("담당자", r.manager),
       pjOne("연락처", r.contact),
-      pjOne("이메일", r.email),
+      pjOne("이메일", r.email, copyBtn(r.email)),
       pjOne("사업장 주소", r.address)
     ]);
     h += pjGroup("계약", [
