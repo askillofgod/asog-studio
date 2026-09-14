@@ -139,7 +139,7 @@ input:focus{border-color:var(--brand);outline:none}
 .pj-lk .lk-label{flex:1 1 150px;min-width:120px;max-width:200px}
 .pj-lk .lk-kind{flex:0 0 108px;width:108px}
 .pj-lk .lk-url{flex:1 1 240px;min-width:180px}
-.pj-groups{margin-top:6px}
+.pj-groups{margin-top:20px;padding-top:18px;border-top:1px solid var(--rule)}
 .pj-lg{display:flex;align-items:flex-start;gap:14px;margin-top:14px;
   padding-top:14px;border-top:1px solid var(--rule-soft)}
 .pj-lg:first-child{border-top:0;padding-top:0}
@@ -986,11 +986,13 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     var pinned = [];
     if(safeUrl(r.demo_url))     pinned.push({ label: "시안 보기", url: safeUrl(r.demo_url) });
     if(safeUrl(r.proposal_url)) pinned.push({ label: "제안서",    url: safeUrl(r.proposal_url) });
+    var pinHtml = "";
     if(pinned.length){
-      h += '<div class="pj-links">' + pinned.map(function(c){
-        return '<a class="key" href="' + att(c.url) +
-          '" target="_blank" rel="noopener noreferrer">' + esc(c.label) + ' ↗</a>';
-      }).join("") + '</div>';
+      pinHtml = '<div class="pj-lg"><span class="pj-lg-k">미팅 자료</span>' +
+        '<div class="pj-links">' + pinned.map(function(c){
+          return '<a class="key" href="' + att(c.url) +
+            '" target="_blank" rel="noopener noreferrer">' + esc(c.label) + ' ↗</a>';
+        }).join("") + '</div></div>';
     }
 
     // 나머지는 분류별로 묶는다. 데모와 개발 중을 섞어 두면 고객에게
@@ -1005,7 +1007,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
             esc(l.label || u) + ' ↗</a>';
         }).join("") + '</div></div>';
     }).filter(Boolean).join("");
-    if(rows) h += '<div class="pj-groups">' + rows + '</div>';
+    if(pinHtml || rows) h += '<div class="pj-groups">' + pinHtml + rows + '</div>';
 
     return h + '</section>';
   }
