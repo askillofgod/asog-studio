@@ -135,7 +135,17 @@ input:focus{border-color:var(--brand);outline:none}
 .pj-form input:focus,.pj-form select:focus,.pj-form textarea:focus{border-color:var(--brand);outline:none}
 .pj-wide{grid-column:1/-1}
 .pj-lk{display:flex;gap:8px;margin-bottom:8px}
-.pj-lk .lk-label{max-width:170px}
+.pj-lk{flex-wrap:wrap}
+.pj-lk .lk-label{flex:1 1 150px;min-width:120px;max-width:200px}
+.pj-lk .lk-kind{flex:0 0 108px;width:108px}
+.pj-lk .lk-url{flex:1 1 240px;min-width:180px}
+.pj-groups{margin-top:6px}
+.pj-lg{display:flex;align-items:flex-start;gap:14px;margin-top:14px;
+  padding-top:14px;border-top:1px solid var(--rule-soft)}
+.pj-lg:first-child{border-top:0;padding-top:0}
+.pj-lg-k{flex:0 0 78px;padding-top:11px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.1em;color:var(--ink-2)}
+.pj-lg .pj-links{margin-top:0;padding-top:0;border-top:0;flex:1}
 .pj-lk .lk-mv,.pj-lk .lk-del{flex:none;width:42px;height:46px;border:1.5px solid var(--rule);
   border-radius:4px;background:var(--ground);color:var(--ink-2);font-size:17px;line-height:1;
   cursor:pointer;padding:0}
@@ -865,6 +875,19 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
      고객이 쓰는 답변과 달리, 어소그가 직접 적어 두는 값들. */
 
   var STAGES = ["미팅준비중","미팅준비완료","질문지","기획","시안","개발","검수","오픈","유지보수","보류"];
+
+  /* 링크 분류. 보는 화면에서 이 순서대로 묶여 나온다.
+     분류가 없던 옛 자료는 "관련"으로 본다. */
+  var KINDS = [
+    { id: "demo", label: "데모" },
+    { id: "dev",  label: "개발 중" },
+    { id: "ref",  label: "벤치마크" },
+    { id: "etc",  label: "관련" }
+  ];
+  function kindOf(l){
+    var k = l && l.kind;
+    return KINDS.some(function(x){ return x.id === k; }) ? k : "etc";
+  }
   var projEdit = false;
 
   // esc 는 따옴표를 건드리지 않는다. 속성값에 넣을 때는 이걸 쓴다.
@@ -960,20 +983,30 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     if(r.memo) h += '<div class="pj-memo">' + esc(r.memo) + '</div>';
 
     // 시안과 제안서는 자리를 정해 두고 늘 맨 앞에 온다.
-    // 그 뒤는 프로젝트마다 다른 자료들.
-    var chips = [];
-    if(safeUrl(r.demo_url))     chips.push({ label: "시안 보기",  url: safeUrl(r.demo_url),     key: true });
-    if(safeUrl(r.proposal_url)) chips.push({ label: "제안서",     url: safeUrl(r.proposal_url), key: true });
-    links.forEach(function(l){
-      var u = safeUrl(l && l.url);
-      if(u) chips.push({ label: l.label || u, url: u });
-    });
-    if(chips.length){
-      h += '<div class="pj-links">' + chips.map(function(c){
-        return '<a class="' + (c.key ? 'key' : '') + '" href="' + att(c.url) +
+    var pinned = [];
+    if(safeUrl(r.demo_url))     pinned.push({ label: "시안 보기", url: safeUrl(r.demo_url) });
+    if(safeUrl(r.proposal_url)) pinned.push({ label: "제안서",    url: safeUrl(r.proposal_url) });
+    if(pinned.length){
+      h += '<div class="pj-links">' + pinned.map(function(c){
+        return '<a class="key" href="' + att(c.url) +
           '" target="_blank" rel="noopener noreferrer">' + esc(c.label) + ' ↗</a>';
       }).join("") + '</div>';
     }
+
+    // 나머지는 분류별로 묶는다. 데모와 개발 중을 섞어 두면 고객에게
+    // 아직 안 끝난 화면을 보낼 수 있다.
+    var rows = KINDS.map(function(k){
+      var of = links.filter(function(l){ return safeUrl(l && l.url) && kindOf(l) === k.id; });
+      if(!of.length) return "";
+      return '<div class="pj-lg"><span class="pj-lg-k">' + esc(k.label) + '</span>' +
+        '<div class="pj-links">' + of.map(function(l){
+          var u = safeUrl(l.url);
+          return '<a href="' + att(u) + '" target="_blank" rel="noopener noreferrer">' +
+            esc(l.label || u) + ' ↗</a>';
+        }).join("") + '</div></div>';
+    }).filter(Boolean).join("");
+    if(rows) h += '<div class="pj-groups">' + rows + '</div>';
+
     return h + '</section>';
   }
 
@@ -981,6 +1014,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     l = l || {};
     return '<div class="pj-lk">' +
       '<input class="lk-label" placeholder="이름" value="' + att(l.label || "") + '">' +
+      '<select class="lk-kind">' + KINDS.map(function(k){
+        return '<option value="' + k.id + '"' + (kindOf(l) === k.id ? ' selected' : '') +
+          '>' + esc(k.label) + '</option>'; }).join("") + '</select>' +
       '<input class="lk-url" placeholder="https://" value="' + att(l.url || "") + '">' +
       '<button type="button" class="lk-mv lk-up" title="위로">↑</button>' +
       '<button type="button" class="lk-mv lk-dn" title="아래로">↓</button>' +
@@ -1114,7 +1150,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       links: [].slice.call($("pf-links").querySelectorAll(".pj-lk")).map(function(row){
         return {
           label: row.querySelector(".lk-label").value.trim(),
-          url:   row.querySelector(".lk-url").value.trim()
+          url:   row.querySelector(".lk-url").value.trim(),
+          kind:  row.querySelector(".lk-kind").value
         };
       }).filter(function(l){ return l.url; })
     };
