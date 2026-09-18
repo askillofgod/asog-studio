@@ -88,6 +88,9 @@ input::placeholder,textarea::placeholder{color:#9AA4B8}
 .side .n{font-family:var(--mono);font-size:12px;flex:0 0 auto;width:18px}
 .side .dot{margin-left:auto;width:7px;height:7px;border-radius:50%;background:transparent;flex:0 0 auto}
 .side button.done .dot{background:var(--ok)}
+.side .new{margin-left:auto;width:7px;height:7px;border-radius:50%;
+  background:var(--error);flex:0 0 auto}
+.side .new + .dot{margin-left:5px}
 
 .main{padding:36px 0 96px;min-width:0}
 .step-h{font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
@@ -479,6 +482,17 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     });
   }
 
+  /* 오늘 들어온 질문에만 빨간 점을 붙인다. 날짜는 questions.js 의 added 에
+     적는다. 하루가 지나면 저절로 사라진다 — 언제까지나 "새 질문"인 것은 없다. */
+  function today(){
+    var d = new Date(), p = function(x){ return (x < 10 ? "0" : "") + x; };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+  }
+  function isNew(s){
+    var t = today();
+    return s.added === t || s.qs.some(function(q){ return q.added === t; });
+  }
+
   function renderSide(){
     var last = null;
     $("side").innerHTML = STEPS.map(function(s, i){
@@ -487,7 +501,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       return head + '<li><button data-i="' + i + '"' +
         (i === cur ? ' aria-current="true"' : '') +
         (stepDone(s) ? ' class="done"' : '') + '>' +
-        '<span class="n">' + s.n + '</span>' + s.title + '<span class="dot"></span></button></li>';
+        '<span class="n">' + s.n + '</span>' + s.title +
+        (isNew(s) ? '<span class="new" title="오늘 추가된 질문"></span>' : '') +
+        '<span class="dot"></span></button></li>';
     }).join("");
     $("side").querySelectorAll("button").forEach(function(b){
       b.addEventListener("click", function(){ cur = +b.dataset.i; render(); });
