@@ -41,6 +41,15 @@ input[type=password]{font-family:var(--mono);letter-spacing:.06em}
 .gate-keep{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:15px;color:var(--ink-2)}
 .gate-keep input{width:17px;height:17px;accent-color:var(--brand);margin:0}
 .gate-err{margin-top:14px;font-size:15px;color:var(--error)}
+.pin-row{display:flex;gap:12px}
+.pin-row input{flex:1;min-width:0;height:72px;text-align:center;font-family:var(--mono);
+  font-size:28px;font-weight:600;background:var(--ground);border:1.5px solid var(--rule);border-radius:4px;padding:0}
+.pin-row input:focus{border-color:var(--brand);outline:none}
+.pin-row.bad input{border-color:var(--error)}
+.pin-row.bad{animation:pinshake .3s}
+@keyframes pinshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.gate-alt{margin-top:18px;font-size:15px;color:var(--ink-2);background:none;border:0;padding:0;
+  cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .gate-hint{margin-top:22px;font-size:14px;line-height:1.6;color:var(--ink-2)}
 input:focus{border-color:var(--brand);outline:none}
 .btn{display:inline-flex;align-items:center;justify-content:center;height:56px;padding:0 26px;
@@ -286,6 +295,20 @@ input:focus{border-color:var(--brand);outline:none}
       <p class="gate-err" id="gate-err" hidden></p>
       <p class="gate-hint">이 화면은 어소그 내부용입니다. 고객에게는 알려주지 않습니다.</p>
     </form>
+
+    <!-- 숫자 4자리 잠금. 저장해 둔 스튜디오 코드를 이 숫자로 잠가 두고,
+         들어올 때마다 숫자만 넣어 연다. 숫자를 모르면 저장된 코드도 쓸 수 없다. -->
+    <form id="pin-form" hidden autocomplete="off">
+      <label class="f" id="pin-label" for="pin-1">비밀번호 네 자리</label>
+      <div class="pin-row" id="pin-row">
+        <input id="pin-1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="첫째 자리">
+        <input id="pin-2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="둘째 자리">
+        <input id="pin-3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="셋째 자리">
+        <input id="pin-4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="넷째 자리">
+      </div>
+      <p class="gate-err" id="pin-err" hidden></p>
+      <button type="button" class="gate-alt" id="pin-alt">스튜디오 코드로 들어가기</button>
+    </form>
   </div>
 </div>
 
@@ -332,6 +355,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   // 코드는 주소(?a=)로도 받고, 한 번 확인되면 이 브라우저에 저장해 둔다.
   // 예전에 쓰던 주소를 눌러도 그대로 열리게 하려고 둘 다 본다.
   var STORE = "asog-studio-key";
+  var LOCK  = "asog-studio-lock";   // 숫자 4자리로 잠가 둔 스튜디오 코드
   var AKEY = "";
   function savedKey(){
     var m = /[?&]a=([^&#]+)/.exec(location.search);
@@ -357,10 +381,98 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     $("gate-h").innerHTML = "ASOG <b>스튜디오</b>";
     $("gate-d").textContent = "코드를 입력하면 열립니다.";
     $("gate-form").hidden = false;
+    $("pin-form").hidden = true;
     var err = $("gate-err");
     if(msg){ err.textContent = msg; err.hidden = false; } else { err.hidden = true; }
     $("gate-key").value = "";
     $("gate-key").focus();
+  }
+
+  /* ── 숫자 4자리 잠금 ──────────────────────────────────────
+     저장하는 것은 코드 그 자체가 아니라, 숫자 4자리로 잠근 코드다.
+     숫자는 어디에도 저장하지 않는다. 숫자가 틀리면 잠긴 것이 풀리지
+     않으므로, 화면에서 숫자를 비교하는 것보다 안전하다. */
+  var CR = window.crypto && window.crypto.subtle ? window.crypto : null;
+  function b64(buf){ var b = new Uint8Array(buf), s = ""; for(var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return btoa(s); }
+  function unb64(str){ var s = atob(str), b = new Uint8Array(s.length); for(var i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b; }
+  function pinKey(pin, salt){
+    return CR.subtle.importKey("raw", new TextEncoder().encode("asog:" + pin), "PBKDF2", false, ["deriveKey"])
+      .then(function(base){
+        return CR.subtle.deriveKey({ name:"PBKDF2", salt:salt, iterations:250000, hash:"SHA-256" },
+          base, { name:"AES-GCM", length:256 }, false, ["encrypt", "decrypt"]);
+      });
+  }
+  function lockKey(code, pin){
+    var salt = CR.getRandomValues(new Uint8Array(16)), iv = CR.getRandomValues(new Uint8Array(12));
+    return pinKey(pin, salt).then(function(k){
+      return CR.subtle.encrypt({ name:"AES-GCM", iv:iv }, k, new TextEncoder().encode(code));
+    }).then(function(ct){
+      try {
+        localStorage.setItem(LOCK, JSON.stringify({ v:1, salt:b64(salt), iv:b64(iv), ct:b64(ct) }));
+        localStorage.removeItem(STORE);   // 잠그지 않은 코드는 남기지 않는다
+      } catch(e){}
+    });
+  }
+  function unlockKey(pin){
+    var box;
+    try { box = JSON.parse(localStorage.getItem(LOCK) || "null"); } catch(e){ box = null; }
+    if(!box) return Promise.reject();
+    return pinKey(pin, unb64(box.salt)).then(function(k){
+      return CR.subtle.decrypt({ name:"AES-GCM", iv:unb64(box.iv) }, k, unb64(box.ct));
+    }).then(function(buf){ return new TextDecoder().decode(buf); });
+  }
+  function hasLock(){ try { return !!localStorage.getItem(LOCK); } catch(e){ return false; } }
+  function dropLock(){ try { localStorage.removeItem(LOCK); localStorage.removeItem(STORE); } catch(e){} }
+
+  var pinIn = function(){ return [1, 2, 3, 4].map(function(n){ return $("pin-" + n); }); };
+  function pinValue(){ return pinIn().map(function(i){ return i.value; }).join(""); }
+  function pinClear(focus){
+    pinIn().forEach(function(i){ i.value = ""; });
+    $("pin-row").classList.remove("bad");
+    if(focus !== false) pinIn()[0].focus();
+  }
+  function pinFail(msg){
+    $("pin-err").textContent = msg; $("pin-err").hidden = false;
+    $("pin-row").classList.add("bad");
+    setTimeout(function(){ pinClear(); }, 320);
+  }
+
+  /* 숫자를 물어보는 화면. mode 가 "set" 이면 새로 정하는 것 */
+  var pinMode = "ask", pinFirst = "", pinTries = 0, pinPending = "";
+  function askPin(mode, msg){
+    pinMode = mode;
+    $("gate").hidden = false; $("app").hidden = true;
+    $("gate-form").hidden = true; $("pin-form").hidden = false;
+    $("gate-h").innerHTML = "ASOG <b>스튜디오</b>";
+    $("gate-d").textContent = mode === "set" ? "다음부터 쓸 비밀번호 네 자리를 정하세요."
+      : mode === "again" ? "확인을 위해 한 번 더 넣어 주세요." : "비밀번호 네 자리를 넣으면 열립니다.";
+    $("pin-label").textContent = mode === "again" ? "비밀번호 네 자리 다시" : "비밀번호 네 자리";
+    $("pin-alt").hidden = mode !== "ask";
+    if(msg){ $("pin-err").textContent = msg; $("pin-err").hidden = false; } else { $("pin-err").hidden = true; }
+    pinClear();
+  }
+
+  /* 네 자리를 다 넣으면 바로 처리한다 */
+  function pinDone(){
+    var v = pinValue();
+    if(pinMode === "set"){ pinFirst = v; return askPin("again"); }
+    if(pinMode === "again"){
+      if(v !== pinFirst){ pinFirst = ""; askPin("set"); return pinFail("두 번 넣은 숫자가 다릅니다. 다시 정해 주세요."); }
+      return lockKey(pinPending, v).then(function(){
+        pinPending = ""; $("gate").hidden = true; $("app").hidden = false; load();
+      });
+    }
+    unlockKey(v).then(function(code){
+      pinTries = 0;
+      tryKey(code, false, function(why){
+        if(why === "bad"){ dropLock(); return askKey("저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요."); }
+        pinFail("연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+      });
+    }).catch(function(){
+      pinTries++;
+      if(pinTries >= 5){ dropLock(); return askKey("비밀번호를 다섯 번 틀렸습니다. 스튜디오 코드를 다시 입력해 주세요."); }
+      pinFail("비밀번호가 맞지 않습니다. (" + pinTries + "/5)");
+    });
   }
 
   /* 코드가 맞는지는 서버가 판단한다. 화면에서 비교하면 코드가 파일 안에 남아
@@ -370,14 +482,15 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       if(r.error) return onFail("net");
       if(r.data !== true) return onFail("bad");
       AKEY = key;
-      try {
-        if(keep) localStorage.setItem(STORE, key);
-        else localStorage.removeItem(STORE);
-      } catch(e){}
       // 주소창과 방문기록에 코드를 남기지 않는다
       if(/[?&]a=/.test(location.search) && history.replaceState){
         history.replaceState(null, "", location.pathname);
       }
+      if(keep && CR){   // 기억해 두려면 숫자 네 자리로 잠근다
+        pinPending = key; pinFirst = "";
+        return askPin("set");
+      }
+      try { localStorage.removeItem(STORE); localStorage.removeItem(LOCK); } catch(e){}
       $("gate").hidden = true;
       $("app").hidden = false;
       load();
@@ -412,8 +525,43 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       });
     });
 
-    var have = savedKey();
+    /* 숫자 칸 — 넣으면 다음 칸으로, 지우면 앞 칸으로 */
+    pinIn().forEach(function(inp, i){
+      inp.addEventListener("input", function(){
+        inp.value = inp.value.replace(/\D/g, "").slice(0, 1);
+        $("pin-row").classList.remove("bad");
+        if(inp.value && i < 3) pinIn()[i + 1].focus();
+        if(pinValue().length === 4) pinDone();
+      });
+      inp.addEventListener("keydown", function(e){
+        if(e.key === "Backspace" && !inp.value && i > 0){ e.preventDefault(); var pv = pinIn()[i - 1]; pv.value = ""; pv.focus(); }
+      });
+      inp.addEventListener("paste", function(e){   // 4자리를 한 번에 붙여넣기
+        var t = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "").slice(0, 4);
+        if(!t) return;
+        e.preventDefault();
+        pinIn().forEach(function(x, n){ x.value = t.charAt(n) || ""; });
+        pinIn()[Math.min(t.length, 4) - 1].focus();
+        if(t.length === 4) pinDone();
+      });
+    });
+    $("pin-alt").addEventListener("click", function(){
+      askKey("스튜디오 코드를 입력하면 비밀번호를 새로 정합니다.");
+    });
+
+    var urlKey = /[?&]a=/.test(location.search) ? savedKey() : "";
+    if(urlKey) return tryKey(urlKey, true, function(why){
+      askKey(why === "bad" ? "코드가 맞지 않습니다." : "연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+    });
+    if(hasLock() && CR) return askPin("ask");
+
+    var have = savedKey();   // 잠금을 넣기 전에 저장해 둔 코드
     if(!have) return askKey("");
+    if(CR) return tryKey(have, true, function(why){   // 이번에 숫자를 정하게 된다
+      try { localStorage.removeItem(STORE); } catch(e){}
+      askKey(why === "bad" ? "저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요."
+                           : "연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+    });
     // 저장해 둔 코드가 아직 유효한지 확인하고 들어간다
     tryKey(have, true, function(why){
       if(why === "bad"){
@@ -426,8 +574,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
 
   $("reload").addEventListener("click", function(){ load(); });
   $("lock").addEventListener("click", function(){
-    try { localStorage.removeItem(STORE); } catch(e){}
-    location.replace(location.pathname);
+    if(!hasLock()){ try { localStorage.removeItem(STORE); } catch(e){} }
+    location.replace(location.pathname);   // 잠가 둔 코드는 그대로, 숫자를 다시 묻는다
   });
 
   function load(){
