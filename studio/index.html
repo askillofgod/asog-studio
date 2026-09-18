@@ -438,80 +438,42 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     setTimeout(function(){ pinClear(); }, 320);
   }
 
-  /* 숫자를 물어보는 화면
-       set/again — 새로 정하기,  ask — 이 기기에 잠가 둔 코드를 여는 중,
-       ask2      — 코드를 방금 넣고 2차 확인을 받는 중 */
-  var pinMode = "ask", pinFirst = "", pinTries = 0, pinPending = "", keepWanted = true;
+  /* 숫자를 물어보는 화면. mode 가 "set" 이면 새로 정하는 것 */
+  var pinMode = "ask", pinFirst = "", pinTries = 0, pinPending = "";
   function askPin(mode, msg){
     pinMode = mode;
     $("gate").hidden = false; $("app").hidden = true;
     $("gate-form").hidden = true; $("pin-form").hidden = false;
     $("gate-h").innerHTML = "ASOG <b>스튜디오</b>";
-    $("gate-d").textContent =
-      mode === "set"   ? "2단계 확인 — 앞으로 쓸 비밀번호 네 자리를 정하세요." :
-      mode === "again" ? "확인을 위해 한 번 더 넣어 주세요." :
-      mode === "ask2"  ? "2단계 확인 — 비밀번호 네 자리를 넣어 주세요."
-                       : "비밀번호 네 자리를 넣으면 열립니다.";
+    $("gate-d").textContent = mode === "set" ? "다음부터 쓸 비밀번호 네 자리를 정하세요."
+      : mode === "again" ? "확인을 위해 한 번 더 넣어 주세요." : "비밀번호 네 자리를 넣으면 열립니다.";
     $("pin-label").textContent = mode === "again" ? "비밀번호 네 자리 다시" : "비밀번호 네 자리";
     $("pin-alt").hidden = mode !== "ask";
     if(msg){ $("pin-err").textContent = msg; $("pin-err").hidden = false; } else { $("pin-err").hidden = true; }
     pinClear();
   }
 
-  var LOCKED_MSG = "비밀번호를 여러 번 틀려 15분 동안 잠겼습니다. 잠시 뒤에 다시 시도해 주세요.";
-
-  /* 2차 확인은 서버가 한다. 코드를 아는 사람이라도 네 자리를 알아야 열린다. */
-  function checkPin(code, pin){
-    return sb.rpc("admin_pin_ok", { p_key: code, p_pin: pin }).then(function(r){
-      return r.error ? "net" : r.data;
-    });
-  }
-  function openApp(code){
-    AKEY = code; pinTries = 0;
-    $("gate").hidden = true; $("app").hidden = false;
-    load();
-  }
-  /* 기억하기를 켰으면 코드를 네 자리로 잠가 이 기기에 둔다 */
-  function keepAndOpen(code, pin){
-    if(keepWanted && CR) return lockKey(code, pin).then(function(){ openApp(code); });
-    try { localStorage.removeItem(STORE); localStorage.removeItem(LOCK); } catch(e){}
-    openApp(code);
-  }
-
+  /* 네 자리를 다 넣으면 바로 처리한다 */
   function pinDone(){
     var v = pinValue();
-
     if(pinMode === "set"){ pinFirst = v; return askPin("again"); }
-
     if(pinMode === "again"){
       if(v !== pinFirst){ pinFirst = ""; askPin("set"); return pinFail("두 번 넣은 숫자가 다릅니다. 다시 정해 주세요."); }
-      return sb.rpc("admin_pin_set", { p_key: pinPending, p_old: null, p_new: v }).then(function(r){
-        if(r.error) return pinFail("연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
-        if(r.data === "locked") return askKey(LOCKED_MSG);
-        if(r.data !== "ok"){ askPin("set"); return pinFail("비밀번호를 정하지 못했습니다. 다시 시도해 주세요."); }
-        keepAndOpen(pinPending, v); pinPending = "";
+      return lockKey(pinPending, v).then(function(){
+        pinPending = ""; $("gate").hidden = true; $("app").hidden = false; load();
       });
     }
-
-    if(pinMode === "ask2") return after(pinPending, v);
-
-    /* 이 기기에 잠가 둔 코드를 네 자리로 풀고, 서버에서 한 번 더 확인한다 */
-    unlockKey(v).then(function(code){ after(code, v); }).catch(function(){
+    unlockKey(v).then(function(code){
+      pinTries = 0;
+      tryKey(code, false, function(why){
+        if(why === "bad"){ dropLock(); return askKey("저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요."); }
+        pinFail("연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+      });
+    }).catch(function(){
       pinTries++;
       if(pinTries >= 5){ dropLock(); return askKey("비밀번호를 다섯 번 틀렸습니다. 스튜디오 코드를 다시 입력해 주세요."); }
       pinFail("비밀번호가 맞지 않습니다. (" + pinTries + "/5)");
     });
-
-    function after(code, pin){
-      checkPin(code, pin).then(function(res){
-        if(res === "ok")     return pinMode === "ask" ? openApp(code) : keepAndOpen(code, pin);
-        if(res === "locked") return askKey(LOCKED_MSG);
-        if(res === "unset"){ pinPending = code; askPin("set"); return; }
-        if(res === "bad"){ dropLock(); return askKey("저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요."); }
-        if(res === "net")    return pinFail("연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
-        pinFail("비밀번호가 맞지 않습니다.");
-      });
-    }
   }
 
   /* 코드가 맞는지는 서버가 판단한다. 화면에서 비교하면 코드가 파일 안에 남아
@@ -520,17 +482,19 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     sb.rpc("admin_ok", { p_key: key }).then(function(r){
       if(r.error) return onFail("net");
       if(r.data !== true) return onFail("bad");
+      AKEY = key;
       // 주소창과 방문기록에 코드를 남기지 않는다
       if(/[?&]a=/.test(location.search) && history.replaceState){
         history.replaceState(null, "", location.pathname);
       }
-      keepWanted = !!keep; pinPending = key; pinFirst = "";
-      // 코드는 1차일 뿐이다. 네 자리를 넣어야(또는 정해야) 열린다.
-      sb.rpc("admin_pin_state", { p_key: key }).then(function(st){
-        if(st.error) return onFail("net");
-        if(st.data === "locked") return askKey(LOCKED_MSG);
-        askPin(st.data === "unset" ? "set" : "ask2");
-      });
+      if(keep && CR){   // 기억해 두려면 숫자 네 자리로 잠근다
+        pinPending = key; pinFirst = "";
+        return askPin("set");
+      }
+      try { localStorage.removeItem(STORE); localStorage.removeItem(LOCK); } catch(e){}
+      $("gate").hidden = true;
+      $("app").hidden = false;
+      load();
     });
   }
 
@@ -594,7 +558,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
 
     var have = savedKey();   // 잠금을 넣기 전에 저장해 둔 코드
     if(!have) return askKey("");
-    return tryKey(have, true, function(why){   // 이번에 네 자리를 정하거나 넣게 된다
+    if(CR) return tryKey(have, true, function(why){   // 이번에 숫자를 정하게 된다
       try { localStorage.removeItem(STORE); } catch(e){}
       askKey(why === "bad" ? "저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요."
                            : "연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
