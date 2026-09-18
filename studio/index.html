@@ -137,6 +137,19 @@ input:focus{border-color:var(--brand);outline:none}
 .pj-dday.over{background:#FDE7EB;color:var(--error)}
 .pj-memo{margin-top:20px;padding-top:18px;border-top:1px solid var(--rule);
   font-size:16px;line-height:1.7;white-space:pre-wrap;color:var(--ink-2)}
+.pj-log{margin-top:20px;padding-top:18px;border-top:1px solid var(--rule)}
+.pj-log h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:500;margin-bottom:12px}
+.pj-log li{display:flex;gap:14px;padding:9px 0;border-top:1px solid var(--rule-soft);list-style:none}
+.pj-log li:first-child{border-top:0}
+.pj-log .nt-d{flex:0 0 86px;font-family:var(--mono);font-size:13px;color:var(--ink-2);padding-top:2px}
+.pj-log .nt-t{flex:1;font-size:16px;line-height:1.6;white-space:pre-wrap}
+.pj-nt{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.pj-nt .nt-at{flex:0 0 150px;width:150px}
+.pj-nt .nt-text{flex:1 1 240px;min-width:180px}
+.pj-nt .nt-del{flex:none;width:42px;height:46px;border:1.5px solid var(--rule);border-radius:4px;
+  background:var(--ground);color:var(--ink-2);font-size:20px;line-height:1;cursor:pointer;padding:0}
+.pj-nt .nt-del:hover{border-color:var(--error);color:var(--error)}
 .pj-links{margin-top:20px;padding-top:18px;border-top:1px solid var(--rule);
   display:flex;flex-wrap:wrap;gap:8px}
 .pj-links a{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;
@@ -1060,6 +1073,10 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   }
 
   function ymd(v){ return v ? String(v).slice(0, 10) : ""; }
+  function today(){
+    var d = new Date(), p = function(x){ return (x < 10 ? "0" : "") + x; };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+  }
   function dot(v){ return v ? ymd(v).replace(/-/g, ".") : ""; }
 
   function dday(v){
@@ -1148,8 +1165,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     ]);
     h += pjGroup("계약", [
       pjOne("계약일", dot(r.contract_at)),
-      pjOne("만료일", dot(r.expires_at), dday(r.expires_at)),
-      pjOne("금액", won(r.amount))
+      pjOne("계약 금액", won(r.amount)),
+      pjOne("킥오프 미팅", dot(r.kickoff_at), dday(r.kickoff_at)),
+      pjOne("만료일", dot(r.expires_at), dday(r.expires_at))
     ]);
     h += pjGroup("사이트", [
       pjLink("기존 사이트", r.old_site),
@@ -1157,10 +1175,20 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       pjOne("도메인 만료", dot(r.domain_expires_at), dday(r.domain_expires_at)),
       pjOne("등록처", r.registrar),
       pjOne("호스팅", r.hosting),
+      pjOne("희망 오픈일", dot(r.target_launch_at), dday(r.target_launch_at)),
       pjOne("오픈일", dot(r.launched_at))
     ]);
 
     if(r.memo) h += '<div class="pj-memo">' + esc(r.memo) + '</div>';
+
+    // 날짜별 메모는 최근 것이 위로 온다. 지금 어디까지 왔는지가 먼저다.
+    var notes = noteList(r);
+    if(notes.length){
+      h += '<div class="pj-log"><h3>진행 기록</h3><ul>' + notes.map(function(n){
+        return '<li><span class="nt-d">' + esc(dot(n.at)) + '</span>' +
+          '<span class="nt-t">' + esc(n.text) + '</span></li>';
+      }).join("") + '</ul></div>';
+    }
 
     // 시안과 제안서는 자리를 정해 두고 늘 맨 앞에 온다.
     var pinned = [];
@@ -1205,6 +1233,23 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       '<button type="button" class="lk-del" title="이 줄 지우기">×</button></div>';
   }
 
+  /* 날짜가 없으면 오늘로 본다. 날짜 없는 기록은 순서가 없어 쓸모가 없다. */
+  function noteList(r){
+    return (Array.isArray(r.notes) ? r.notes : [])
+      .map(function(n){ return { at: ymd(n && n.at), text: String((n && n.text) || "") }; })
+      .filter(function(n){ return n.text.trim(); })
+      .sort(function(a, b){ return a.at < b.at ? 1 : a.at > b.at ? -1 : 0; });
+  }
+
+  function pjNoteRow(n){
+    n = n || {};
+    return '<div class="pj-nt">' +
+      '<input class="nt-at" type="date" value="' + att(ymd(n.at) || today()) + '">' +
+      '<input class="nt-text" placeholder="무엇을 했고 무엇이 남았는지" value="' +
+        att(n.text || "") + '">' +
+      '<button type="button" class="nt-del" title="이 줄 지우기">×</button></div>';
+  }
+
   function pjIn(id, label, val, type, ph, wide){
     return '<div' + (wide ? ' class="pj-wide"' : '') + '><label for="pf-' + id + '">' + esc(label) + '</label>' +
       '<input id="pf-' + id + '"' + (type ? ' type="' + type + '"' : '') +
@@ -1215,6 +1260,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   function projForm(r){
     var links = (Array.isArray(r.links) ? r.links : []).slice();
     if(!links.length) links = [{}];
+    var notes = noteList(r);
     var opts = '<option value="">—</option>' + STAGES.map(function(x){
       return '<option value="' + att(x) + '"' + (r.stage === x ? ' selected' : '') + '>' + esc(x) + '</option>';
     }).join("");
@@ -1237,8 +1283,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
 
       '<h3 class="pj-fh">계약</h3><div class="pj-form">' +
         pjIn("contract_at", "계약일", ymd(r.contract_at), "date") +
+        pjIn("amount", "계약 금액 (원)", r.amount == null ? "" : String(r.amount)) +
+        pjIn("kickoff_at", "킥오프 미팅", ymd(r.kickoff_at), "date") +
         pjIn("expires_at", "만료일 · 계약(유지보수)", ymd(r.expires_at), "date") +
-        pjIn("amount", "금액 (원)", r.amount == null ? "" : String(r.amount)) +
       '</div>' +
 
       '<h3 class="pj-fh">사이트</h3><div class="pj-form">' +
@@ -1247,6 +1294,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         pjIn("domain_expires_at", "도메인 만료일", ymd(r.domain_expires_at), "date") +
         pjIn("registrar", "도메인 등록처", r.registrar, "", "가비아 · 후이즈 …") +
         pjIn("hosting", "호스팅 위치", r.hosting, "", "Cloudflare · 카페24 …") +
+        pjIn("target_launch_at", "희망 오픈일", ymd(r.target_launch_at), "date") +
         pjIn("launched_at", "오픈일", ymd(r.launched_at), "date") +
       '</div>' +
       '<p class="pj-warn">아이디·비밀번호는 적지 마세요. 스튜디오 코드 하나로 다 열립니다.</p>' +
@@ -1256,6 +1304,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         pjIn("proposal_url", "제안서 링크", r.proposal_url, "", "https:// (웹 제안서 또는 PDF)", true) +
         '<div class="pj-wide"><label for="pf-memo">메모</label>' +
           '<textarea id="pf-memo">' + esc(r.memo || "") + '</textarea></div>' +
+        '<div class="pj-wide"><label>진행 기록 — 날짜별 메모</label>' +
+          '<div id="pf-notes">' + notes.map(pjNoteRow).join("") + '</div>' +
+          '<button class="btn sm ghost" type="button" id="pf-note-add">메모 추가</button></div>' +
         '<div class="pj-wide"><label>그 밖의 링크</label>' +
           '<div id="pf-links">' + links.map(pjLinkRow).join("") + '</div>' +
           '<button class="btn sm ghost" type="button" id="pf-add">줄 추가</button></div>' +
@@ -1278,6 +1329,12 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       $("pf-links").lastElementChild.querySelector(".lk-label").focus();
     });
     bindLinkRows();
+    $("pf-note-add").addEventListener("click", function(){
+      $("pf-notes").insertAdjacentHTML("afterbegin", pjNoteRow({}));
+      bindNoteRows();
+      $("pf-notes").firstElementChild.querySelector(".nt-text").focus();
+    });
+    bindNoteRows();
     $("pf-save").addEventListener("click", function(){ projSave(r); });
   }
 
@@ -1307,6 +1364,13 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     });
   }
 
+  function bindNoteRows(){
+    var box = $("pf-notes");
+    [].slice.call(box.children).forEach(function(row){
+      row.querySelector(".nt-del").onclick = function(){ row.remove(); };
+    });
+  }
+
   function projSave(r){
     var patch = {
       company:           $("pf-company").value,
@@ -1318,6 +1382,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       email:             $("pf-email").value,
       address:           $("pf-address").value,
       contract_at:       $("pf-contract_at").value,
+      kickoff_at:        $("pf-kickoff_at").value,
       expires_at:        $("pf-expires_at").value,
       amount:            $("pf-amount").value.replace(/[^0-9.]/g, ""),
       old_site:          $("pf-old_site").value,
@@ -1325,10 +1390,18 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       domain_expires_at: $("pf-domain_expires_at").value,
       registrar:         $("pf-registrar").value,
       hosting:           $("pf-hosting").value,
+      target_launch_at:  $("pf-target_launch_at").value,
       launched_at:       $("pf-launched_at").value,
       demo_url:          $("pf-demo_url").value,
       proposal_url:      $("pf-proposal_url").value,
       memo:              $("pf-memo").value,
+      notes: [].slice.call($("pf-notes").querySelectorAll(".pj-nt")).map(function(row){
+        return {
+          at:   row.querySelector(".nt-at").value || today(),
+          text: row.querySelector(".nt-text").value.trim()
+        };
+      }).filter(function(n){ return n.text; })
+        .sort(function(a, b){ return a.at < b.at ? 1 : a.at > b.at ? -1 : 0; }),
       links: [].slice.call($("pf-links").querySelectorAll(".pj-lk")).map(function(row){
         return {
           label: row.querySelector(".lk-label").value.trim(),
