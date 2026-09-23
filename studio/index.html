@@ -661,6 +661,22 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   function linkFor(row){
     return baseUrl() + "?k=" + row.access_key;
   }
+  /* 개발 자료 요청서(질문지2)가 있는 시안 사이트. 질문지와 같은 고객 코드로 저장한다. */
+  var DEV_REQ_HOSTS = ["visionfilm.pages.dev"];
+  function devLinkFor(row){
+    if(!row.demo_url) return "";
+    try {
+      var u = new URL(row.demo_url);
+      if(DEV_REQ_HOSTS.indexOf(u.host) < 0) return "";
+      return u.origin + "/dev-request?k=" + encodeURIComponent(row.access_key);
+    } catch(e){ return ""; }
+  }
+  function devHtml(r){
+    if(!r.dev_text || !String(r.dev_text).trim()) return "";
+    return '<div class="grp"><h3>개발 자료 요청서</h3><div class="stp">' +
+      '<h4>마지막 저장 ' + when(r.dev_updated_at) + '</h4>' +
+      '<div class="row"><div class="a">' + esc(r.dev_text) + '</div></div></div></div>';
+  }
   function answered(row){
     var a = row.answers || {}, n = 0;
     Object.keys(a).forEach(function(k){
@@ -1472,10 +1488,11 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         '<label class="toggle"><input type="checkbox" id="he"' + (hideEmpty ? ' checked' : '') + '> 빈 항목 숨기기</label>' +
         '<button class="btn sm ghost" id="copen">고객 입력 페이지 열기 ↗</button>' +
         '<button class="btn sm ghost" id="clink">링크 복사</button>' +
+        (devLinkFor(r) ? '<button class="btn sm ghost" id="dlink">요청서 링크 복사</button>' : '') +
         '<button class="btn sm ghost" id="copy">글로 복사</button>' +
         '<button class="btn sm" id="print">인쇄 · PDF</button>' +
       '</div></div>' +
-      (projEdit ? projForm(r) : projView(r)) + body;
+      (projEdit ? projForm(r) : projView(r)) + devHtml(r) + body;
 
     bindProj(r);
     $("he").addEventListener("change", function(){ hideEmpty = this.checked; renderMain(); });
@@ -1484,6 +1501,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       window.open(linkFor(r), "_blank", "noopener,noreferrer");
     });
     $("clink").addEventListener("click", function(){ copyText(linkFor(r), $("clink"), "링크 복사"); });
+    if($("dlink")) $("dlink").addEventListener("click", function(){
+      copyText(devLinkFor(r), $("dlink"), "요청서 링크 복사");
+    });
     $("copy").addEventListener("click", function(){ copyText(asText(r, use), $("copy"), "글로 복사"); });
   }
 
