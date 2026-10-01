@@ -116,7 +116,14 @@
     };
   }
 
+  // 적을 때는 물음표 뒤까지 그대로 적는다(어느 탭에서 봤는지가 남는다).
+  // 다시 그릴 때는 주소만 본다 — `?tab=car`로 적은 핀이 `?tab` 없이 열었다고
+  // 통째로 사라지면, 고객은 자기가 적은 것이 지워진 줄 안다.
   function pathNow() { return location.pathname + location.search; }
+  function pageNow() { return location.pathname; }
+  function pageOf(it) { return String(it.path || "").split("?")[0]; }
+  function samePage(it) { return pageOf(it) === pageNow(); }
+  function sameView(it) { return it.path === pathNow(); }
   function isMobile() { return Math.min(window.innerWidth, window.innerHeight) < 700; }
   function esc(s) {
     return String(s == null ? "" : s)
@@ -264,7 +271,7 @@
 
   /* ── 아래 고정 버튼 ──────────────────────────────────── */
   function renderFab() {
-    var here = items.filter(function (i) { return i.path === pathNow(); }).length;
+    var here = items.filter(samePage).length;
     ui.innerHTML =
       '<div class="fab">' +
         (items.length ? '<button class="btn ghost" id="list">목록 ' + items.length + '</button>' : '') +
@@ -324,8 +331,8 @@
     // 화면에서 사라지면 고객은 자기가 적은 것이 지워진 줄 안다.
     var docked = 0;
     items.forEach(function (it) {
-      if (it.path !== pathNow()) return;
-      var pt = pointOf(it);
+      if (!samePage(it)) return;
+      var pt = sameView(it) ? pointOf(it) : null;
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
       el.className = "pin" + (pt ? (pt.exact ? "" : " near") : " lost");
@@ -338,13 +345,21 @@
       } else {
         el.style.left = (window.innerWidth - 42) + "px";
         el.style.top = (210 + docked * 54) + "px";
-        el.title = "#" + it.num + " · " + st.label + " · 이 자리는 지금 화면에 없습니다";
+        el.title = "#" + it.num + " · " + st.label +
+                   (sameView(it) ? " · 이 자리는 지금 화면에 없습니다"
+                                 : " · 다른 탭에서 적었습니다 — 눌러서 그 화면으로");
         docked++;
       }
       el.innerHTML = "<span>" + it.num + "</span>";
       el.onmouseenter = function () { if (pt) showBox(it); };
       el.onmouseleave = hideBox;
-      el.onclick = function (e) { e.stopPropagation(); if (pt) showBox(it, true); openPanel(true, it.id); };
+      el.onclick = function (e) {
+        e.stopPropagation();
+        // 다른 탭에서 적은 핀은 그 화면으로 데려다준다.
+        if (!sameView(it)) { location.href = it.path; return; }
+        if (pt) showBox(it, true);
+        openPanel(true, it.id);
+      };
       layer.appendChild(el);
     });
   }
@@ -434,7 +449,7 @@
     panel.className = "panel";
 
     var here = [], other = [];
-    items.forEach(function (i) { (i.path === pathNow() ? here : other).push(i); });
+    items.forEach(function (i) { (samePage(i) ? here : other).push(i); });
 
     panel.innerHTML =
       '<div class="ph"><h3>수정 요청' + (company ? " · " + esc(company) : "") + '</h3>' +
@@ -488,7 +503,7 @@
 
   function card(it) {
     var st = STATUS[it.status] || STATUS["new"];
-    var pt = it.path === pathNow() ? pointOf(it) : true;
+    var pt = samePage(it) ? pointOf(it) : true;
     return '<div class="it" data-id="' + it.id + '">' +
       '<div class="top">' +
         '<span class="no" style="background:' + st.color + '">' + it.num + '</span>' +
@@ -499,7 +514,9 @@
       '<p>' + esc(it.body) + '</p>' +
       '<div class="who">' + (it.author ? esc(it.author) + " · " : "") + esc(it.path) + '</div>' +
       (it.reply ? '<div class="rep"><b>ASOG 답변</b>' + esc(it.reply) + '</div>' : '') +
-      (!pt ? '<div class="lost">이 자리는 지금 화면에 없습니다 — 번호는 오른쪽 가장자리에 세워 두었습니다</div>' : '') +
+      (!pt ? '<div class="lost">' + (samePage(it) && !sameView(it)
+              ? '다른 탭에서 적은 자리입니다 — 눌러서 그 화면으로 갑니다'
+              : '이 자리는 지금 화면에 없습니다 — 번호는 오른쪽 가장자리에 세워 두었습니다') + '</div>' : '') +
       (it.status === "new"
         ? '<div class="acts"><a data-act="edit">고치기</a><a data-act="del">지우기</a></div>'
         : '') +
@@ -507,7 +524,7 @@
   }
 
   function goTo(it) {
-    if (it.path !== pathNow()) { location.href = it.path; return; }
+    if (!sameView(it)) { location.href = it.path; return; }
     var pt = pointOf(it);
     if (!pt) return;
     closePanel();
