@@ -276,7 +276,7 @@
       '<div class="fab">' +
         (items.length ? '<button class="btn ghost" id="list">목록 ' + items.length + '</button>' : '') +
         '<button class="btn main' + (placing ? " on" : "") + '" id="add">' +
-          (placing ? "그만두기" : "수정 요청") +
+          (placing ? "그만두기" : "수정할곳 선택하기") +
           (here && !placing ? '<span class="cnt">이 페이지 ' + here + '</span>' : '') +
         '</button>' +
       '</div>' +
@@ -463,7 +463,7 @@
     var pb = panel.querySelector("#pb"), html = "";
     if (!items.length) {
       html = '<div class="empty">아직 등록된 수정 요청이 없습니다.<br>' +
-             '<b>수정 요청</b>을 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
+             '<b>수정할곳 선택하기</b>를 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
     } else {
       if (here.length) html += '<div class="grp">지금 보고 계신 페이지 (' + here.length + ')</div>' + here.map(card).join("");
       if (other.length) html += '<div class="grp">다른 페이지 (' + other.length + ')</div>' + other.map(card).join("");
