@@ -26,9 +26,10 @@
   var KEY = (me && me.getAttribute("data-key")) || "";
   if (!KEY) return;
 
-  var BRAND = "#0040C8";
+  /* 형광 보라. 고객 사이트가 쓰지 않는 색이라 "얹힌 도구"로 바로 읽힌다. */
+  var BRAND = "#B026FF";
   var STATUS = {
-    "new":   { label: "접수",      color: "#0040C8" },
+    "new":   { label: "접수",      color: "#B026FF" },
     "doing": { label: "작업 중",   color: "#B07800" },
     "done":  { label: "완료",      color: "#1B8A5A" },
     "hold":  { label: "협의 필요", color: "#7A8395" }
@@ -151,8 +152,10 @@
     '.box b{position:absolute;left:-2.5px;top:-25px;background:var(--c);color:#fff;font-size:12px;',
     ' font-weight:700;padding:3px 9px;border-radius:5px 5px 5px 0;white-space:nowrap;line-height:1.4}',
 
-    /* 아래 고정 버튼 */
-    '.fab{position:fixed;right:18px;bottom:18px;pointer-events:auto;display:flex;gap:8px;align-items:center}',
+    /* 오른쪽 위 고정 버튼.
+       대부분의 사이트가 머리글을 60~80px로 두므로 그 아래(92px)에서 시작해
+       메뉴를 가리지 않는다. 아래쪽은 전화·맨 위로 같은 단추가 이미 쓴다. */
+    '.fab{position:fixed;right:18px;top:92px;pointer-events:auto;display:flex;gap:8px;align-items:center}',
     '.btn{border:0;border-radius:999px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;',
     ' box-shadow:0 4px 14px rgba(12,33,65,.22);line-height:1;white-space:nowrap}',
     '.btn.main{background:' + BRAND + ';color:#fff}',
@@ -162,7 +165,7 @@
     '.cnt{display:inline-block;margin-left:7px;background:rgba(255,255,255,.24);border-radius:999px;padding:2px 7px;font-size:12px}',
 
     /* 안내 띠 */
-    '.tip{position:fixed;left:50%;top:16px;transform:translateX(-50%);pointer-events:auto;',
+    '.tip{position:fixed;left:50%;top:152px;transform:translateX(-50%);pointer-events:auto;',
     ' background:#0C2141;color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;',
     ' box-shadow:0 6px 20px rgba(12,33,65,.28);display:flex;gap:14px;align-items:center;',
     ' border:1.5px solid rgba(255,255,255,.28)}',
@@ -215,7 +218,7 @@
     '.pf{padding:12px 18px;border-top:1px solid #E9EDF4;font-size:12px;color:#8A93A3;line-height:1.6}',
 
     '@media (max-width:560px){',
-    ' .fab{right:12px;bottom:12px}',
+    ' .fab{right:12px;top:76px}',
     ' .btn{padding:10px 15px;font-size:13.5px}',
     ' .pop{width:calc(100vw - 24px);left:12px!important;right:12px}',
     ' .tip{width:calc(100vw - 24px);justify-content:center;font-size:13px;padding:10px 12px}',
