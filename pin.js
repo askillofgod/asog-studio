@@ -65,27 +65,65 @@
   var isAsog = false;
   try { isAsog = localStorage.getItem("asog_pin_role") === "asog"; } catch (e) {}
 
-  function askRole() {
+  // 번호를 물어야 하는지만 가린다. 묻는 일은 화면이 선 뒤에 한다.
+  var needCode = false;
+  (function () {
     var q = null;
     try { q = new URLSearchParams(location.search).get("as"); } catch (e) {}
     if (!q) return;
-
     if (q === "client") {
       isAsog = false;
       try { localStorage.removeItem("asog_pin_role"); } catch (e) {}
       return;
     }
-    if (q !== "asog" || isAsog) return;
+    if (q === "asog" && !isAsog) needCode = true;
+  })();
 
-    var got = window.prompt("어소그 확인 번호 4자리를 넣어 주세요.\n(고객님이라면 취소를 눌러 주세요.)");
-    if (got === null) return;
-    if (got.trim() !== ASOG_CODE) {
-      window.alert("번호가 다릅니다. 고객으로 열립니다.");
-      return;
+  /*
+   * 어소그 확인 번호를 묻는 자리.
+   *
+   * 브라우저의 `prompt`는 쓰지 않는다. 막는 브라우저가 있고, 막히면 그리기가
+   * 멈춰 위젯이 통째로 안 뜬다. 우리 그림자 DOM 안에 작은 카드로 묻는다.
+   */
+  function askCode() {
+    if (!needCode) return;
+    needCode = false;
+
+    var box = document.createElement("div");
+    box.className = "gate";
+    box.innerHTML =
+      '<div class="gc">' +
+        '<h4>어소그로 열기</h4>' +
+        '<p>확인 번호 4자리를 넣어 주세요. 고객님이라면 「고객으로 보기」를 눌러 주세요.</p>' +
+        '<input id="gi" inputmode="numeric" maxlength="4" placeholder="····" autocomplete="off">' +
+        '<div class="ge" id="ge"></div>' +
+        '<div class="row"><button class="btn main" id="gok">확인</button>' +
+        '<button class="btn ghost" id="gno">고객으로 보기</button></div>' +
+      '</div>';
+    ui.appendChild(box);
+
+    var inp = box.querySelector("#gi");
+    var err = box.querySelector("#ge");
+    setTimeout(function () { inp.focus(); }, 30);
+
+    function close() { box.remove(); renderFab(); }
+
+    function ok() {
+      if ((inp.value || "").trim() !== ASOG_CODE) {
+        err.textContent = "번호가 다릅니다.";
+        inp.value = "";
+        inp.focus();
+        return;
+      }
+      isAsog = true;
+      try { localStorage.setItem("asog_pin_role", "asog"); } catch (e) {}
+      if (!author) { author = "ASOG"; try { localStorage.setItem("asog_pin_author", author); } catch (e) {} }
+      close();
     }
-    isAsog = true;
-    try { localStorage.setItem("asog_pin_role", "asog"); } catch (e) {}
-    if (!author) { author = "ASOG"; try { localStorage.setItem("asog_pin_author", author); } catch (e) {} }
+
+    box.querySelector("#gok").onclick = ok;
+    box.querySelector("#gno").onclick = close;
+    inp.onkeydown = function (e) { if (e.key === "Enter") ok(); };
   }
 
   if (isAsog && !author) author = "ASOG";
@@ -317,6 +355,20 @@
     '.say textarea:focus{outline:none;border-color:' + BRAND + '}',
     '.say a{flex:none;display:inline-flex;align-items:center;padding:0 14px;height:38px;border-radius:7px;',
     ' font-size:13.5px;font-weight:600;background:' + BRAND + ';color:#fff;cursor:pointer}',
+
+    /* 어소그 확인 번호를 묻는 카드 */
+    '.gate{position:fixed;inset:0;background:rgba(12,33,65,.5);pointer-events:auto;',
+    ' display:flex;align-items:center;justify-content:center;padding:20px}',
+    '.gc{width:320px;max-width:100%;background:#fff;border-radius:12px;padding:22px;',
+    ' box-shadow:0 18px 50px rgba(12,33,65,.34)}',
+    '.gc h4{font-size:17px;font-weight:700;color:#0C2141;margin-bottom:7px}',
+    '.gc p{font-size:13.5px;line-height:1.6;color:#5A6475;margin-bottom:14px}',
+    '.gc input{width:100%;padding:12px 14px;border:1.5px solid #D5DCE8;border-radius:8px;',
+    ' font:inherit;font-size:20px;letter-spacing:.3em;text-align:center;color:#0C2141}',
+    '.gc input:focus{outline:none;border-color:' + BRAND + '}',
+    '.ge{min-height:18px;margin-top:6px;font-size:12.5px;color:#C8102E}',
+    '.gc .row{display:flex;gap:8px;margin-top:6px}',
+    '.gc .row .btn{flex:1;justify-content:center;box-shadow:none}',
 
     /* 지금 누구로 쓰는지 */
     '.ph .me{margin-left:auto;font-size:12px;font-weight:700;color:#8A93A3;background:#F1F4F9;',
@@ -739,9 +791,9 @@
   }
 
   function start() {
-    askRole();
     document.body.appendChild(host);
     renderFab();
+    askCode();
     load();
     setInterval(load, 60000); // 1분마다 상태·답변 갱신
   }
