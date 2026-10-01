@@ -285,10 +285,18 @@
     '.box b{position:absolute;left:-2.5px;top:-25px;background:var(--c);color:#fff;font-size:12px;',
     ' font-weight:700;padding:3px 9px;border-radius:5px 5px 5px 0;white-space:nowrap;line-height:1.4}',
 
-    /* 오른쪽 위 고정 버튼.
-       대부분의 사이트가 머리글을 60~80px로 두므로 그 아래(92px)에서 시작해
-       메뉴를 가리지 않는다. 아래쪽은 전화·맨 위로 같은 단추가 이미 쓴다. */
-    '.fab{position:fixed;right:18px;top:92px;pointer-events:auto;display:flex;gap:8px;align-items:center}',
+    /* 오른쪽 가운데 모서리에 반만 내민 손잡이.
+       위아래는 머리글·전화·맨 위로 같은 단추가 이미 쓰고, 가운데는 거의
+       비어 있다. 왼쪽만 둥글려 열리는 쪽을 형태로 가리킨다. */
+    '.tab{position:fixed;right:0;top:50%;transform:translateY(-50%);pointer-events:auto;',
+    ' display:flex;flex-direction:column;align-items:center;gap:3px;',
+    ' width:34px;padding:16px 0;border:0;border-radius:18px 0 0 18px;cursor:pointer;',
+    ' background:' + BRAND + ';color:#fff;box-shadow:-4px 0 16px rgba(12,33,65,.3);',
+    ' transition:width .14s,background .14s}',
+    '.tab:hover{width:40px}',
+    '.tab .ar{font-size:20px;line-height:1;font-weight:700}',
+    '.tab .n{min-width:20px;padding:1px 5px;border-radius:999px;background:rgba(255,255,255,.26);',
+    ' font-size:12px;font-weight:800;line-height:1.5}',
     '.btn{border:0;border-radius:999px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;',
     ' box-shadow:0 4px 14px rgba(12,33,65,.22);line-height:1;white-space:nowrap}',
     '.btn.main{background:' + BRAND + ';color:#fff}',
@@ -387,10 +395,13 @@
     '.it .acts a[data-act="del"]:hover{background:#FDECEF;border-color:#E0A9B3}',
     '.it .lost{margin-top:6px;font-size:12px;color:#B07800}',
     '.empty{padding:34px 20px;text-align:center;color:#8A93A3;font-size:14px;line-height:1.7}',
+    /* 목록 바닥 — 다음에 할 일을 한 자리에 둔다 */
+    '.pact{padding:12px 18px;border-top:1px solid #E9EDF4}',
+    '.pact .btn{width:100%;justify-content:center;text-align:center;box-shadow:none}',
     '.pf{padding:12px 18px;border-top:1px solid #E9EDF4;font-size:12px;color:#8A93A3;line-height:1.6}',
 
     '@media (max-width:560px){',
-    ' .fab{right:12px;top:76px}',
+    ' .tab{width:30px;padding:13px 0}',
     ' .btn{padding:10px 15px;font-size:13.5px}',
     ' .pop{width:calc(100vw - 24px);left:12px!important;right:12px}',
     ' .tip{width:calc(100vw - 24px);justify-content:center;font-size:13px;padding:10px 12px}',
@@ -407,22 +418,27 @@
   root.appendChild(ui);
 
   /* ── 아래 고정 버튼 ──────────────────────────────────── */
+  /*
+   * 화면에 늘 떠 있는 것은 목록 손잡이 하나뿐이다.
+   *
+   * 「수정할곳 선택하기」는 목록 안으로 들여보냈다. 두 단추가 나란히 떠 있으면
+   * 시안을 가리는 데다, 무엇부터 눌러야 하는지 갈리지 않았다. 손잡이 → 목록 →
+   * 고를 곳 고르기 한 줄기로 읽힌다.
+   *
+   * 손잡이는 오른쪽 가운데 모서리에 붙어 반만 내민 모양이다. 화살표가 열리는
+   * 쪽(왼쪽)을 가리킨다.
+   */
   function renderFab() {
-    var here = items.filter(samePage).length;
     ui.innerHTML =
-      '<div class="fab">' +
-        (items.length ? '<button class="btn ghost" id="list">목록 ' + items.length + '</button>' : '') +
-        '<button class="btn main' + (placing ? " on" : "") + '" id="add">' +
-          (placing ? "그만두기" : "수정할곳 선택하기") +
-          (here && !placing ? '<span class="cnt">이 페이지 ' + here + '</span>' : '') +
-        '</button>' +
-      '</div>' +
+      (panelOpen ? '' :
+        '<button class="tab" id="list" title="수정 요청 목록 열기">' +
+          '<span class="ar">‹</span>' +
+          (items.length ? '<span class="n">' + items.length + '</span>' : '') +
+        '</button>') +
       (placing
         ? '<div class="tip"><b>고치고 싶은 곳을 클릭하세요</b><u id="stop">취소 (Esc)</u></div>'
         : '');
 
-    var add = ui.querySelector("#add");
-    if (add) add.onclick = function () { setPlacing(!placing); };
     var lst = ui.querySelector("#list");
     if (lst) lst.onclick = function () { openPanel(true); };
     var stop = ui.querySelector("#stop");
@@ -574,6 +590,7 @@
   function closePanel() {
     panelOpen = false;
     if (panel) { panel.classList.remove("on"); var p = panel; panel = null; setTimeout(function () { p.remove(); }, 240); }
+    renderFab();
   }
 
   function openPanel(on, focusId) {
@@ -584,6 +601,7 @@
 
     panel = document.createElement("div");
     panel.className = "panel";
+    renderFab();
 
     var here = [], other = [];
     items.forEach(function (i) { (samePage(i) ? here : other).push(i); });
@@ -593,15 +611,19 @@
       '<span class="me' + (isAsog ? " asog" : "") + '">' + esc(sayName()) + '</span>' +
       '<button class="x" id="x">&times;</button></div>' +
       '<div class="pb" id="pb"></div>' +
+      '<div class="pact"><button class="btn main" id="add">수정할곳 선택하기</button></div>' +
       '<div class="pf">핀을 눌러 그 자리로 이동할 수 있습니다. ' +
       '<b>접수</b> 상태인 요청은 직접 글수정하거나 삭제할 수 있습니다.</div>';
     ui.appendChild(panel);
     setTimeout(function () { if (panel) panel.classList.add("on"); }, 10);
 
+    var addBtn = panel.querySelector("#add");
+    if (addBtn) addBtn.onclick = function () { setPlacing(true); };
+
     var pb = panel.querySelector("#pb"), html = "";
     if (!items.length) {
       html = '<div class="empty">아직 등록된 수정 요청이 없습니다.<br>' +
-             '<b>수정할곳 선택하기</b>를 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
+             '아래 <b>수정할곳 선택하기</b>를 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
     } else {
       if (here.length) html += '<div class="grp">지금 보고 계신 페이지 (' + here.length + ')</div>' + here.map(card).join("");
       if (other.length) html += '<div class="grp">다른 페이지 (' + other.length + ')</div>' + other.map(card).join("");
