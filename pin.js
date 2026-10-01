@@ -49,23 +49,45 @@
    * ASOG는 주소에 `?as=asog`를 달아 한 번 열면 그 브라우저가 기억한다. 고객은
    * 평소 링크 그대로 쓰면 된다. `?as=client`로 열면 다시 고객으로 돌아온다.
    *
-   * 이건 자물쇠가 아니라 이름표다. 링크를 아는 사람은 누구나 ASOG로 쓸 수
-   * 있다. 서버가 보증하는 ASOG 글은 스튜디오에서 쓴 것(admin_fb_say)뿐이다.
+   * 주소만으로는 들어가지 않는다. 확인 번호를 한 번 묻는다. 링크는 고객과
+   * 같은 자리(시안 목록)에 걸려 있어, 번호가 없으면 누구나 ASOG로 적힐 수
+   * 있기 때문이다.
+   *
+   * 다만 이건 잠금장치가 아니라 문턱이다. 이 파일을 열면 번호가 그대로
+   * 보인다. 서버가 보증하는 ASOG 글은 스튜디오에서 쓴 것(admin_fb_say)뿐이다.
    *
    * 주소에 그대로 둔다. 지금 어느 쪽으로 쓰는지 주소창만 봐도 갈리고, 즐겨찾기
    * 해 두면 다음에도 그 모드로 열린다. 대신 핀에 적는 주소에서는 이 조각을
    * 빼낸다(`stripAs`) — 안 그러면 같은 페이지의 핀이 `?as`가 붙고 안 붙고로
    * 서로 갈린다.
    */
+  var ASOG_CODE = "2190";
   var isAsog = false;
   try { isAsog = localStorage.getItem("asog_pin_role") === "asog"; } catch (e) {}
-  (function () {
+
+  function askRole() {
     var q = null;
     try { q = new URLSearchParams(location.search).get("as"); } catch (e) {}
     if (!q) return;
-    if (q === "asog") { isAsog = true; try { localStorage.setItem("asog_pin_role", "asog"); } catch (e) {} }
-    if (q === "client") { isAsog = false; try { localStorage.removeItem("asog_pin_role"); } catch (e) {} }
-  })();
+
+    if (q === "client") {
+      isAsog = false;
+      try { localStorage.removeItem("asog_pin_role"); } catch (e) {}
+      return;
+    }
+    if (q !== "asog" || isAsog) return;
+
+    var got = window.prompt("어소그 확인 번호 4자리를 넣어 주세요.\n(고객님이라면 취소를 눌러 주세요.)");
+    if (got === null) return;
+    if (got.trim() !== ASOG_CODE) {
+      window.alert("번호가 다릅니다. 고객으로 열립니다.");
+      return;
+    }
+    isAsog = true;
+    try { localStorage.setItem("asog_pin_role", "asog"); } catch (e) {}
+    if (!author) { author = "ASOG"; try { localStorage.setItem("asog_pin_author", author); } catch (e) {} }
+  }
+
   if (isAsog && !author) author = "ASOG";
   function sayName() { return author || (isAsog ? "ASOG" : "고객"); }
 
@@ -717,6 +739,7 @@
   }
 
   function start() {
+    askRole();
     document.body.appendChild(host);
     renderFab();
     load();
