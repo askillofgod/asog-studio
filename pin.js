@@ -85,15 +85,34 @@
     try { return document.querySelector(sel); } catch (e) { return null; }
   }
 
-  // 핀이 화면의 어느 지점에 놓여야 하는지 (문서 기준 좌표)
-  function pointOf(it) {
+  // 적어 둔 길이 그대로 맞지 않으면 윗단으로 한 단계씩 줄여 가장 가까운
+  // 조상을 찾는다. 탭이 바뀌거나 칸이 하나 늘어난 정도로는 자리를 잃지 않는다.
+  function anchorOf(it) {
     var el = findEl(it.selector);
-    if (!el) return null;
-    var r = el.getBoundingClientRect();
+    if (el) return { el: el, exact: true };
+    var parts = String(it.selector || "").split(">");
+    while (parts.length > 1) {
+      parts.pop();
+      var up = findEl(parts.join(">"));
+      if (up) return { el: up, exact: false };
+    }
+    return null;
+  }
+
+  // 핀이 화면의 어느 지점에 놓여야 하는지 (문서 기준 좌표)
+  // 조상으로 물러섰을 때는 그 안의 가운데에 세운다. 원래 비율은 사라진
+  // 요소를 기준으로 잰 값이라 엉뚱한 곳을 가리킨다.
+  function pointOf(it) {
+    var a = anchorOf(it);
+    if (!a) return null;
+    var r = a.el.getBoundingClientRect();
     if (!r.width && !r.height) return null;
+    var fx = a.exact ? (Number(it.x_pct) || 0) : 0.5;
+    var fy = a.exact ? (Number(it.y_pct) || 0) : 0.5;
     return {
-      x: r.left + window.pageXOffset + r.width * (Number(it.x_pct) || 0),
-      y: r.top + window.pageYOffset + r.height * (Number(it.y_pct) || 0)
+      x: r.left + window.pageXOffset + r.width * fx,
+      y: r.top + window.pageYOffset + r.height * fy,
+      exact: a.exact
     };
   }
 
@@ -133,6 +152,12 @@
     ' border:2px solid var(--c);opacity:.32;pointer-events:none}',
     '.pin:hover{transform:rotate(-45deg) scale(1.14)}',
     '.pin.sel{animation:asogpulse 1s ease-out 2}',
+    /* 조상으로 물러선 핀과, 지금 화면에 자리가 없는 핀 */
+    '.pin.near{border-style:dashed}',
+    '.pin.lost{border-style:dashed;opacity:.82}',
+    '.pin.lost::after{content:"?";position:absolute;right:-5px;bottom:-5px;width:17px;height:17px;',
+    ' border-radius:50%;background:#0C2141;color:#fff;font-size:11px;font-weight:800;',
+    ' display:flex;align-items:center;justify-content:center;transform:rotate(45deg)}',
     '@keyframes asogpulse{0%{transform:rotate(-45deg) scale(1)}',
     ' 45%{transform:rotate(-45deg) scale(1.32)}100%{transform:rotate(-45deg) scale(1)}}',
 
@@ -195,7 +220,10 @@
     '.it{padding:13px 18px;border-bottom:1px solid #F1F4F9;cursor:pointer}',
     '.it:hover{background:#F7F9FC}',
     '.it .top{display:flex;align-items:center;gap:8px;margin-bottom:5px}',
-    '.it .no{font-size:12px;font-weight:700;color:#fff;background:#8A93A3;border-radius:999px;padding:2px 8px;flex:none}',
+    /* 번호는 화면의 핀과 짝을 이루는 표시다. 핀만큼 또렷해야 서로 찾는다. */
+    '.it .no{flex:none;width:30px;height:30px;border-radius:50%;display:inline-flex;',
+    ' align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;',
+    ' background:#8A93A3;box-shadow:0 2px 6px rgba(12,33,65,.22);letter-spacing:-.02em}',
     '.it .st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid currentColor}',
     '.it .so{font-size:11px;font-weight:700;color:#B07800;background:#FFF6E0;border-radius:999px;padding:2px 8px}',
     '.it .ago{margin-left:auto;font-size:12px;color:#8A93A3;flex:none}',
@@ -292,21 +320,31 @@
   function renderPins() {
     layer.innerHTML = "";
     boxEl = null; hbox = null;
+    // 자리를 아주 잃은 핀은 오른쪽 가장자리에 차곡차곡 세운다. 번호가
+    // 화면에서 사라지면 고객은 자기가 적은 것이 지워진 줄 안다.
+    var docked = 0;
     items.forEach(function (it) {
       if (it.path !== pathNow()) return;
       var pt = pointOf(it);
-      if (!pt) return;
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
-      el.className = "pin";
+      el.className = "pin" + (pt ? (pt.exact ? "" : " near") : " lost");
       el.style.setProperty("--c", st.color);
-      el.style.left = (pt.x - window.pageXOffset) + "px";
-      el.style.top = (pt.y - window.pageYOffset) + "px";
-      el.title = "#" + it.num + " · " + st.label;
+      if (pt) {
+        el.style.left = (pt.x - window.pageXOffset) + "px";
+        el.style.top = (pt.y - window.pageYOffset) + "px";
+        el.title = "#" + it.num + " · " + st.label +
+                   (pt.exact ? "" : " · 가까운 자리에 세웠습니다");
+      } else {
+        el.style.left = (window.innerWidth - 42) + "px";
+        el.style.top = (210 + docked * 54) + "px";
+        el.title = "#" + it.num + " · " + st.label + " · 이 자리는 지금 화면에 없습니다";
+        docked++;
+      }
       el.innerHTML = "<span>" + it.num + "</span>";
-      el.onmouseenter = function () { showBox(it); };
+      el.onmouseenter = function () { if (pt) showBox(it); };
       el.onmouseleave = hideBox;
-      el.onclick = function (e) { e.stopPropagation(); showBox(it, true); openPanel(true, it.id); };
+      el.onclick = function (e) { e.stopPropagation(); if (pt) showBox(it, true); openPanel(true, it.id); };
       layer.appendChild(el);
     });
   }
@@ -453,7 +491,7 @@
     var pt = it.path === pathNow() ? pointOf(it) : true;
     return '<div class="it" data-id="' + it.id + '">' +
       '<div class="top">' +
-        '<span class="no" style="background:' + st.color + '">#' + it.num + '</span>' +
+        '<span class="no" style="background:' + st.color + '">' + it.num + '</span>' +
         '<span class="st" style="color:' + st.color + '">' + st.label + '</span>' +
         (it.scope_out ? '<span class="so">별도 협의</span>' : '') +
         '<span class="ago">' + when(it.created_at) + '</span>' +
@@ -461,7 +499,7 @@
       '<p>' + esc(it.body) + '</p>' +
       '<div class="who">' + (it.author ? esc(it.author) + " · " : "") + esc(it.path) + '</div>' +
       (it.reply ? '<div class="rep"><b>ASOG 답변</b>' + esc(it.reply) + '</div>' : '') +
-      (!pt ? '<div class="lost">화면이 바뀌어 이 자리를 찾지 못했습니다</div>' : '') +
+      (!pt ? '<div class="lost">이 자리는 지금 화면에 없습니다 — 번호는 오른쪽 가장자리에 세워 두었습니다</div>' : '') +
       (it.status === "new"
         ? '<div class="acts"><a data-act="edit">고치기</a><a data-act="del">지우기</a></div>'
         : '') +
