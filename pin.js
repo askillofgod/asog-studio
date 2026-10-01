@@ -52,8 +52,10 @@
    * 이건 자물쇠가 아니라 이름표다. 링크를 아는 사람은 누구나 ASOG로 쓸 수
    * 있다. 서버가 보증하는 ASOG 글은 스튜디오에서 쓴 것(admin_fb_say)뿐이다.
    *
-   * 읽은 뒤에는 주소에서 지운다. 남겨 두면 핀에 적히는 주소가 달라져 같은
-   * 페이지의 핀이 서로 갈리고, 고객에게 그 링크가 그대로 전달될 수도 있다.
+   * 주소에 그대로 둔다. 지금 어느 쪽으로 쓰는지 주소창만 봐도 갈리고, 즐겨찾기
+   * 해 두면 다음에도 그 모드로 열린다. 대신 핀에 적는 주소에서는 이 조각을
+   * 빼낸다(`stripAs`) — 안 그러면 같은 페이지의 핀이 `?as`가 붙고 안 붙고로
+   * 서로 갈린다.
    */
   var isAsog = false;
   try { isAsog = localStorage.getItem("asog_pin_role") === "asog"; } catch (e) {}
@@ -63,11 +65,6 @@
     if (!q) return;
     if (q === "asog") { isAsog = true; try { localStorage.setItem("asog_pin_role", "asog"); } catch (e) {} }
     if (q === "client") { isAsog = false; try { localStorage.removeItem("asog_pin_role"); } catch (e) {} }
-    try {
-      var u = new URL(location.href);
-      u.searchParams.delete("as");
-      history.replaceState(null, "", u.pathname + (u.search || "") + u.hash);
-    } catch (e) {}
   })();
   if (isAsog && !author) author = "ASOG";
   function sayName() { return author || (isAsog ? "ASOG" : "고객"); }
@@ -148,7 +145,20 @@
   // 적을 때는 물음표 뒤까지 그대로 적는다(어느 탭에서 봤는지가 남는다).
   // 다시 그릴 때는 주소만 본다 — `?tab=car`로 적은 핀이 `?tab` 없이 열었다고
   // 통째로 사라지면, 고객은 자기가 적은 것이 지워진 줄 안다.
-  function pathNow() { return location.pathname + location.search; }
+  // 역할 조각(`?as=`)은 핀의 주소에 넣지 않는다. 어소그가 보든 고객이 보든
+  // 같은 화면이고, 같은 자리에 쌓여야 한다.
+  function stripAs(search) {
+    if (!search) return "";
+    try {
+      var sp = new URLSearchParams(search);
+      sp.delete("as");
+      var out = sp.toString();
+      return out ? "?" + out : "";
+    } catch (e) {
+      return search;
+    }
+  }
+  function pathNow() { return location.pathname + stripAs(location.search); }
   function pageNow() { return location.pathname; }
   function pageOf(it) { return String(it.path || "").split("?")[0]; }
   function samePage(it) { return pageOf(it) === pageNow(); }
