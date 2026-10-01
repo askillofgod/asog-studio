@@ -100,7 +100,9 @@
         '<div class="row"><button class="btn main" id="gok">확인</button>' +
         '<button class="btn ghost" id="gno">고객으로 보기</button></div>' +
       '</div>';
-    ui.appendChild(box);
+    // `ui`가 아니라 그림자 뿌리에 붙인다. `ui`는 단추를 다시 그릴 때마다
+    // 통째로 비워지므로, 거기 두면 자료를 불러오는 순간 카드가 사라진다.
+    root.appendChild(box);
 
     var inp = box.querySelector("#gi");
     var err = box.querySelector("#ge");
