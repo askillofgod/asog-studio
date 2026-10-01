@@ -144,10 +144,10 @@
     '.box.on{opacity:1}',
 
     /* 핀을 찍는 동안 마우스가 올라간 영역을 미리 보여줍니다 */
-    '.hbox{position:absolute;border:2.5px solid ' + BRAND + ';border-radius:6px;pointer-events:none;',
-    ' background:rgba(0,64,200,.10);opacity:0;transition:opacity .1s}',
+    '.hbox{position:absolute;border:4px solid ' + BRAND + ';border-radius:6px;pointer-events:none;',
+    ' background:rgba(176,38,255,.12);opacity:0;transition:opacity .1s}',
     '.hbox.on{opacity:1}',
-    '.hbox b{position:absolute;left:-2.5px;top:-25px;background:' + BRAND + ';color:#fff;font-size:12px;',
+    '.hbox b{position:absolute;left:-4px;top:-26px;background:' + BRAND + ';color:#fff;font-size:12px;',
     ' font-weight:700;padding:3px 9px;border-radius:5px 5px 5px 0;white-space:nowrap;line-height:1.4}',
     '.box b{position:absolute;left:-2.5px;top:-25px;background:var(--c);color:#fff;font-size:12px;',
     ' font-weight:700;padding:3px 9px;border-radius:5px 5px 5px 0;white-space:nowrap;line-height:1.4}',
