@@ -380,7 +380,7 @@
     pop.style.top = top + "px";
 
     pop.innerHTML =
-      '<h4>' + (editingId ? "수정 요청 고치기" : "무엇을 고칠까요?") + '</h4>' +
+      '<h4>' + (editingId ? "글 수정" : "무엇을 고칠까요?") + '</h4>' +
       '<textarea id="t" placeholder="예) 이 버튼 색이 너무 흐려서 잘 안 보입니다"></textarea>' +
       '<input id="a" placeholder="작성하신 분 (선택)" value="' + esc(author) + '">' +
       '<div class="row">' +
@@ -456,7 +456,7 @@
       '<button class="x" id="x">&times;</button></div>' +
       '<div class="pb" id="pb"></div>' +
       '<div class="pf">핀을 눌러 그 자리로 이동할 수 있습니다. ' +
-      '<b>접수</b> 상태인 요청은 직접 고치거나 지울 수 있습니다.</div>';
+      '<b>접수</b> 상태인 요청은 직접 글수정하거나 삭제할 수 있습니다.</div>';
     ui.appendChild(panel);
     setTimeout(function () { if (panel) panel.classList.add("on"); }, 10);
 
@@ -485,7 +485,7 @@
         }
         if (act === "del") {
           e.stopPropagation();
-          if (!confirm("#" + it.num + " 요청을 지울까요?")) return;
+          if (!confirm("#" + it.num + " 요청을 삭제할까요?")) return;
           rpc("fb_remove", { p_key: KEY, p_id: id }).then(function () { load(); });
           return;
         }
@@ -518,7 +518,7 @@
               ? '다른 탭에서 적은 자리입니다 — 눌러서 그 화면으로 갑니다'
               : '이 자리는 지금 화면에 없습니다 — 번호는 오른쪽 가장자리에 세워 두었습니다') + '</div>' : '') +
       (it.status === "new"
-        ? '<div class="acts"><a data-act="edit">고치기</a><a data-act="del">지우기</a></div>'
+        ? '<div class="acts"><a data-act="edit">글수정</a><a data-act="del">삭제</a></div>'
         : '') +
     '</div>';
   }
