@@ -43,6 +43,35 @@
   var author = "";
   try { author = localStorage.getItem("asog_pin_author") || ""; } catch (e) {}
 
+  /*
+   * 누구로 글을 남기는가.
+   *
+   * ASOG는 주소에 `?as=asog`를 달아 한 번 열면 그 브라우저가 기억한다. 고객은
+   * 평소 링크 그대로 쓰면 된다. `?as=client`로 열면 다시 고객으로 돌아온다.
+   *
+   * 이건 자물쇠가 아니라 이름표다. 링크를 아는 사람은 누구나 ASOG로 쓸 수
+   * 있다. 서버가 보증하는 ASOG 글은 스튜디오에서 쓴 것(admin_fb_say)뿐이다.
+   *
+   * 읽은 뒤에는 주소에서 지운다. 남겨 두면 핀에 적히는 주소가 달라져 같은
+   * 페이지의 핀이 서로 갈리고, 고객에게 그 링크가 그대로 전달될 수도 있다.
+   */
+  var isAsog = false;
+  try { isAsog = localStorage.getItem("asog_pin_role") === "asog"; } catch (e) {}
+  (function () {
+    var q = null;
+    try { q = new URLSearchParams(location.search).get("as"); } catch (e) {}
+    if (!q) return;
+    if (q === "asog") { isAsog = true; try { localStorage.setItem("asog_pin_role", "asog"); } catch (e) {} }
+    if (q === "client") { isAsog = false; try { localStorage.removeItem("asog_pin_role"); } catch (e) {} }
+    try {
+      var u = new URL(location.href);
+      u.searchParams.delete("as");
+      history.replaceState(null, "", u.pathname + (u.search || "") + u.hash);
+    } catch (e) {}
+  })();
+  if (isAsog && !author) author = "ASOG";
+  function sayName() { return author || (isAsog ? "ASOG" : "고객"); }
+
   /* ── 통신 ────────────────────────────────────────────── */
   function rpc(fn, body) {
     return fetch(SUPABASE_URL + "/rest/v1/rpc/" + fn, {
@@ -239,6 +268,28 @@
     '.it .rep{margin-top:8px;padding:9px 11px;background:#EAF1FF;border-radius:7px;font-size:13.5px;',
     ' line-height:1.55;color:#0C2141;white-space:pre-wrap}',
     '.it .rep b{display:block;font-size:11px;letter-spacing:.06em;color:' + BRAND + ';margin-bottom:3px}',
+
+    /* 주고받은 말 — 왼쪽 선 색으로 누가 썼는지 가른다 */
+    '.th{margin-top:9px;display:flex;flex-direction:column;gap:7px}',
+    '.ln{padding:7px 10px;border-left:3px solid #D5DCE8;background:#F7F9FC;border-radius:0 7px 7px 0}',
+    '.ln.a{border-left-color:' + BRAND + ';background:#F8F0FF}',
+    '.ln b{display:block;font-size:11px;letter-spacing:.04em;color:#8A93A3;margin-bottom:2px}',
+    '.ln.a b{color:' + BRAND + '}',
+    '.ln span{display:block;font-size:13.5px;line-height:1.55;color:#0C2141;white-space:pre-wrap;word-break:break-word}',
+    '.ln i{display:block;margin-top:3px;font-size:11px;font-style:normal;color:#A8B0BE}',
+
+    /* 답장 칸 */
+    '.say{margin-top:9px;display:flex;gap:6px;align-items:flex-end}',
+    '.say textarea{flex:1;min-height:38px;max-height:120px;padding:9px 10px;border:1.5px solid #D5DCE8;',
+    ' border-radius:7px;font:inherit;font-size:13.5px;line-height:1.5;color:#0C2141;resize:vertical;background:#fff}',
+    '.say textarea:focus{outline:none;border-color:' + BRAND + '}',
+    '.say a{flex:none;display:inline-flex;align-items:center;padding:0 14px;height:38px;border-radius:7px;',
+    ' font-size:13.5px;font-weight:600;background:' + BRAND + ';color:#fff;cursor:pointer}',
+
+    /* 지금 누구로 쓰는지 */
+    '.ph .me{margin-left:auto;font-size:12px;font-weight:700;color:#8A93A3;background:#F1F4F9;',
+    ' border-radius:999px;padding:4px 10px}',
+    '.ph .me.asog{color:#fff;background:' + BRAND + '}',
     '.it .acts{margin-top:10px;display:flex;gap:8px}',
     '.it .acts a{display:inline-flex;align-items:center;justify-content:center;',
     ' padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:600;line-height:1;',
@@ -453,6 +504,7 @@
 
     panel.innerHTML =
       '<div class="ph"><h3>수정 요청' + (company ? " · " + esc(company) : "") + '</h3>' +
+      '<span class="me' + (isAsog ? " asog" : "") + '">' + esc(sayName()) + '</span>' +
       '<button class="x" id="x">&times;</button></div>' +
       '<div class="pb" id="pb"></div>' +
       '<div class="pf">핀을 눌러 그 자리로 이동할 수 있습니다. ' +
@@ -483,10 +535,29 @@
           openPop({ px: pt.x, py: pt.y, body: it.body, selector: it.selector, x_pct: it.x_pct, y_pct: it.y_pct });
           return;
         }
+        if (act === "say") {
+          e.stopPropagation();
+          var ta = el.querySelector("[data-say]");
+          var txt = (ta && ta.value || "").trim();
+          if (!txt) { if (ta) ta.focus(); return; }
+          e.target.textContent = "보내는 중…";
+          rpc("fb_say", {
+            p_key: KEY, p_id: id, p_text: txt,
+            p_name: author, p_as_asog: isAsog
+          }).then(function (row) {
+            if (!row) { e.target.textContent = "다시"; return; }
+            load().then(function () { openPanel(true, id); });
+          });
+          return;
+        }
         if (act === "del") {
           e.stopPropagation();
           if (!confirm("#" + it.num + " 요청을 삭제할까요?")) return;
           rpc("fb_remove", { p_key: KEY, p_id: id }).then(function () { load(); });
+          return;
+        }
+        if (e.target && e.target.hasAttribute && e.target.hasAttribute("data-say")) {
+          e.stopPropagation();
           return;
         }
         goTo(it);
@@ -513,14 +584,38 @@
       '</div>' +
       '<p>' + esc(it.body) + '</p>' +
       '<div class="who">' + (it.author ? esc(it.author) + " · " : "") + esc(it.path) + '</div>' +
-      (it.reply ? '<div class="rep"><b>ASOG 답변</b>' + esc(it.reply) + '</div>' : '') +
+      thread(it) +
       (!pt ? '<div class="lost">' + (samePage(it) && !sameView(it)
               ? '다른 탭에서 적은 자리입니다 — 눌러서 그 화면으로 갑니다'
               : '이 자리는 지금 화면에 없습니다 — 번호는 오른쪽 가장자리에 세워 두었습니다') + '</div>' : '') +
       (it.status === "new"
         ? '<div class="acts"><a data-act="edit">글수정</a><a data-act="del">삭제</a></div>'
         : '') +
+      '<div class="say">' +
+        '<textarea data-say rows="1" placeholder="답장 쓰기"></textarea>' +
+        '<a data-act="say">보내기</a>' +
+      '</div>' +
     '</div>';
+  }
+
+  /*
+   * 주고받은 말.
+   *
+   * 고객이 쓴 줄과 ASOG가 쓴 줄을 왼쪽 선 색과 이름으로 가른다. 한쪽을
+   * 오른쪽으로 붙이는 대화창 모양은 쓰지 않는다 — 글이 길어 금세 읽기
+   * 어려워진다.
+   */
+  function thread(it) {
+    var th = Array.isArray(it.thread) ? it.thread : [];
+    if (!th.length && it.reply) th = [{ who: "asog", name: "ASOG", text: it.reply, at: it.updated_at }];
+    if (!th.length) return "";
+    return '<div class="th">' + th.map(function (m) {
+      var mine = m && m.who === "asog";
+      return '<div class="ln' + (mine ? " a" : "") + '">' +
+        '<b>' + esc(mine ? "ASOG" : (m.name || "고객")) + '</b>' +
+        '<span>' + esc(m.text) + '</span>' +
+        '<i>' + when(m.at) + '</i></div>';
+    }).join("") + '</div>';
   }
 
   function goTo(it) {
