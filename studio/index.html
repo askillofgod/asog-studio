@@ -265,6 +265,14 @@ input:focus{border-color:var(--brand);outline:none}
 .fb .tools .seg button[aria-current="true"]{background:var(--brand);color:#fff;font-weight:600}
 .fb .tools .txt{background:none;border:0;color:var(--ink-2);font-size:14px;cursor:pointer;
   text-decoration:underline;padding:8px 4px}
+/* 고객과 주고받은 말. 왼쪽 선 색으로 누가 썼는지 가른다. */
+.fb .th{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.fb .ln{padding:10px 13px;border-left:3px solid var(--rule);background:var(--panel);border-radius:0 7px 7px 0}
+.fb .ln.a{border-left-color:var(--brand);background:var(--pale)}
+.fb .ln b{display:block;font-size:13px;letter-spacing:.03em;color:var(--ink-2);margin-bottom:3px;font-weight:700}
+.fb .ln.a b{color:var(--brand)}
+.fb .ln span{display:block;font-size:16px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.fb .ln i{display:block;margin-top:4px;font-family:var(--mono);font-size:12px;font-style:normal;color:var(--ink-2)}
 .fb .rep{margin-top:11px}
 .fb .rep textarea{width:100%;min-height:70px;background:var(--panel);border:1.5px solid var(--rule);
   border-radius:5px;padding:11px 13px;font:inherit;font-size:15px;line-height:1.6;resize:vertical}
@@ -952,12 +960,26 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         (f.url ? '<button class="txt" data-act="open">화면 열기 ↗</button>' : '') +
         '<button class="txt" data-act="del">지우기</button>' +
       '</div>' +
+      fbThread(f) +
       '<div class="rep">' +
-        '<textarea data-rep placeholder="고객에게 보일 답변 (비워두면 표시되지 않습니다)">' +
-          esc(f.reply || "") + '</textarea>' +
-        '<button class="btn sm ghost save" data-act="reply">답변 저장</button>' +
+        '<textarea data-rep placeholder="고객에게 보일 답변 — 보내면 지난 답변 아래에 쌓입니다"></textarea>' +
+        '<button class="btn sm ghost save" data-act="reply">답변 보내기</button>' +
       '</div>' +
     '</div>';
+  }
+
+  /* 고객과 주고받은 말. 왼쪽 선 색으로 누가 썼는지 가른다. */
+  function fbThread(f){
+    var th = Array.isArray(f.thread) ? f.thread : [];
+    if(!th.length && f.reply) th = [{ who:"asog", name:"ASOG", text:f.reply, at:f.updated_at }];
+    if(!th.length) return "";
+    return '<div class="th">' + th.map(function(m){
+      var mine = m && m.who === "asog";
+      return '<div class="ln' + (mine ? " a" : "") + '">' +
+        '<b>' + esc(mine ? "ASOG" : (m.name || "고객")) + '</b>' +
+        '<span>' + esc(m.text) + '</span>' +
+        '<i>' + when(m.at) + '</i></div>';
+    }).join("") + '</div>';
   }
 
   function bindFbCards(){
@@ -977,9 +999,12 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
           if(act === "scope") return fbSet(id, { p_status: null, p_reply: null, p_scope_out: !f.scope_out });
           if(act === "open")  return window.open(f.url, "_blank", "noopener,noreferrer");
           if(act === "reply"){
-            var t = el.querySelector("[data-rep]").value;
-            b.textContent = "저장 중…";
-            return fbSet(id, { p_status: null, p_reply: t, p_scope_out: null });
+            var ta = el.querySelector("[data-rep]");
+            var t = (ta.value || "").trim();
+            if(!t){ ta.focus(); return; }
+            b.textContent = "보내는 중…";
+            return sb.rpc("admin_fb_say", { p_key: AKEY, p_id: id, p_text: t })
+              .then(function(){ loadFb(); });
           }
           if(act === "del"){
             if(!confirm(f.company + " #" + f.num + " 요청을 지울까요? 되돌릴 수 없습니다.")) return;
@@ -1009,7 +1034,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         '<button class="btn sm ghost" id="pincopy">스크립트 복사</button>' +
         '<p style="margin-top:10px">' +
           '개발 중인 사이트의 <b>&lt;/body&gt; 바로 앞</b>에 넣으면 됩니다. ' +
-          '고객은 화면 오른쪽 아래 <b>수정 요청</b> 버튼을 눌러 고칠 곳을 클릭하면 되고, 로그인은 필요 없습니다.<br>' +
+          '고객은 화면 오른쪽 위 <b>수정할곳 선택하기</b> 버튼을 눌러 고칠 곳을 클릭하면 되고, 로그인은 필요 없습니다.<br>' +
+          '어소그가 사이트에서 직접 글을 남기려면 주소 끝에 <b>?as=asog</b>를 붙여 한 번 열면 됩니다 ' +
+          '(그 브라우저가 기억합니다. 되돌리려면 <b>?as=client</b>).<br>' +
           '오픈할 때 이 한 줄만 지우면 흔적이 남지 않습니다.' +
         '</p></div>';
       $("pincopy").addEventListener("click", function(){
