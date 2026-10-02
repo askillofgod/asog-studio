@@ -26,6 +26,17 @@
   var KEY = (me && me.getAttribute("data-key")) || "";
   if (!KEY) return;
 
+  /*
+   * 목록 아래에 함께 걸 바로가기.
+   *
+   * 프로젝트마다 주소가 다르므로 여기 박지 않고 스크립트 줄에서 받는다.
+   *   <script src="…/pin.js" data-key="f-…"
+   *           data-dash="/dash" data-admin="/admin"></script>
+   * 값을 주지 않으면 그 단추는 그리지 않는다.
+   */
+  var DASH_URL = (me && me.getAttribute("data-dash")) || "";
+  var ADMIN_URL = (me && me.getAttribute("data-admin")) || "";
+
   /* 형광 보라. 고객 사이트가 쓰지 않는 색이라 "얹힌 도구"로 바로 읽힌다. */
   var BRAND = "#B026FF";
   var STATUS = {
@@ -401,6 +412,10 @@
     /* 목록 바닥 — 다음에 할 일을 한 자리에 둔다 */
     '.pact{padding:12px 18px;border-top:1px solid #E9EDF4}',
     '.pact .btn{width:100%;justify-content:center;text-align:center;box-shadow:none}',
+    /* 바로가기는 둘을 나란히 둔다. 고르는 단추보다 조용해야 한다. */
+    '.pgo{display:flex;gap:6px;margin-top:6px}',
+    '.pgo .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;',
+    ' padding:9px 0;font-size:13px;text-decoration:none;white-space:nowrap}',
     '.pf{padding:12px 18px;border-top:1px solid #E9EDF4;font-size:12px;color:#8A93A3;line-height:1.6}',
 
     '@media (max-width:560px){',
@@ -614,7 +629,19 @@
       '<span class="me' + (isAsog ? " asog" : "") + '">' + esc(sayName()) + '</span>' +
       '<button class="x" id="x">&times;</button></div>' +
       '<div class="pb" id="pb"></div>' +
-      '<div class="pact"><button class="btn main" id="add">수정할곳 선택하기</button></div>' +
+      '<div class="pact">' +
+        '<button class="btn main" id="add">수정할곳 선택하기</button>' +
+        (DASH_URL || ADMIN_URL
+          ? '<div class="pgo">' +
+              (DASH_URL
+                ? '<a class="btn ghost" href="' + esc(DASH_URL) + '" target="_blank" rel="noopener noreferrer">현황 화면 보기 ↗</a>'
+                : '') +
+              (ADMIN_URL
+                ? '<a class="btn ghost" href="' + esc(ADMIN_URL) + '" target="_blank" rel="noopener noreferrer">관리자 화면 보기 ↗</a>'
+                : '') +
+            '</div>'
+          : '') +
+      '</div>' +
       '<div class="pf">핀을 눌러 그 자리로 이동할 수 있습니다. ' +
       '<b>접수</b> 상태인 요청은 직접 글수정하거나 삭제할 수 있습니다.</div>';
     ui.appendChild(panel);
