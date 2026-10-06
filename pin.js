@@ -846,6 +846,51 @@
   window.addEventListener("resize", reflow);
   window.addEventListener("load", reflow);
 
+  /*
+   * 화면이 다 그려진 뒤에 다시 그린다.
+   *
+   * 핀은 적어 둔 길로 요소를 찾아 그 자리에 선다. 그런데 요즘 화면은
+   * 자바스크립트가 나중에 그리고, 사진도 늦게 온다. 자료를 받은 그 순간에
+   * 한 번만 그리면 아직 없는 요소를 못 찾고 그냥 지나친다 — 새로고침하면
+   * 핀이 사라졌다가, 목록에서 눌러 스크롤이 일어날 때야 나타난 이유다.
+   *
+   * 그래서 두 가지를 더한다.
+   *  1) 받은 뒤 몇 번 더 그린다. 늦게 오는 것들을 따라잡는다.
+   *  2) 화면이 바뀌면 그린다. 사진이 자리를 밀거나 SPA가 다른 화면으로
+   *     갈아끼울 때를 잡는다. 너무 자주 불리지 않게 묶어서 처리한다.
+   */
+  function catchUp() {
+    [120, 400, 900, 1800, 3500].forEach(function (ms) {
+      setTimeout(renderPins, ms);
+    });
+  }
+
+  if (window.MutationObserver) {
+    var moTick = null;
+    new MutationObserver(function () {
+      clearTimeout(moTick);
+      moTick = setTimeout(renderPins, 250);
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  /*
+   * 사이트 안에서 화면을 옮겨도 주소만 바뀌고 새로고침은 일어나지 않는다.
+   * 그때도 핀을 다시 셈해야 그 화면의 것만 남는다.
+   */
+  (function () {
+    var fire = function () { reflow(); catchUp(); };
+    window.addEventListener("popstate", fire);
+    ["pushState", "replaceState"].forEach(function (name) {
+      var orig = history[name];
+      if (typeof orig !== "function") return;
+      history[name] = function () {
+        var out = orig.apply(this, arguments);
+        fire();
+        return out;
+      };
+    });
+  })();
+
   /* ── 불러오기 ────────────────────────────────────────── */
   function load() {
     return rpc("fb_list", { p_key: KEY }).then(function (d) {
@@ -854,6 +899,7 @@
       items = d.items || [];
       renderFab();
       renderPins();
+      catchUp();
       if (panelOpen) openPanel(true);
     });
   }
