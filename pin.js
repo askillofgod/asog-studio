@@ -407,6 +407,15 @@
     '.ln.a b{color:' + BRAND + '}',
     '.ln span{display:block;font-size:13.5px;line-height:1.55;color:#0C2141;white-space:pre-wrap;word-break:break-word}',
     '.ln i{display:block;margin-top:3px;font-size:11px;font-style:normal;color:#A8B0BE}',
+    /* 줄마다 붙는 작은 글수정·삭제 */
+    '.ln .lnact{display:flex;gap:10px;margin-top:5px;font-style:normal}',
+    '.ln .lnact a{font-size:11.5px;font-weight:700;color:#8A93A3;cursor:pointer;',
+    ' text-decoration:underline;text-underline-offset:2px}',
+    '.ln .lnact a:hover{color:#0C2141}',
+    '.ln textarea{width:100%;margin-top:2px;padding:7px 9px;border:1.5px solid #D5DCE8;',
+    ' border-radius:6px;font:inherit;font-size:13.5px;line-height:1.55;color:#0C2141;',
+    ' background:#fff;resize:vertical}',
+    '.ln textarea:focus{outline:none;border-color:' + BRAND + '}',
 
     /* 답장 칸 */
     '.say{margin-top:9px;display:flex;gap:6px;align-items:flex-end}',
@@ -730,6 +739,35 @@
           openPop({ px: pt.x, py: pt.y, body: it.body, selector: it.selector, x_pct: it.x_pct, y_pct: it.y_pct });
           return;
         }
+        /* ── 댓글 한 줄 고치기·지우기 ── */
+        if (act === "sayedit" || act === "saydel" || act === "saysave" || act === "saycancel") {
+          e.stopPropagation();
+          var ln = e.target.closest ? e.target.closest(".ln") : null;
+          var at = ln && ln.getAttribute("data-at");
+          if (!at) return;
+
+          if (act === "sayedit") { editingSay = { id: id, at: at }; return openPanel(true, id); }
+          if (act === "saycancel") { editingSay = null; return openPanel(true, id); }
+
+          if (act === "saydel") {
+            if (!confirm("이 댓글을 삭제할까요?")) return;
+            e.target.textContent = "지우는 중…";
+            return rpc("fb_say_del", { p_key: KEY, p_id: id, p_at: at, p_as_asog: isAsog })
+              .then(function () { editingSay = null; load().then(function () { openPanel(true, id); }); });
+          }
+
+          var ta = ln.querySelector("[data-sayedit]");
+          var txt = (ta && ta.value || "").trim();
+          if (!txt) { if (ta) ta.focus(); return; }
+          e.target.textContent = "저장 중…";
+          return rpc("fb_say_edit", {
+            p_key: KEY, p_id: id, p_at: at, p_text: txt, p_as_asog: isAsog
+          }).then(function () {
+            editingSay = null;
+            load().then(function () { openPanel(true, id); });
+          });
+        }
+
         if (act === "say") {
           e.stopPropagation();
           var ta = el.querySelector("[data-say]");
@@ -751,7 +789,8 @@
           rpc("fb_remove", { p_key: KEY, p_id: id }).then(function () { load(); });
           return;
         }
-        if (e.target && e.target.hasAttribute && e.target.hasAttribute("data-say")) {
+        if (e.target && e.target.hasAttribute &&
+            (e.target.hasAttribute("data-say") || e.target.hasAttribute("data-sayedit"))) {
           e.stopPropagation();
           return;
         }
@@ -807,16 +846,45 @@
    * 오른쪽으로 붙이는 대화창 모양은 쓰지 않는다 — 글이 길어 금세 읽기
    * 어려워진다.
    */
+  /*
+   * 지금 고치고 있는 댓글 한 줄. {id, at}
+   *
+   * 줄은 번호가 아니라 적힌 시각으로 가린다. 번호로 잡으면 그 사이에 다른
+   * 줄이 지워졌을 때 엉뚱한 줄을 건드린다.
+   */
+  var editingSay = null;
+
   function thread(it) {
     var th = Array.isArray(it.thread) ? it.thread : [];
     if (!th.length && it.reply) th = [{ who: "asog", name: "ASOG", text: it.reply, at: it.updated_at }];
     if (!th.length) return "";
     return '<div class="th">' + th.map(function (m) {
-      var mine = m && m.who === "asog";
-      return '<div class="ln' + (mine ? " a" : "") + '">' +
-        '<b>' + esc(mine ? "ASOG" : (m.name || "고객")) + '</b>' +
+      var fromAsog = m && m.who === "asog";
+      var mine = fromAsog === isAsog;   // 자기 쪽 줄만 손댈 수 있다
+      var at = esc(m.at || "");
+      var editing = editingSay && editingSay.id === it.id && editingSay.at === m.at;
+
+      if (editing) {
+        return '<div class="ln' + (fromAsog ? " a" : "") + '" data-at="' + at + '">' +
+          '<b>' + esc(fromAsog ? "ASOG" : (m.name || "고객")) + '</b>' +
+          '<textarea data-sayedit rows="2">' + esc(m.text) + '</textarea>' +
+          '<em class="lnact">' +
+            '<a data-act="saysave">저장</a>' +
+            '<a data-act="saycancel">취소</a>' +
+          '</em></div>';
+      }
+
+      return '<div class="ln' + (fromAsog ? " a" : "") + '" data-at="' + at + '">' +
+        '<b>' + esc(fromAsog ? "ASOG" : (m.name || "고객")) + '</b>' +
         '<span>' + esc(m.text) + '</span>' +
-        '<i>' + when(m.at) + '</i></div>';
+        '<i>' + when(m.at) + (m.edited ? " · 고침" : "") + '</i>' +
+        (mine
+          ? '<em class="lnact">' +
+              '<a data-act="sayedit">글수정</a>' +
+              '<a data-act="saydel">삭제</a>' +
+            '</em>'
+          : '') +
+        '</div>';
     }).join("") + '</div>';
   }
 
