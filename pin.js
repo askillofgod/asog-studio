@@ -44,6 +44,28 @@
   var STUDIO_URL = "";
   try { STUDIO_URL = new URL("studio/", me.src).href; } catch (e) {}
 
+  /*
+   * 따로 보는 영역.
+   *
+   *   data-split="/admin"        (쉼표로 여럿도 된다)
+   *
+   * 한 주소 아래에 성격이 다른 화면이 같이 있을 때 쓴다. 비전필름은 사이트와
+   * 관리자 화면이 한 주소를 쓰는데, 둘은 보는 사람도 고치는 사람도 다르다.
+   * 한 목록에 섞이면 관리자 화면을 손보는 중에 사이트 요청이 끼어든다.
+   *
+   * 핀은 원래 그 화면의 것만 그린다. 여기서 가르는 것은 목록과 셈이다.
+   */
+  var ZONES = ((me && me.getAttribute("data-split")) || "")
+    .split(",").map(function (z) { return z.trim(); }).filter(Boolean);
+
+  function zoneOf(p) {
+    for (var i = 0; i < ZONES.length; i++) {
+      var z = ZONES[i];
+      if (p === z || p.indexOf(z + "/") === 0) return z;
+    }
+    return "";
+  }
+
   /* 형광 보라. 고객 사이트가 쓰지 않는 색이라 "얹힌 도구"로 바로 읽힌다. */
   var BRAND = "#B026FF";
   /* 어소그가 쓴 댓글을 가리는 색. 도구 색(보라)과 섞이지 않게 푸른 계열로 둔다. */
@@ -336,6 +358,9 @@
   function pageNow() { return location.pathname; }
   function pageOf(it) { return String(it.path || "").split("?")[0]; }
   function samePage(it) { return pageOf(it) === pageNow(); }
+  /* 지금 보고 있는 영역의 것인가 */
+  function sameZone(it) { return zoneOf(pageOf(it)) === zoneOf(pageNow()); }
+  function visibleItems() { return ZONES.length ? items.filter(sameZone) : items; }
   function sameView(it) { return it.path === pathNow(); }
   function isMobile() { return Math.min(window.innerWidth, window.innerHeight) < 700; }
   function esc(s) {
@@ -654,7 +679,8 @@
         (panelOpen
           ? '<span class="ar">×</span><span class="lbl">닫기</span>'
           : '<span class="ar">‹</span>' +
-            (items.length ? '<span class="n">' + items.length + '</span>' : '')) +
+            (visibleItems().length
+              ? '<span class="n">' + visibleItems().length + '</span>' : '')) +
       '</button>' +
       (placing
         ? '<div class="tip"><b>고치고 싶은 곳을 클릭하세요</b><u id="stop">취소 (Esc)</u></div>'
@@ -846,7 +872,7 @@
     renderFab();
 
     var here = [], other = [];
-    items.forEach(function (i) { (samePage(i) ? here : other).push(i); });
+    visibleItems().forEach(function (i) { (samePage(i) ? here : other).push(i); });
 
     panel.innerHTML =
       '<div class="ph"><h3>수정 요청' + (company ? " · " + esc(company) : "") + '</h3>' +
@@ -890,7 +916,7 @@
     if (addBtn) addBtn.onclick = function () { setPlacing(true); };
 
     var pb = panel.querySelector("#pb"), html = "";
-    if (!items.length) {
+    if (!here.length && !other.length) {
       html = '<div class="empty">아직 등록된 수정 요청이 없습니다.<br>' +
              '아래 <b>수정할곳 선택하기</b>를 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
     } else {
