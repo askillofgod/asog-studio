@@ -485,6 +485,7 @@
     ' box-shadow:-8px 0 30px rgba(12,33,65,.16);display:flex;flex-direction:column;',
     ' transform:translateX(100%);transition:transform .22s ease}',
     '.panel.on{transform:none}',
+    '.panel{overscroll-behavior:contain}',
     '.ph{padding:16px 18px;border-bottom:1px solid #E9EDF4;display:flex;align-items:center;gap:10px}',
     '.ph h3{font-size:15px;color:#0C2141;flex:1;font-weight:700}',
     /*
@@ -493,7 +494,8 @@
      * 기본 막대는 옅어서 쌓인 것이 더 있는지 눈에 띄지 않았다. 검은 계열로
      * 진하게, 폭도 넓혀 잡기 쉽게 둔다.
      */
-    '.pb{flex:1;overflow-y:auto;padding:6px 0 18px;',
+    /* 목록 끝에 닿아도 뒤 화면으로 넘어가지 않는다 */
+    '.pb{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:6px 0 18px;',
     ' scrollbar-width:auto;scrollbar-color:#2B3445 #E7EBF1}',
     '.pb::-webkit-scrollbar{width:28px}',
     '.pb::-webkit-scrollbar-track{background:#E7EBF1}',
@@ -934,6 +936,18 @@
       '<b>접수</b> 상태인 요청은 직접 글수정하거나 삭제할 수 있습니다.</div>';
     ui.appendChild(panel);
     setTimeout(function () { if (panel) panel.classList.add("on"); }, 10);
+
+    /*
+     * 패널 위에서 굴린 바퀴는 패널 안에서만 쓴다.
+     *
+     * 목록은 `overscroll-behavior`로 막히지만, 머리·바닥처럼 구를 것이 없는
+     * 자리에서는 바퀴가 그대로 뒤 화면으로 넘어가 사이트가 움직였다. 읽던
+     * 자리를 잃는다.
+     */
+    panel.addEventListener("wheel", function (e) {
+      var inList = e.target && e.target.closest && e.target.closest("#pb");
+      if (!inList) e.preventDefault();
+    }, { passive: false });
 
     var addBtn = panel.querySelector("#add");
     if (addBtn) addBtn.onclick = function () { setPlacing(true); };
