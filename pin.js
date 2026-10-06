@@ -498,6 +498,8 @@
     '.it{padding:18px;border-bottom:2px solid #C3CAD6;cursor:pointer}',
     '.it:last-child{border-bottom:0}',
     '.it:hover{background:#F7F9FC}',
+    '.it.blink{animation:asogblink .8s ease-in-out 2}',
+    '@keyframes asogblink{0%,100%{background:transparent}50%{background:#FFE9C6}}',
     '.it .top{display:flex;align-items:center;gap:8px;margin-bottom:5px}',
     /* 번호는 화면의 핀과 짝을 이루는 표시다. 핀만큼 또렷해야 서로 찾는다. */
     '.it .no{flex:none;width:30px;height:30px;border-radius:50%;display:inline-flex;',
@@ -1013,7 +1015,12 @@
 
     if (focusId) {
       var t = pb.querySelector('.it[data-id="' + focusId + '"]');
-      if (t) t.scrollIntoView({ block: "center" });
+      if (t) {
+        t.scrollIntoView({ block: "center" });
+        /* 어느 글인지 면을 두 번 깜박여 알린다. 화면을 건드리지 않는다. */
+        t.classList.add("blink");
+        setTimeout(function () { t.classList.remove("blink"); }, 1600);
+      }
     }
   }
 
@@ -1108,22 +1115,15 @@
     }).join("") + '</div>';
   }
 
+  /*
+   * 목록에서 고르면 그 화면으로만 간다.
+   *
+   * 전에는 같은 화면이면 그 자리로 스크롤하고 네모를 씌워 짚어 줬다. 목록을
+   * 읽는 중에 화면이 움직여 읽던 자리를 잃었다. 짚어 주는 일은 화면의 핀을
+   * 누르는 쪽 하나로 모은다.
+   */
   function goTo(it) {
-    if (!sameView(it)) { location.href = it.path; return; }
-    var pt = pointOf(it);
-    if (!pt) return;
-    closePanel();
-    window.scrollTo({ top: Math.max(0, pt.y - window.innerHeight / 2), behavior: "smooth" });
-    setTimeout(function () {
-      showBox(it, true);
-      var pins = layer.querySelectorAll(".pin");
-      for (var i = 0; i < pins.length; i++) {
-        if (pins[i].textContent === String(it.num)) { pins[i].classList.add("sel"); break; }
-      }
-      setTimeout(function () {
-        layer.querySelectorAll(".pin.sel").forEach(function (p) { p.classList.remove("sel"); });
-      }, 2400);
-    }, 480);
+    if (!sameView(it)) { location.href = it.path; }
   }
 
   /* ── 페이지 클릭 잡기 ────────────────────────────────── */
