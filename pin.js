@@ -178,6 +178,69 @@
   if (isAsog) author = "ASOG";
   function sayName() { return author || (isAsog ? "ASOG" : "고객"); }
 
+  /*
+   * ── 그림 붙이기 ──────────────────────────────────────
+   *
+   * 화면을 캡처해 "여기가 이렇게 보입니다"를 보여 주는 일이 잦다. 글로만
+   * 적으면 서로 다른 곳을 떠올린다.
+   *
+   * 파일은 스튜디오 저장소(`feedback`)에 올리고, 주소만 글에 적는다.
+   * 프로젝트 코드로 폴더를 나눠 다른 고객 것과 섞이지 않게 한다.
+   */
+  var IMG_MAX = 6;
+  var IMG_BYTES = 5 * 1024 * 1024;
+
+  function uploadImage(file) {
+    if (!file || file.size > IMG_BYTES) return Promise.resolve(null);
+    var ext = (file.type.split("/")[1] || "png").replace("jpeg", "jpg");
+    var name = Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
+    var path = KEY + "/" + name;
+    return fetch(SUPABASE_URL + "/storage/v1/object/feedback/" + path, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: "Bearer " + SUPABASE_KEY,
+        "Content-Type": file.type
+      },
+      body: file
+    }).then(function (r) {
+      return r.ok ? SUPABASE_URL + "/storage/v1/object/public/feedback/" + path : null;
+    }).catch(function () { return null; });
+  }
+
+  function uploadAll(files) {
+    var list = [].slice.call(files || []).slice(0, IMG_MAX);
+    if (!list.length) return Promise.resolve([]);
+    return Promise.all(list.map(uploadImage)).then(function (urls) {
+      return urls.filter(Boolean);
+    });
+  }
+
+  /* 목록에 깔리는 작은 그림들 */
+  function shots(imgs) {
+    var a = Array.isArray(imgs) ? imgs : [];
+    if (!a.length) return "";
+    return '<div class="shots">' + a.map(function (u) {
+      return '<img class="shot" src="' + esc(u) + '" alt="붙임 그림" loading="lazy">';
+    }).join("") + '</div>';
+  }
+
+  /* 눌러서 크게 보기 */
+  function openShot(src) {
+    var lb = document.createElement("div");
+    lb.className = "lb";
+    lb.innerHTML = '<img src="' + esc(src) + '" alt="붙임 그림">' +
+                   '<button class="lbx" aria-label="닫기">&times;</button>';
+    var close = function () {
+      lb.remove();
+      document.removeEventListener("keydown", onKey);
+    };
+    var onKey = function (e) { if (e.key === "Escape") close(); };
+    lb.addEventListener("click", close);
+    document.addEventListener("keydown", onKey);
+    root.appendChild(lb);
+  }
+
   /* ── 통신 ────────────────────────────────────────────── */
   function rpc(fn, body) {
     return fetch(SUPABASE_URL + "/rest/v1/rpc/" + fn, {
@@ -407,6 +470,26 @@
     '.ln.a b{color:' + BRAND + '}',
     '.ln span{display:block;font-size:13.5px;line-height:1.55;color:#0C2141;white-space:pre-wrap;word-break:break-word}',
     '.ln i{display:block;margin-top:3px;font-size:11px;font-style:normal;color:#A8B0BE}',
+    /* 붙임 그림 — 목록에서는 작게, 누르면 크게 */
+    '.shots{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}',
+    '.shot{width:62px;height:62px;object-fit:cover;border-radius:7px;cursor:zoom-in;',
+    ' border:1px solid #E3E8F0;background:#F1F4F9}',
+    '.shot:hover{border-color:' + BRAND + '}',
+    '.lb{position:fixed;inset:0;z-index:10;background:rgba(12,33,65,.82);pointer-events:auto;',
+    ' display:flex;align-items:center;justify-content:center;padding:28px;cursor:zoom-out}',
+    '.lb img{max-width:100%;max-height:100%;border-radius:10px;',
+    ' box-shadow:0 20px 60px rgba(0,0,0,.45);background:#fff}',
+    '.lbx{position:absolute;top:14px;right:16px;width:40px;height:40px;border:0;border-radius:999px;',
+    ' background:rgba(255,255,255,.92);color:#0C2141;font-size:24px;line-height:1;cursor:pointer}',
+
+    /* 사진 고르기 */
+    '.pick{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:7px 12px;',
+    ' border:1.5px dashed #D5DCE8;border-radius:7px;font-size:13px;font-weight:600;',
+    ' color:#5A6475;cursor:pointer}',
+    '.pick:hover{border-color:' + BRAND + ';color:' + BRAND + '}',
+    '.pick.sm{flex:none;margin-top:0;padding:0 11px;height:38px;white-space:nowrap}',
+    '.picked{margin-left:8px;font-size:12px;color:' + BRAND + ';font-weight:700}',
+
     /* 줄마다 붙는 작은 글수정·삭제 */
     '.ln .lnact{display:flex;gap:10px;margin-top:5px;font-style:normal}',
     '.ln .lnact a{font-size:11.5px;font-weight:700;color:#8A93A3;cursor:pointer;',
@@ -603,6 +686,10 @@
       '<h4>' + (editingId ? "글 수정" : "무엇을 고칠까요?") + '</h4>' +
       '<textarea id="t" placeholder="예) 이 버튼 색이 너무 흐려서 잘 안 보입니다"></textarea>' +
       '<input id="a" placeholder="작성하신 분 (선택)" value="' + esc(author) + '">' +
+      (editingId ? '' :
+        '<label class="pick">사진 첨부' +
+          '<input id="f" type="file" accept="image/*" multiple hidden>' +
+        '</label><span class="picked" id="fn"></span>') +
       '<div class="row">' +
         '<button class="btn ghost" id="c">취소</button>' +
         '<button class="btn main" id="s">' + (editingId ? "저장" : "보내기") + '</button>' +
@@ -613,6 +700,14 @@
     if (draft.body) ta.value = draft.body;
     setTimeout(function () { ta.focus(); }, 30);
 
+    var fileInput = pop.querySelector("#f");
+    if (fileInput) {
+      fileInput.onchange = function () {
+        var n = fileInput.files.length;
+        pop.querySelector("#fn").textContent = n ? n + "장 고름" : "";
+      };
+    }
+
     pop.querySelector("#c").onclick = function () { editingId = null; closePop(); };
     pop.querySelector("#s").onclick = send;
     ta.addEventListener("keydown", function (e) {
@@ -621,7 +716,9 @@
 
     function send() {
       var body = ta.value.trim();
-      if (!body) { ta.focus(); return; }
+      var files = fileInput ? fileInput.files : null;
+      /* 글이 비어도 그림만 붙여 남길 수 있다 */
+      if (!body && !(files && files.length)) { ta.focus(); return; }
       author = pop.querySelector("#a").value.trim();
       if (!isAsog) {
         try { localStorage.setItem("asog_pin_author", author); } catch (e) {}
@@ -640,17 +737,22 @@
 
       if (editingId) {
         rpc("fb_edit", { p_key: KEY, p_id: editingId, p_body: body }).then(done);
-      } else {
+        return;
+      }
+
+      if (files && files.length) btn.textContent = "사진 올리는 중…";
+      uploadAll(files).then(function (images) {
+        btn.textContent = "보내는 중…";
         rpc("fb_add", {
           p_key: KEY,
           p_item: {
             path: pathNow(), url: location.href,
             selector: draft.selector, x_pct: draft.x_pct, y_pct: draft.y_pct,
             vw: window.innerWidth, device: isMobile() ? "mobile" : "pc",
-            ua: navigator.userAgent, body: body, author: author
+            ua: navigator.userAgent, body: body, author: author, images: images
           }
         }).then(done);
-      }
+      });
     }
   }
 
@@ -771,14 +873,20 @@
         if (act === "say") {
           e.stopPropagation();
           var ta = el.querySelector("[data-say]");
+          var sf = el.querySelector("[data-sayfile]");
           var txt = (ta && ta.value || "").trim();
-          if (!txt) { if (ta) ta.focus(); return; }
-          e.target.textContent = "보내는 중…";
-          rpc("fb_say", {
-            p_key: KEY, p_id: id, p_text: txt,
-            p_name: author, p_as_asog: isAsog
+          var sfiles = sf ? sf.files : null;
+          if (!txt && !(sfiles && sfiles.length)) { if (ta) ta.focus(); return; }
+          var sayBtn = e.target;
+          sayBtn.textContent = sfiles && sfiles.length ? "사진 올리는 중…" : "보내는 중…";
+          uploadAll(sfiles).then(function (images) {
+            sayBtn.textContent = "보내는 중…";
+            return rpc("fb_say", {
+              p_key: KEY, p_id: id, p_text: txt,
+              p_name: author, p_as_asog: isAsog, p_images: images
+            });
           }).then(function (row) {
-            if (!row) { e.target.textContent = "다시"; return; }
+            if (!row) { sayBtn.textContent = "다시"; return; }
             load().then(function () { openPanel(true, id); });
           });
           return;
@@ -787,6 +895,11 @@
           e.stopPropagation();
           if (!confirm("#" + it.num + " 요청을 삭제할까요?")) return;
           rpc("fb_remove", { p_key: KEY, p_id: id }).then(function () { load(); });
+          return;
+        }
+        if (e.target && e.target.classList && e.target.classList.contains("shot")) {
+          e.stopPropagation();
+          openShot(e.target.getAttribute("src"));
           return;
         }
         if (e.target && e.target.hasAttribute &&
@@ -817,6 +930,7 @@
         '<span class="ago">' + when(it.created_at) + '</span>' +
       '</div>' +
       '<p>' + esc(it.body) + '</p>' +
+      shots(it.images) +
       '<div class="who">' + (it.author ? esc(it.author) + " · " : "") + esc(it.path) + '</div>' +
       thread(it) +
       (!pt ? '<div class="lost">' + (samePage(it) && !sameView(it)
@@ -834,6 +948,7 @@
        */
       '<div class="say">' +
         '<textarea data-say rows="1" placeholder="답장 쓰기"></textarea>' +
+        '<label class="pick sm">사진<input data-sayfile type="file" accept="image/*" multiple hidden></label>' +
         '<a data-act="say">보내기</a>' +
       '</div>' +
     '</div>';
@@ -877,6 +992,7 @@
       return '<div class="ln' + (fromAsog ? " a" : "") + '" data-at="' + at + '">' +
         '<b>' + esc(fromAsog ? "ASOG" : (m.name || "고객")) + '</b>' +
         '<span>' + esc(m.text) + '</span>' +
+        shots(m.images) +
         '<i>' + when(m.at) + (m.edited ? " · 고침" : "") + '</i>' +
         (mine
           ? '<em class="lnact">' +
