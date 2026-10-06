@@ -370,7 +370,6 @@
   function pathNow() { return location.pathname + stripAs(location.search); }
   function pageNow() { return location.pathname; }
   function pageOf(it) { return String(it.path || "").split("?")[0]; }
-  function samePage(it) { return pageOf(it) === pageNow(); }
   /* 지금 보고 있는 영역의 것인가 */
   function sameZone(it) { return zoneOf(pageOf(it)) === zoneOf(pageNow()); }
   function visibleItems() { return ZONES.length ? items.filter(sameZone) : items; }
@@ -834,8 +833,13 @@
     // 화면에서 사라지면 고객은 자기가 적은 것이 지워진 줄 안다.
     var docked = 0;
     items.forEach(function (it) {
-      if (!samePage(it)) return;
-      var pt = sameView(it) ? pointOf(it) : null;
+      /*
+       * 다른 탭의 핀은 그리지 않는다. 전에는 가장자리에 세워 뒀는데, 지금
+       * 화면에 없는 자리를 가리키는 표시라 "오류인가?" 하고 멈추게 했다.
+       * 그런 것은 목록의 「다른 페이지」에서 찾아 그 화면으로 가면 된다.
+       */
+      if (!sameView(it)) return;
+      var pt = pointOf(it);
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
       el.className = "pin" + (pt ? (pt.exact ? "" : " near") : " lost");
@@ -848,9 +852,7 @@
       } else {
         el.style.left = (window.innerWidth - 42) + "px";
         el.style.top = (210 + docked * 54) + "px";
-        el.title = "#" + it.num + " · " + st.label +
-                   (sameView(it) ? " · 이 자리는 지금 화면에 없습니다"
-                                 : " · 다른 탭에서 적었습니다 — 눌러서 그 화면으로");
+        el.title = "#" + it.num + " · " + st.label + " · 이 자리는 지금 화면에 없습니다";
         docked++;
       }
       el.innerHTML = "<span>" + it.num + "</span>";
@@ -858,8 +860,6 @@
       el.onmouseleave = hideBox;
       el.onclick = function (e) {
         e.stopPropagation();
-        // 다른 탭에서 적은 핀은 그 화면으로 데려다준다.
-        if (!sameView(it)) { location.href = it.path; return; }
         if (pt) showBox(it, true);
         openPanel(true, it.id);
       };
@@ -995,7 +995,14 @@
     renderFab();
 
     var here = [], other = [];
-    visibleItems().forEach(function (i) { (samePage(i) ? here : other).push(i); });
+    /*
+     * 탭이 다르면 다른 화면으로 친다.
+     *
+     * 주소만 보고 묶었더니 `/prices` 에 적은 것이 `/prices?tab=car` 목록에도
+     * 「이 화면」으로 끼었다. 핀은 세 개가 안 보이는데 목록에는 세 건이 있어,
+     * 어느 자리를 말하는지 찾을 수 없었다.
+     */
+    visibleItems().forEach(function (i) { (sameView(i) ? here : other).push(i); });
 
     panel.innerHTML =
       '<div class="pscroll"><div class="ph">' +
@@ -1078,8 +1085,8 @@
        */
       if (other.length) {
         html += '<button class="more" id="more">' +
-                  (showOther ? '다른 페이지 ' + other.length + '건 접기'
-                             : '다른 페이지 ' + other.length + '건 보기') +
+                  (showOther ? '다른 화면 ' + other.length + '건 접기'
+                             : '다른 화면 ' + other.length + '건 보기') +
                 '</button>' +
                 (showOther ? other.map(card).join("") : '');
       }
@@ -1211,7 +1218,7 @@
 
   function card(it) {
     var st = STATUS[it.status] || STATUS["new"];
-    var pt = samePage(it) ? pointOf(it) : true;
+    var pt = sameView(it) ? pointOf(it) : true;
     return '<div class="it" data-id="' + it.id + '">' +
       /*
        * 맨 처음 적은 글은 회색 면에 올려 둔다. 그 아래 주고받은 말과 새로
@@ -1261,9 +1268,7 @@
       '</div>' +
       '</div>' +
       thread(it) +
-      (!pt ? '<div class="lost">' + (samePage(it) && !sameView(it)
-              ? '다른 탭에서 적은 자리입니다 — 눌러서 그 화면으로 갑니다'
-              : '이 자리는 지금 화면에 없습니다 — 번호는 오른쪽 가장자리에 세워 두었습니다') + '</div>' : '') +
+      (!pt ? '<div class="lost">이 자리는 지금 화면에 없습니다 — 번호는 오른쪽 가장자리에 세워 두었습니다</div>' : '') +
       /*
        * 답장은 양쪽 다 쓴다.
        *
