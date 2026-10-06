@@ -648,6 +648,12 @@
      */
     '.it .acts{margin-top:10px;padding-bottom:12px;border-bottom:2px dashed #7A8498;',
     ' display:flex;gap:8px}',
+    /*
+     * 댓글이 아직 없으면 단추 줄과 답장 칸이 바로 붙는다. 그때는 두 점선이
+     * 나란히 겹쳐 두 줄로 보였다. 뒤따르는 답장 칸이 제 점선을 가지므로
+     * 여기는 긋지 않는다.
+     */
+    '.it .acts:has(+ .say){border-bottom:0;padding-bottom:0}',
     '.it .acts a{display:inline-flex;align-items:center;justify-content:center;',
     ' padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:700;line-height:1;',
     ' background:#6B7488;color:#fff;border:1.5px solid #6B7488;cursor:pointer;',
