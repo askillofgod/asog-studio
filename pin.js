@@ -526,6 +526,7 @@
      * 마지막 건 아래에는 긋지 않는다 — 더 있는 줄 알게 된다.
      */
     '.it{padding:18px;border-bottom:2px solid #141A26;cursor:pointer}',
+    '.rq{margin:-18px -18px 0;padding:18px;background:#F2F4F7}',
     '.it:last-child{border-bottom:0}',
     '.it:hover{background:#F7F9FC}',
     '.it.blink{animation:asogblink .8s ease-in-out 2}',
@@ -559,7 +560,7 @@
     '.it .rep b{display:block;font-size:11px;letter-spacing:.06em;color:' + BRAND + ';margin-bottom:3px}',
 
     /* 주고받은 말 — 왼쪽 선 색으로 누가 썼는지 가른다 */
-    '.th{margin-top:9px;display:flex;flex-direction:column;gap:7px}',
+    '.th{margin-top:14px;display:flex;flex-direction:column;gap:7px}',
     /*
      * 누가 썼는지 면 색으로 가른다.
      *
@@ -660,14 +661,8 @@
      * 요청 사이를 가르는 실선과 달리 점선으로 둬, 같은 요청 안에서 나뉘는
      * 자리라는 것이 보이게 한다.
      */
-    '.it .acts{margin-top:10px;padding-bottom:12px;border-bottom:2px dashed #7A8498;',
-    ' display:flex;gap:8px}',
-    /*
-     * 댓글이 아직 없으면 단추 줄과 답장 칸이 바로 붙는다. 그때는 두 점선이
-     * 나란히 겹쳐 두 줄로 보였다. 뒤따르는 답장 칸이 제 점선을 가지므로
-     * 여기는 긋지 않는다.
-     */
-    '.it .acts:has(+ .say){border-bottom:0;padding-bottom:0}',
+    /* 회색 면이 이미 끊어 주므로 여기는 점선을 긋지 않는다. */
+    '.it .acts{margin-top:10px;display:flex;gap:8px}',
     '.it .acts a{display:inline-flex;align-items:center;justify-content:center;',
     ' padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:700;line-height:1;',
     ' background:#6B7488;color:#fff;border:1.5px solid #6B7488;cursor:pointer;',
@@ -678,7 +673,7 @@
     '.it .acts a[data-act="del"]{background:#D98090;border-color:#D98090;color:#fff}',
     '.it .acts a[data-act="del"]:hover{background:#C8102E;border-color:#C8102E}',
     /* 화면 이동은 고치는 일이 아니라 옮기는 일이라 선만 둔다 */
-    '.it .acts a.go{background:#fff;color:#0C2141;border-color:#C3CAD6}',
+    '.it .acts a.go{background:#fff;color:#0C2141;border-color:#9AA5B5}',
     '.it .acts a.go:hover{background:#0C2141;border-color:#0C2141;color:#fff}',
     '.it .lost{margin-top:6px;font-size:12px;color:#B07800}',
     '.empty{padding:34px 20px;text-align:center;color:#8A93A3;font-size:14px;line-height:1.7}',
@@ -1131,6 +1126,11 @@
     var st = STATUS[it.status] || STATUS["new"];
     var pt = samePage(it) ? pointOf(it) : true;
     return '<div class="it" data-id="' + it.id + '">' +
+      /*
+       * 맨 처음 적은 글은 회색 면에 올려 둔다. 그 아래 주고받은 말과 새로
+       * 적는 칸은 흰 면이라, 어디까지가 "처음 요청"인지 면으로 갈린다.
+       */
+      '<div class="rq">' +
       '<div class="top">' +
         '<span class="no" style="background:' + hueOf(it) + '"><i>' + it.num + '</i></span>' +
         /*
@@ -1171,6 +1171,7 @@
           ? '<a data-act="edit">글수정</a><a data-act="del">삭제</a>'
           : '') +
         '<a data-act="goto" class="go">화면 이동</a>' +
+      '</div>' +
       '</div>' +
       thread(it) +
       (!pt ? '<div class="lost">' + (samePage(it) && !sameView(it)
