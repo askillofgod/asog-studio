@@ -412,6 +412,10 @@
     '.tab .ar{font-size:30px;line-height:1;font-weight:700;margin-right:2px}',
     '.tab .n{min-width:28px;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.28);',
     ' font-size:15px;font-weight:800;line-height:1.3}',
+    /* 열려 있을 때 — 패널 왼쪽에 붙어 ×로 바뀐다 */
+    '.tab.is-open{right:min(380px, 100vw);width:52px;padding:20px 0}',
+    '.tab.is-open .ar{font-size:26px;margin-right:0}',
+    '.tab .lbl{font-size:12px;font-weight:800;letter-spacing:.02em}',
     '.btn{border:0;border-radius:999px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;',
     ' box-shadow:0 4px 14px rgba(12,33,65,.22);line-height:1;white-space:nowrap}',
     '.btn.main{background:' + BRAND + ';color:#fff}',
@@ -592,6 +596,7 @@
 
     '@media (max-width:560px){',
     ' .tab{width:46px;padding:20px 0}',
+    ' .tab.is-open{display:none}',
     ' .btn{padding:10px 15px;font-size:13.5px}',
     ' .pop{width:calc(100vw - 24px);left:12px!important;right:12px}',
     ' .tip{width:calc(100vw - 24px);justify-content:center;font-size:13px;padding:10px 12px}',
@@ -619,18 +624,27 @@
    * 쪽(왼쪽)을 가리킨다.
    */
   function renderFab() {
+    /*
+     * 손잡이 하나로 열고 닫는다.
+     *
+     * 열려 있을 때 손잡이를 감췄더니, 닫으려면 패널 안의 작은 ×를 찾아야 했다.
+     * 연 자리에서 그대로 닫는 편이 손이 덜 간다. 열리면 패널 왼쪽으로 비켜서서
+     * 화살표 대신 ×를 보인다.
+     */
     ui.innerHTML =
-      (panelOpen ? '' :
-        '<button class="tab" id="list" title="수정 요청 목록 열기">' +
-          '<span class="ar">‹</span>' +
-          (items.length ? '<span class="n">' + items.length + '</span>' : '') +
-        '</button>') +
+      '<button class="tab' + (panelOpen ? " is-open" : "") + '" id="list" title="' +
+        (panelOpen ? "목록 닫기" : "수정 요청 목록 열기") + '">' +
+        (panelOpen
+          ? '<span class="ar">×</span><span class="lbl">닫기</span>'
+          : '<span class="ar">‹</span>' +
+            (items.length ? '<span class="n">' + items.length + '</span>' : '')) +
+      '</button>' +
       (placing
         ? '<div class="tip"><b>고치고 싶은 곳을 클릭하세요</b><u id="stop">취소 (Esc)</u></div>'
         : '');
 
     var lst = ui.querySelector("#list");
-    if (lst) lst.onclick = function () { openPanel(true); };
+    if (lst) lst.onclick = function () { panelOpen ? closePanel() : openPanel(true); };
     var stop = ui.querySelector("#stop");
     if (stop) stop.onclick = function () { setPlacing(false); };
   }
