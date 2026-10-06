@@ -743,10 +743,19 @@
       (it.status === "new"
         ? '<div class="acts"><a data-act="edit">글수정</a><a data-act="del">삭제</a></div>'
         : '') +
-      '<div class="say">' +
-        '<textarea data-say rows="1" placeholder="답장 쓰기"></textarea>' +
-        '<a data-act="say">보내기</a>' +
-      '</div>' +
+      /*
+       * 답장은 어소그만 쓴다.
+       *
+       * 고객은 핀으로 고칠 곳을 적고, 어소그가 거기에 답한다. 고객 화면에는
+       * 그 답이 보이지만 쓰는 칸은 두지 않는다 — 되물을 일이 있으면 그
+       * 자리에 핀을 새로 찍는 편이 어디를 말하는지 분명하다.
+       */
+      (isAsog
+        ? '<div class="say">' +
+            '<textarea data-say rows="1" placeholder="답장 쓰기"></textarea>' +
+            '<a data-act="say">보내기</a>' +
+          '</div>'
+        : '') +
     '</div>';
   }
 
