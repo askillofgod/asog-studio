@@ -474,6 +474,7 @@
     '.pop{position:absolute;width:300px;background:#fff;border-radius:10px;pointer-events:auto;',
     ' box-shadow:0 10px 34px rgba(12,33,65,.26);border:1px solid #E3E8F0;overflow:hidden}',
     '.pop h4{font-size:13px;color:#5A6478;padding:12px 14px 0;font-weight:600}',
+    '.pop .note{padding:4px 14px 0;font-size:11.5px;line-height:1.5;color:#8A93A3}',
     '.pop textarea{width:100%;border:0;padding:10px 14px;font-size:15px;line-height:1.55;resize:vertical;',
     ' min-height:88px;outline:none;color:#0C2141}',
     '.pop input{width:100%;border:0;border-top:1px solid #EEF1F6;padding:9px 14px;font-size:13px;outline:none;color:#0C2141}',
@@ -847,12 +848,12 @@
 
     pop.innerHTML =
       '<h4>' + (editingId ? "글 수정" : "무엇을 고칠까요?") + '</h4>' +
+      (editingId ? '<p class="note">이미 붙인 그림은 그대로 두고, 고른 것만 더합니다</p>' : '') +
       '<textarea id="t" placeholder="예) 이 버튼 색이 너무 흐려서 잘 안 보입니다"></textarea>' +
       '<input id="a" placeholder="작성하신 분 (선택)" value="' + esc(author) + '">' +
-      (editingId ? '' :
-        '<label class="pick">참고 이미지 첨부' +
-          '<input id="f" type="file" accept="image/*" multiple hidden>' +
-        '</label><span class="picked" id="fn"></span>') +
+      '<label class="pick">참고 이미지 첨부' +
+        '<input id="f" type="file" accept="image/*" multiple hidden>' +
+      '</label><span class="picked" id="fn"></span>' +
       '<div class="row">' +
         '<button class="btn ghost" id="c">취소</button>' +
         '<button class="btn main" id="s">' + (editingId ? "저장" : "보내기") + '</button>' +
@@ -898,14 +899,16 @@
         load();
       };
 
-      if (editingId) {
-        rpc("fb_edit", { p_key: KEY, p_id: editingId, p_body: body }).then(done);
-        return;
-      }
-
       if (files && files.length) btn.textContent = "사진 올리는 중…";
       uploadAll(files).then(function (images) {
         btn.textContent = "보내는 중…";
+
+        if (editingId) {
+          return rpc("fb_edit", {
+            p_key: KEY, p_id: editingId, p_body: body, p_images: images
+          }).then(done);
+        }
+
         rpc("fb_add", {
           p_key: KEY,
           p_item: {
