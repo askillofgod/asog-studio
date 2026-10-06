@@ -601,6 +601,7 @@
     '.pick:hover{border-color:' + BRAND + ';color:' + BRAND + '}',
     '.pick.sm{flex:none;margin-top:0;padding:0 11px;height:38px;white-space:nowrap}',
     '.pick em{font-style:normal;font-weight:500;font-size:11.5px;color:#8A93A3}',
+    '.pick em.shots-count:not(:empty){margin-left:5px;font-weight:800;color:' + BRAND + '}',
     '.picked{margin-left:8px;font-size:12px;color:' + BRAND + ';font-weight:700}',
 
     /* 줄마다 붙는 작은 글수정·삭제 */
@@ -892,13 +893,23 @@
     if (draft.body) ta.value = draft.body;
     setTimeout(function () { ta.focus(); }, 30);
 
+    /*
+     * 고른 파일을 쌓아 둔다.
+     *
+     * 파일 칸은 마지막에 고른 것만 들고 있다. 그래서 두 번에 나눠 고르면 앞서
+     * 고른 것이 조용히 지워졌다 — 두 장을 붙였다고 생각했는데 한 장만 올라갔다.
+     * 고른 것을 따로 모으고, 칸은 비워 같은 파일을 다시 골라도 알아차리게 한다.
+     */
     var fileInput = pop.querySelector("#f");
+    var picked = [];
     if (fileInput) {
       fileInput.onchange = function () {
-        var n = fileInput.files.length;
-        pop.querySelector("#fn").textContent = !n ? ""
-          : n > IMG_MAX ? IMG_MAX + "장만 올립니다 (" + n + "장 고름)"
-          : n + "장 고름";
+        picked = picked.concat([].slice.call(fileInput.files));
+        fileInput.value = "";
+        var over = picked.length > IMG_MAX;
+        if (over) picked = picked.slice(0, IMG_MAX);
+        pop.querySelector("#fn").textContent = !picked.length ? ""
+          : picked.length + "장" + (over ? " (최대 5장까지)" : "");
       };
     }
 
@@ -910,7 +921,7 @@
 
     function send() {
       var body = ta.value.trim();
-      var files = fileInput ? fileInput.files : null;
+      var files = picked;
       /* 글이 비어도 그림만 붙여 남길 수 있다 */
       if (!body && !(files && files.length)) { ta.focus(); return; }
       author = pop.querySelector("#a").value.trim();
@@ -1051,6 +1062,17 @@
     }
     pb.innerHTML = html;
 
+    /* 댓글 칸의 사진도 고른 것을 쌓아 둔다. */
+    pb.querySelectorAll("[data-sayfile]").forEach(function (sf) {
+      sf._picked = [];
+      sf.onchange = function () {
+        sf._picked = sf._picked.concat([].slice.call(sf.files)).slice(0, IMG_MAX);
+        sf.value = "";
+        var tag = sf.closest(".say").querySelector(".shots-count");
+        if (tag) tag.textContent = sf._picked.length ? sf._picked.length + "장" : "";
+      };
+    });
+
     pb.querySelectorAll(".it").forEach(function (el) {
       var id = Number(el.getAttribute("data-id"));
       var it = items.filter(function (i) { return i.id === id; })[0];
@@ -1098,7 +1120,7 @@
           var ta = el.querySelector("[data-say]");
           var sf = el.querySelector("[data-sayfile]");
           var txt = (ta && ta.value || "").trim();
-          var sfiles = sf ? sf.files : null;
+          var sfiles = (sf && sf._picked) || [];
           if (!txt && !(sfiles && sfiles.length)) { if (ta) ta.focus(); return; }
           var sayBtn = e.target;
           sayBtn.textContent = sfiles && sfiles.length ? "사진 올리는 중…" : "보내는 중…";
@@ -1221,7 +1243,8 @@
        */
       '<div class="say">' +
         '<textarea data-say rows="1" placeholder="댓글을 작성하세요."></textarea>' +
-        '<label class="pick sm">사진<input data-sayfile type="file" accept="image/*" multiple hidden></label>' +
+        '<label class="pick sm">사진<em class="shots-count"></em>' +
+          '<input data-sayfile type="file" accept="image/*" multiple hidden></label>' +
         '<a data-act="say"' + (isAsog ? ' class="asog"' : '') + '>보내기</a>' +
       '</div>' +
     '</div>';
