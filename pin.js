@@ -525,7 +525,7 @@
      * 마지막 건 아래에는 긋지 않는다 — 더 있는 줄 알게 된다.
      */
     '.it{padding:18px;border-bottom:2px solid #141A26;cursor:pointer}',
-    '.rq{margin:-18px -18px 0;padding:18px;background:#F2F4F7}',
+    '.rq{margin:-18px -18px 0;padding:18px;background:#DDE3EB}',
     '.it:last-child{border-bottom:0}',
     '.it:hover{background:#F7F9FC}',
     '.it.blink{animation:asogblink .8s ease-in-out 2}',
