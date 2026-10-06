@@ -512,7 +512,9 @@
     ' border:7px solid #E7EBF1}',
     '.pscroll::-webkit-scrollbar-thumb:hover{background:#0C2141}',
     '.pb{padding:6px 0 18px}',
-    '.grp{padding:14px 18px 8px;font-size:12px;letter-spacing:.04em;color:#8A93A3;font-weight:700}',
+    /* 머리글은 옅은 회색 면에 올려, 쌓인 글과 한 흐름으로 읽히지 않게 둔다. */
+    '.grp{padding:12px 18px;background:#EEF1F6;border-bottom:1px solid #DCE2EA;',
+    ' font-size:12px;letter-spacing:.04em;color:#5A6475;font-weight:700}',
     '.grp span{display:block;margin-top:5px;font-size:12.5px;font-weight:500;',
     ' letter-spacing:0;line-height:1.5;color:#5A6475}',
     '.grp span b{font-weight:800;color:#0C2141}',
