@@ -211,7 +211,7 @@
    * 파일은 스튜디오 저장소(`feedback`)에 올리고, 주소만 글에 적는다.
    * 프로젝트 코드로 폴더를 나눠 다른 고객 것과 섞이지 않게 한다.
    */
-  var IMG_MAX = 6;
+  var IMG_MAX = 5;
   var IMG_BYTES = 5 * 1024 * 1024;
 
   function uploadImage(file) {
@@ -593,6 +593,7 @@
     ' color:#5A6475;cursor:pointer}',
     '.pick:hover{border-color:' + BRAND + ';color:' + BRAND + '}',
     '.pick.sm{flex:none;margin-top:0;padding:0 11px;height:38px;white-space:nowrap}',
+    '.pick em{font-style:normal;font-weight:500;font-size:11.5px;color:#8A93A3}',
     '.picked{margin-left:8px;font-size:12px;color:' + BRAND + ';font-weight:700}',
 
     /* 줄마다 붙는 작은 글수정·삭제 */
@@ -851,7 +852,7 @@
       (editingId ? '<p class="note">이미 붙인 그림은 그대로 두고, 고른 것만 더합니다</p>' : '') +
       '<textarea id="t" placeholder="예) 이 버튼 색이 너무 흐려서 잘 안 보입니다"></textarea>' +
       '<input id="a" placeholder="작성하신 분 (선택)" value="' + esc(author) + '">' +
-      '<label class="pick">참고 이미지 첨부' +
+      '<label class="pick">참고 이미지 첨부<em>최대 5장</em>' +
         '<input id="f" type="file" accept="image/*" multiple hidden>' +
       '</label><span class="picked" id="fn"></span>' +
       '<div class="row">' +
@@ -868,7 +869,9 @@
     if (fileInput) {
       fileInput.onchange = function () {
         var n = fileInput.files.length;
-        pop.querySelector("#fn").textContent = n ? n + "장 고름" : "";
+        pop.querySelector("#fn").textContent = !n ? ""
+          : n > IMG_MAX ? IMG_MAX + "장만 올립니다 (" + n + "장 고름)"
+          : n + "장 고름";
       };
     }
 
