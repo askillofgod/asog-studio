@@ -482,6 +482,8 @@
     ' box-shadow:0 10px 34px rgba(12,33,65,.26);border:1px solid #E3E8F0;overflow:hidden}',
     '.pop h4{font-size:13px;color:#5A6478;padding:12px 14px 0;font-weight:600}',
     '.pop .note{padding:4px 14px 0;font-size:11.5px;line-height:1.5;color:#8A93A3}',
+    /* 적는 법은 붉게 짚어 둔다. 흐리게 적으면 되묻느라 걸음이 한 번 더 든다. */
+    '.pop .note.warn{font-size:12px;font-weight:700;color:#C8102E}',
     '.pop textarea{width:100%;border:0;padding:10px 14px;font-size:15px;line-height:1.55;resize:vertical;',
     ' min-height:88px;outline:none;color:#0C2141}',
     '.pop input{width:100%;border:0;border-top:1px solid #EEF1F6;padding:9px 14px;font-size:13px;outline:none;color:#0C2141}',
@@ -877,7 +879,7 @@
 
     pop.innerHTML =
       '<h4>' + (editingId ? "글 수정" : "무엇을 고칠까요?") + '</h4>' +
-      '<p class="note">' +
+      '<p class="note' + (editingId ? '' : ' warn') + '">' +
         (editingId
           ? '이미 붙인 그림은 그대로 두고, 고른 것만 더합니다'
           : '수정할 내용은 정확하고 구체적으로 작성해 주세요.') +
