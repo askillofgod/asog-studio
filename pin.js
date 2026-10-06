@@ -37,6 +37,13 @@
   var DASH_URL = (me && me.getAttribute("data-dash")) || "";
   var ADMIN_URL = (me && me.getAttribute("data-admin")) || "";
 
+  /*
+   * 스튜디오는 이 파일이 놓인 곳에 함께 있다. 주소를 적어 두지 않고 스크립트
+   * 자신의 자리에서 셈한다 — 어느 프로젝트에 붙든 자기 스튜디오를 가리킨다.
+   */
+  var STUDIO_URL = "";
+  try { STUDIO_URL = new URL("studio/", me.src).href; } catch (e) {}
+
   /* 형광 보라. 고객 사이트가 쓰지 않는 색이라 "얹힌 도구"로 바로 읽힌다. */
   var BRAND = "#B026FF";
   var STATUS = {
@@ -416,6 +423,8 @@
     '.pgo{display:flex;gap:6px;margin-top:6px}',
     '.pgo .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;',
     ' padding:9px 0;font-size:13px;text-decoration:none;white-space:nowrap}',
+    /* 어소그에게만 보이는 자리는 색으로도 갈라 둔다. */
+    '.pgo .btn.asog{border-color:' + BRAND + ';color:' + BRAND + '}',
     '.pf{padding:12px 18px;border-top:1px solid #E9EDF4;font-size:12px;color:#8A93A3;line-height:1.6}',
 
     '@media (max-width:560px){',
@@ -639,7 +648,12 @@
               (ADMIN_URL
                 ? '<a class="btn ghost" href="' + esc(ADMIN_URL) + '" target="_blank" rel="noopener noreferrer">관리자 화면 보기 ↗</a>'
                 : '') +
-            '</div>'
+            '</div>' +
+            /* 스튜디오는 어소그가 처리하는 자리라 어소그로 열었을 때만 보인다. */
+            (isAsog && STUDIO_URL
+              ? '<div class="pgo"><a class="btn ghost asog" href="' + esc(STUDIO_URL) +
+                '" target="_blank" rel="noopener noreferrer">스튜디오 보기 ↗</a></div>'
+              : '')
           : '') +
       '</div>' +
       '<div class="pf">핀을 눌러 그 자리로 이동할 수 있습니다. ' +
