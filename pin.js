@@ -46,6 +46,8 @@
 
   /* 형광 보라. 고객 사이트가 쓰지 않는 색이라 "얹힌 도구"로 바로 읽힌다. */
   var BRAND = "#B026FF";
+  /* 어소그가 쓴 댓글을 가리는 색. 도구 색(보라)과 섞이지 않게 푸른 계열로 둔다. */
+  var ASOG_BLUE = "#1F5FD0";
   var STATUS = {
     "new":   { label: "접수",      color: "#B026FF" },
     "doing": { label: "작업 중",   color: "#B07800" },
@@ -464,10 +466,17 @@
 
     /* 주고받은 말 — 왼쪽 선 색으로 누가 썼는지 가른다 */
     '.th{margin-top:9px;display:flex;flex-direction:column;gap:7px}',
-    '.ln{padding:7px 10px;border-left:3px solid #D5DCE8;background:#F7F9FC;border-radius:0 7px 7px 0}',
-    '.ln.a{border-left-color:' + BRAND + ';background:#F8F0FF}',
+    /*
+     * 누가 썼는지 면 색으로 가른다.
+     *
+     * 고객은 옅은 회색, 어소그는 푸른색. 도구 자체가 보라라, 댓글까지 보라로
+     * 두면 "도구가 쓴 글"처럼 읽혔다. 푸른색은 도구 색과 섞이지 않아 글쓴이
+     * 표시로만 읽힌다.
+     */
+    '.ln{padding:7px 10px;border-left:3px solid #CFD6E0;background:#F2F4F7;border-radius:0 7px 7px 0}',
+    '.ln.a{border-left-color:' + ASOG_BLUE + ';background:#E9F1FF}',
     '.ln b{display:block;font-size:11px;letter-spacing:.04em;color:#8A93A3;margin-bottom:2px}',
-    '.ln.a b{color:' + BRAND + '}',
+    '.ln.a b{color:' + ASOG_BLUE + '}',
     '.ln span{display:block;font-size:13.5px;line-height:1.55;color:#0C2141;white-space:pre-wrap;word-break:break-word}',
     '.ln i{display:block;margin-top:3px;font-size:11px;font-style:normal;color:#A8B0BE}',
     /* 붙임 그림 — 목록에서는 작게, 누르면 크게 */
