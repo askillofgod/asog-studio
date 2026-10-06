@@ -491,10 +491,14 @@
     '.picked{margin-left:8px;font-size:12px;color:' + BRAND + ';font-weight:700}',
 
     /* 줄마다 붙는 작은 글수정·삭제 */
-    '.ln .lnact{display:flex;gap:10px;margin-top:5px;font-style:normal}',
-    '.ln .lnact a{font-size:11.5px;font-weight:700;color:#8A93A3;cursor:pointer;',
-    ' text-decoration:underline;text-underline-offset:2px}',
-    '.ln .lnact a:hover{color:#0C2141}',
+    '.ln .lnact{display:flex;gap:6px;margin-top:7px;font-style:normal}',
+    '.ln .lnact a{display:inline-flex;align-items:center;justify-content:center;',
+    ' padding:5px 11px;border:1.5px solid #D5DCE8;border-radius:6px;background:#fff;',
+    ' font-size:12px;font-weight:600;line-height:1;color:#0C2141;cursor:pointer;',
+    ' text-decoration:none;transition:background .12s,border-color .12s}',
+    '.ln .lnact a:hover{background:#F1F4F9;border-color:#AEBCD2}',
+    '.ln .lnact a:active{transform:translateY(1px)}',
+    '.ln .lnact a[data-act="saydel"]{color:#C8102E;border-color:#EFD3D8}',
     '.ln textarea{width:100%;margin-top:2px;padding:7px 9px;border:1.5px solid #D5DCE8;',
     ' border-radius:6px;font:inherit;font-size:13.5px;line-height:1.55;color:#0C2141;',
     ' background:#fff;resize:vertical}',
@@ -932,13 +936,19 @@
       '<p>' + esc(it.body) + '</p>' +
       shots(it.images) +
       '<div class="who">' + (it.author ? esc(it.author) + " · " : "") + esc(it.path) + '</div>' +
+      /*
+       * 글수정·삭제는 그 글 바로 아래 둔다.
+       *
+       * 전에는 카드 맨 아래에 있어서, 주고받은 말이 길어지면 맨 처음 글에서
+       * 한참 떨어졌다. 그 자리에서는 어느 글을 고치는 단추인지 흐려진다.
+       */
+      (it.status === "new"
+        ? '<div class="acts"><a data-act="edit">글수정</a><a data-act="del">삭제</a></div>'
+        : '') +
       thread(it) +
       (!pt ? '<div class="lost">' + (samePage(it) && !sameView(it)
               ? '다른 탭에서 적은 자리입니다 — 눌러서 그 화면으로 갑니다'
               : '이 자리는 지금 화면에 없습니다 — 번호는 오른쪽 가장자리에 세워 두었습니다') + '</div>' : '') +
-      (it.status === "new"
-        ? '<div class="acts"><a data-act="edit">글수정</a><a data-act="del">삭제</a></div>'
-        : '') +
       /*
        * 답장은 양쪽 다 쓴다.
        *
