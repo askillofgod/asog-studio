@@ -974,11 +974,15 @@
     /*
      * 패널 위에서 굴린 바퀴는 패널 안에서만 쓴다.
      *
-     * 목록은 `overscroll-behavior`로 막히지만, 머리·바닥처럼 구를 것이 없는
-     * 자리에서는 바퀴가 그대로 뒤 화면으로 넘어가 사이트가 움직였다. 읽던
-     * 자리를 잃는다.
+     * 두 가지를 막는다.
+     *  1) 구를 것이 없는 자리(머리·바닥)에서는 바퀴를 삼킨다. 안 그러면 그대로
+     *     뒤 화면으로 넘어가 사이트가 움직인다.
+     *  2) 어디서 굴리든 바깥으로 흘려보내지 않는다. 사이트가 휠을 가로채
+     *     화면을 통째로 넘기는 경우(풀페이지 스크롤)가 있는데, 그러면 목록
+     *     위에서 굴려도 사이트가 다음 섹션으로 넘어가 버린다.
      */
     panel.addEventListener("wheel", function (e) {
+      e.stopPropagation();
       var inList = e.target && e.target.closest && e.target.closest(".pscroll");
       if (!inList) e.preventDefault();
     }, { passive: false });
@@ -1362,6 +1366,13 @@
       if (panelOpen) openPanel(true);
     });
   }
+
+  /*
+   * 떠 있는 것들(손잡이·핀·작성 상자) 위에서도 바퀴를 바깥으로 흘리지 않는다.
+   * 풀페이지 스크롤을 쓰는 화면에서는 그 위에서 굴리기만 해도 화면이 넘어간다.
+   */
+  ui.addEventListener("wheel", function (e) { e.stopPropagation(); }, { passive: false });
+  layer.addEventListener("wheel", function (e) { e.stopPropagation(); }, { passive: false });
 
   function start() {
     document.body.appendChild(host);
