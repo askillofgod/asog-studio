@@ -512,7 +512,10 @@
     ' border:7px solid #E7EBF1}',
     '.pscroll::-webkit-scrollbar-thumb:hover{background:#0C2141}',
     '.pb{padding:6px 0 18px}',
-    '.grp{padding:14px 18px 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8A93A3;font-weight:700}',
+    '.grp{padding:14px 18px 8px;font-size:12px;letter-spacing:.04em;color:#8A93A3;font-weight:700}',
+    '.grp span{display:block;margin-top:5px;font-size:12.5px;font-weight:500;',
+    ' letter-spacing:0;line-height:1.5;color:#5A6475}',
+    '.grp span b{font-weight:800;color:#0C2141}',
     /*
      * 요청 한 건과 다음 건 사이의 금.
      *
@@ -982,8 +985,18 @@
       html = '<div class="empty">아직 등록된 수정 요청이 없습니다.<br>' +
              '아래 <b>수정할곳 선택하기</b>를 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
     } else {
-      if (here.length) html += '<div class="grp">지금 보고 계신 페이지 (' + here.length + ')</div>' + here.map(card).join("");
-      if (other.length) html += '<div class="grp">다른 페이지 (' + other.length + ')</div>' + other.map(card).join("");
+      /*
+       * 머리글이 몇 건인지만 알리고, 어떻게 남기는지는 말하지 않았다. 처음
+       * 여는 사람은 거기서 멈춘다. 셈과 함께 다음에 할 일을 한 줄로 적는다.
+       */
+      if (here.length) {
+        html += '<div class="grp">지금 보고 계신 페이지 (' + here.length + ')' +
+                '<span>아래 <b>수정할곳 선택하기</b>를 눌러 화면에서 고칠 곳을 선택해 주세요</span>' +
+                '</div>' + here.map(card).join("");
+      }
+      if (other.length) {
+        html += '<div class="grp">다른 페이지 (' + other.length + ')</div>' + other.map(card).join("");
+      }
     }
     pb.innerHTML = html;
 
