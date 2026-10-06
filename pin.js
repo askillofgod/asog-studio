@@ -1076,10 +1076,9 @@
        * 그 뒤에 붙인다.
        */
       '<div class="who">' +
-        '<b class="by' + (it.by_asog ? ' a' : '') + '">' +
-          esc(it.by_asog ? "ASOG" : "고객") +
+        '작성자: <b class="by' + (it.by_asog ? ' a' : '') + '">' +
+          esc(it.by_asog ? "어소그" : (it.author || "고객")) +
         '</b>' +
-        (it.author && it.author !== "ASOG" ? ' · ' + esc(it.author) : '') +
         ' · ' + esc(it.path) +
       '</div>' +
       /*
