@@ -631,6 +631,9 @@
     '.it .acts a:active{transform:translateY(1px)}',
     '.it .acts a[data-act="del"]{background:#D98090;border-color:#D98090;color:#fff}',
     '.it .acts a[data-act="del"]:hover{background:#C8102E;border-color:#C8102E}',
+    /* 화면 이동은 고치는 일이 아니라 옮기는 일이라 선만 둔다 */
+    '.it .acts a.go{background:#fff;color:#0C2141;border-color:#C3CAD6}',
+    '.it .acts a.go:hover{background:#0C2141;border-color:#0C2141;color:#fff}',
     '.it .lost{margin-top:6px;font-size:12px;color:#B07800}',
     '.empty{padding:34px 20px;text-align:center;color:#8A93A3;font-size:14px;line-height:1.7}',
     /* 목록 바닥 — 다음에 할 일을 한 자리에 둔다 */
@@ -1006,6 +1009,11 @@
           });
           return;
         }
+        if (act === "goto") {
+          e.stopPropagation();
+          goSpot(it);
+          return;
+        }
         if (act === "del") {
           e.stopPropagation();
           if (!confirm("#" + it.num + " 요청을 삭제할까요?")) return;
@@ -1057,9 +1065,12 @@
        * 전에는 카드 맨 아래에 있어서, 주고받은 말이 길어지면 맨 처음 글에서
        * 한참 떨어졌다. 그 자리에서는 어느 글을 고치는 단추인지 흐려진다.
        */
-      (it.status === "new"
-        ? '<div class="acts"><a data-act="edit">글수정</a><a data-act="del">삭제</a></div>'
-        : '') +
+      '<div class="acts">' +
+        (it.status === "new"
+          ? '<a data-act="edit">글수정</a><a data-act="del">삭제</a>'
+          : '') +
+        '<a data-act="goto" class="go">화면 이동</a>' +
+      '</div>' +
       thread(it) +
       (!pt ? '<div class="lost">' + (samePage(it) && !sameView(it)
               ? '다른 탭에서 적은 자리입니다 — 눌러서 그 화면으로 갑니다'
@@ -1130,15 +1141,31 @@
   }
 
   /*
-   * 목록에서 고르면 그 화면으로만 간다.
+   * 그 자리로 데려다준다.
    *
-   * 전에는 같은 화면이면 그 자리로 스크롤하고 네모를 씌워 짚어 줬다. 목록을
-   * 읽는 중에 화면이 움직여 읽던 자리를 잃었다. 짚어 주는 일은 화면의 핀을
-   * 누르는 쪽 하나로 모은다.
+   * 글을 읽다가 실수로 눌러도 화면이 움직이지 않게, 항목을 누르는 것으로는
+   * 하지 않는다. 「화면 이동」 단추를 눌렀을 때만 움직인다.
    */
-  function goTo(it) {
-    if (!sameView(it)) { location.href = it.path; }
+  function goSpot(it) {
+    if (!sameView(it)) { location.href = it.path; return; }
+    var pt = pointOf(it);
+    if (!pt) return;
+    closePanel();
+    window.scrollTo({ top: Math.max(0, pt.y - window.innerHeight / 2), behavior: "smooth" });
+    setTimeout(function () {
+      showBox(it, true);
+      var pins = layer.querySelectorAll(".pin");
+      for (var i = 0; i < pins.length; i++) {
+        if (pins[i].textContent === String(it.num)) { pins[i].classList.add("sel"); break; }
+      }
+      setTimeout(function () {
+        layer.querySelectorAll(".pin.sel").forEach(function (p) { p.classList.remove("sel"); });
+      }, 2400);
+    }, 480);
   }
+
+  /* 항목을 누르는 것만으로는 아무 일도 하지 않는다. */
+  function goTo() {}
 
   /* ── 페이지 클릭 잡기 ────────────────────────────────── */
   document.addEventListener("click", function (e) {
