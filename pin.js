@@ -482,10 +482,10 @@
      */
     '.pb{flex:1;overflow-y:auto;padding:6px 0 18px;',
     ' scrollbar-width:auto;scrollbar-color:#2B3445 #E7EBF1}',
-    '.pb::-webkit-scrollbar{width:14px}',
+    '.pb::-webkit-scrollbar{width:28px}',
     '.pb::-webkit-scrollbar-track{background:#E7EBF1}',
     '.pb::-webkit-scrollbar-thumb{background:#2B3445;border-radius:999px;',
-    ' border:3px solid #E7EBF1}',
+    ' border:7px solid #E7EBF1}',
     '.pb::-webkit-scrollbar-thumb:hover{background:#0C2141}',
     '.grp{padding:14px 18px 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8A93A3;font-weight:700}',
     /*
