@@ -449,7 +449,6 @@
     '.panel.on{transform:none}',
     '.ph{padding:16px 18px;border-bottom:1px solid #E9EDF4;display:flex;align-items:center;gap:10px}',
     '.ph h3{font-size:15px;color:#0C2141;flex:1;font-weight:700}',
-    '.ph .x{border:0;background:none;font-size:22px;line-height:1;color:#7A8395;cursor:pointer;padding:0 2px}',
     /*
      * 목록의 스크롤 막대.
      *
@@ -602,7 +601,10 @@
 
     '@media (max-width:560px){',
     ' .tab{width:46px;padding:20px 0}',
-    ' .tab.is-open{display:none}',
+    /* 패널이 화면을 다 덮으므로 비켜설 자리가 없다. 왼쪽 가장자리에 세운다. */
+    ' .tab.is-open{right:auto;left:0;width:46px;border-radius:0 999px 999px 0;',
+    '  border-left:0;border-right:2px solid #fff;',
+    '  box-shadow:8px 0 26px rgba(176,38,255,.42),0 3px 14px rgba(12,33,65,.3)}',
     ' .btn{padding:10px 15px;font-size:13.5px}',
     ' .pop{width:calc(100vw - 24px);left:12px!important;right:12px}',
     ' .tip{width:calc(100vw - 24px);justify-content:center;font-size:13px;padding:10px 12px}',
@@ -850,7 +852,7 @@
         (isAsog ? "ASOG" : "고객") +
         (!isAsog && author ? ' · ' + esc(author) : '') +
       '</span>' +
-      '<button class="x" id="x">&times;</button></div>' +
+      '</div>' +
       '<div class="pb" id="pb"></div>' +
       '<div class="pact">' +
         '<button class="btn main" id="add">수정할곳 선택하기</button>' +
@@ -971,7 +973,6 @@
       };
     });
 
-    panel.querySelector("#x").onclick = function () { closePanel(); };
 
     if (focusId) {
       var t = pb.querySelector('.it[data-id="' + focusId + '"]');
