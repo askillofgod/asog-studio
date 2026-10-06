@@ -495,14 +495,23 @@
      * 기본 막대는 옅어서 쌓인 것이 더 있는지 눈에 띄지 않았다. 검은 계열로
      * 진하게, 폭도 넓혀 잡기 쉽게 둔다.
      */
-    /* 목록 끝에 닿아도 뒤 화면으로 넘어가지 않는다 */
-    '.pb{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:6px 0 18px;',
+    /*
+     * 구르는 자리는 머리까지 품는다.
+     *
+     * 머리를 바깥에 두면 목록만 흐르고 머리는 붙박여 있었다. 쌓인 것을 길게
+     * 훑을 때 그만큼 자리를 차지한다. 머리를 안으로 넣어 같이 흐르게 하고,
+     * 바닥의 단추만 붙박아 둔다 — 그건 언제든 눌러야 하는 자리다.
+     *
+     * 목록 끝에 닿아도 뒤 화면으로 넘어가지 않는다.
+     */
+    '.pscroll{flex:1;overflow-y:auto;overscroll-behavior:contain;',
     ' scrollbar-width:auto;scrollbar-color:#2B3445 #E7EBF1}',
-    '.pb::-webkit-scrollbar{width:28px}',
-    '.pb::-webkit-scrollbar-track{background:#E7EBF1}',
-    '.pb::-webkit-scrollbar-thumb{background:#2B3445;border-radius:999px;',
+    '.pscroll::-webkit-scrollbar{width:28px}',
+    '.pscroll::-webkit-scrollbar-track{background:#E7EBF1}',
+    '.pscroll::-webkit-scrollbar-thumb{background:#2B3445;border-radius:999px;',
     ' border:7px solid #E7EBF1}',
-    '.pb::-webkit-scrollbar-thumb:hover{background:#0C2141}',
+    '.pscroll::-webkit-scrollbar-thumb:hover{background:#0C2141}',
+    '.pb{padding:6px 0 18px}',
     '.grp{padding:14px 18px 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8A93A3;font-weight:700}',
     /*
      * 요청 한 건과 다음 건 사이의 금.
@@ -915,7 +924,7 @@
     visibleItems().forEach(function (i) { (samePage(i) ? here : other).push(i); });
 
     panel.innerHTML =
-      '<div class="ph"><h3>수정 요청' + (company ? " · " + esc(company) : "") + '</h3>' +
+      '<div class="pscroll"><div class="ph"><h3>수정 요청' + (company ? " · " + esc(company) : "") + '</h3>' +
       /*
        * 지금 누구로 쓰는지.
        *
@@ -929,6 +938,7 @@
       '</span>' +
       '</div>' +
       '<div class="pb" id="pb"></div>' +
+      '</div>' +
       '<div class="pact">' +
         '<button class="btn main" id="add">수정할곳 선택하기</button>' +
         (DASH_URL || ADMIN_URL
@@ -960,7 +970,7 @@
      * 자리를 잃는다.
      */
     panel.addEventListener("wheel", function (e) {
-      var inList = e.target && e.target.closest && e.target.closest("#pb");
+      var inList = e.target && e.target.closest && e.target.closest(".pscroll");
       if (!inList) e.preventDefault();
     }, { passive: false });
 
