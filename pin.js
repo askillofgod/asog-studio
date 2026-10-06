@@ -460,7 +460,15 @@
     ' border:3px solid #E7EBF1}',
     '.pb::-webkit-scrollbar-thumb:hover{background:#0C2141}',
     '.grp{padding:14px 18px 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8A93A3;font-weight:700}',
-    '.it{padding:13px 18px;border-bottom:1px solid #F1F4F9;cursor:pointer}',
+    /*
+     * 요청 한 건과 다음 건 사이의 금.
+     *
+     * 한 건 안에 본문·사진·댓글이 여러 겹 쌓이면서, 옅은 선으로는 어디서
+     * 끊기는지 보이지 않았다. 진한 선으로 긋고 위아래 숨을 더 준다.
+     * 마지막 건 아래에는 긋지 않는다 — 더 있는 줄 알게 된다.
+     */
+    '.it{padding:18px;border-bottom:2px solid #C3CAD6;cursor:pointer}',
+    '.it:last-child{border-bottom:0}',
     '.it:hover{background:#F7F9FC}',
     '.it .top{display:flex;align-items:center;gap:8px;margin-bottom:5px}',
     /* 번호는 화면의 핀과 짝을 이루는 표시다. 핀만큼 또렷해야 서로 찾는다. */
