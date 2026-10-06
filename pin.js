@@ -534,7 +534,23 @@
      * 마지막 건 아래에는 긋지 않는다 — 더 있는 줄 알게 된다.
      */
     '.it{padding:18px;border-bottom:2px solid #141A26;cursor:pointer}',
-    '.rq{margin:-18px -18px 0;padding:18px;background:#DDE3EB}',
+    /*
+     * 맨 처음 적은 글은 어두운 면에 올린다. 그 아래 주고받은 말은 밝은 면이라,
+     * 한 요청 안에서도 "처음 적은 것"과 "그 뒤에 오간 말"이 확실히 갈린다.
+     * 면이 뒤집히므로 그 위의 글자와 단추도 함께 뒤집는다.
+     */
+    '.rq{margin:-18px -18px 0;padding:18px;background:#2B3445}',
+    '.rq p{color:#fff}',
+    '.rq .ago{color:#A8B2C2}',
+    '.rq .who{color:#A8B2C2}',
+    '.rq .who .by{color:#E7EBF1}',
+    '.rq .who .by.a{color:#9CC0F5}',
+    '.rq .acts a{background:#E7EBF1;color:#141A26;border-color:#E7EBF1}',
+    '.rq .acts a:hover{background:#fff;border-color:#fff;color:#141A26}',
+    '.rq .acts a[data-act="del"]{background:#E08A99;border-color:#E08A99;color:#2B1116}',
+    '.rq .acts a[data-act="del"]:hover{background:#F0A3B1;border-color:#F0A3B1}',
+    '.rq .acts a.go{background:transparent;color:#E7EBF1;border-color:rgba(255,255,255,.45)}',
+    '.rq .acts a.go:hover{background:rgba(255,255,255,.16);border-color:#fff;color:#fff}',
     '.it:last-child{border-bottom:0}',
     '.it:hover{background:#F7F9FC}',
     '.it.blink{animation:asogblink .8s ease-in-out 2}',
@@ -1176,7 +1192,7 @@
          * 아니다. 작업 중·완료·협의 필요는 제 색을 그대로 쓴다.
          */
         '<span class="st" style="color:' +
-          (it.status === "new" ? "#141A26" : st.color) + '">' + st.label + '</span>' +
+          (it.status === "new" ? "#fff" : st.color) + '">' + st.label + '</span>' +
         (it.scope_out ? '<span class="so">별도 협의</span>' : '') +
         '<span class="ago">' + when(it.created_at) + '</span>' +
       '</div>' +
