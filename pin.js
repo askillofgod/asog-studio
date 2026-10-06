@@ -744,18 +744,16 @@
         ? '<div class="acts"><a data-act="edit">글수정</a><a data-act="del">삭제</a></div>'
         : '') +
       /*
-       * 답장은 어소그만 쓴다.
+       * 답장은 양쪽 다 쓴다.
        *
-       * 고객은 핀으로 고칠 곳을 적고, 어소그가 거기에 답한다. 고객 화면에는
-       * 그 답이 보이지만 쓰는 칸은 두지 않는다 — 되물을 일이 있으면 그
-       * 자리에 핀을 새로 찍는 편이 어디를 말하는지 분명하다.
+       * 한 건 안에서 주고받아야 "그 자리에 대한 이야기"가 흩어지지 않는다.
+       * 고객이 되물을 때마다 핀을 새로 찍게 하면 같은 자리에 번호가 여럿
+       * 생겨, 정작 어느 것이 결론인지 찾기 어려워진다.
        */
-      (isAsog
-        ? '<div class="say">' +
-            '<textarea data-say rows="1" placeholder="답장 쓰기"></textarea>' +
-            '<a data-act="say">보내기</a>' +
-          '</div>'
-        : '') +
+      '<div class="say">' +
+        '<textarea data-say rows="1" placeholder="답장 쓰기"></textarea>' +
+        '<a data-act="say">보내기</a>' +
+      '</div>' +
     '</div>';
   }
 
