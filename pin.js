@@ -998,14 +998,11 @@
              '아래 <b>수정할곳 선택하기</b>를 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
     } else {
       /*
-       * 머리글이 몇 건인지만 알리고, 어떻게 남기는지는 말하지 않았다. 처음
-       * 여는 사람은 거기서 멈춘다. 셈과 함께 다음에 할 일을 한 줄로 적는다.
+       * 지금 보고 있는 화면의 것은 머리글 없이 바로 세운다. 목록을 열면 먼저
+       * 보이는 것이 그것들이라, 따로 이름 붙일 일이 아니다. 다른 화면의 것만
+       * 어디서부터인지 알린다.
        */
-      if (here.length) {
-        html += '<div class="grp">지금 보고 계신 페이지 (' + here.length + ')' +
-                '<span>아래 <b>수정할곳 선택하기</b>를 눌러 화면에서 고칠 곳을 선택해 주세요</span>' +
-                '</div>' + here.map(card).join("");
-      }
+      html += here.map(card).join("");
       if (other.length) {
         html += '<div class="grp">다른 페이지 (' + other.length + ')</div>' + other.map(card).join("");
       }
