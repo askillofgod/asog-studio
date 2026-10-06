@@ -1188,7 +1188,7 @@
        * 생겨, 정작 어느 것이 결론인지 찾기 어려워진다.
        */
       '<div class="say">' +
-        '<textarea data-say rows="1" placeholder="답장 쓰기"></textarea>' +
+        '<textarea data-say rows="1" placeholder="댓글을 작성하세요."></textarea>' +
         '<label class="pick sm">사진<input data-sayfile type="file" accept="image/*" multiple hidden></label>' +
         '<a data-act="say"' + (isAsog ? ' class="asog"' : '') + '>보내기</a>' +
       '</div>' +
