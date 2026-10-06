@@ -582,7 +582,8 @@
     '.ln textarea:focus{outline:none;border-color:' + BRAND + '}',
 
     /* 답장 칸 */
-    '.say{margin-top:9px;display:flex;gap:6px;align-items:flex-end}',
+    '.say{margin-top:12px;padding-top:12px;border-top:1px dashed #C3CAD6;',
+    ' display:flex;gap:6px;align-items:flex-end}',
     '.say textarea{flex:1;min-height:38px;max-height:120px;padding:9px 10px;border:1.5px solid #D5DCE8;',
     ' border-radius:7px;font:inherit;font-size:13.5px;line-height:1.5;color:#0C2141;resize:vertical;background:#fff}',
     '.say textarea:focus{outline:none;border-color:' + BRAND + '}',
@@ -625,7 +626,15 @@
      * 채워 "이 카드의 주인 글"임을 알리고, 댓글 쪽은 선만 있는 작은 단추로
      * 남겨 위아래 위계를 세운다.
      */
-    '.it .acts{margin-top:10px;display:flex;gap:8px}',
+    /*
+     * 단추 줄 아래와 답장 칸 위를 점선으로 끊는다.
+     *
+     * 맨 처음 글과 주고받은 말, 그리고 새로 적는 칸이 한 덩어리로 흘렀다.
+     * 요청 사이를 가르는 실선과 달리 점선으로 둬, 같은 요청 안에서 나뉘는
+     * 자리라는 것이 보이게 한다.
+     */
+    '.it .acts{margin-top:10px;padding-bottom:12px;border-bottom:1px dashed #C3CAD6;',
+    ' display:flex;gap:8px}',
     '.it .acts a{display:inline-flex;align-items:center;justify-content:center;',
     ' padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:700;line-height:1;',
     ' background:#6B7488;color:#fff;border:1.5px solid #6B7488;cursor:pointer;',
