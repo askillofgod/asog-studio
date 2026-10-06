@@ -448,8 +448,6 @@
     ' transition:width .16s ease,box-shadow .16s ease}',
     '.tab:hover{width:66px;box-shadow:-10px 0 32px rgba(176,38,255,.55),0 3px 14px rgba(12,33,65,.3)}',
     '.tab .ar{font-size:30px;line-height:1;font-weight:700;margin-right:2px}',
-    '.tab .n{min-width:28px;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.28);',
-    ' font-size:15px;font-weight:800;line-height:1.3}',
     /* 열려 있을 때 — 패널 왼쪽에 붙어 ×로 바뀐다 */
     '.tab.is-open{right:min(380px, 100vw);width:52px;padding:20px 0}',
     '.tab.is-open .ar{font-size:26px;margin-right:0}',
@@ -746,9 +744,7 @@
         (panelOpen ? "목록 닫기" : "수정 요청 목록 열기") + '">' +
         (panelOpen
           ? '<span class="ar">×</span><span class="lbl">닫기</span>'
-          : '<span class="ar">‹</span>' +
-            (visibleItems().length
-              ? '<span class="n">' + visibleItems().length + '</span>' : '')) +
+          : '<span class="ar">‹</span>') +
       '</button>' +
       (placing
         ? '<div class="tip"><b>고치고 싶은 곳을 클릭하세요</b><u id="stop">취소 (Esc)</u></div>'
@@ -948,7 +944,9 @@
     visibleItems().forEach(function (i) { (samePage(i) ? here : other).push(i); });
 
     panel.innerHTML =
-      '<div class="pscroll"><div class="ph"><h3>수정 요청' + (company ? " · " + esc(company) : "") + '</h3>' +
+      '<div class="pscroll"><div class="ph">' +
+      '<h3>수정 요청 ' + visibleItems().length + '건' +
+        (company ? ' · ' + esc(company) : '') + '</h3>' +
       /*
        * 지금 누구로 쓰는지.
        *
