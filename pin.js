@@ -486,8 +486,9 @@
     ' transform:translateX(100%);transition:transform .22s ease}',
     '.panel.on{transform:none}',
     '.panel{overscroll-behavior:contain}',
-    '.ph{padding:16px 18px;border-bottom:1px solid #E9EDF4;display:flex;align-items:center;gap:10px}',
-    '.ph h3{font-size:15px;color:#0C2141;flex:1;font-weight:700}',
+    /* 머리는 어두운 면으로 눌러 둔다. 목록이 흰 바탕이라 위아래가 갈린다. */
+    '.ph{padding:16px 18px;background:#141A26;display:flex;align-items:center;gap:10px}',
+    '.ph h3{font-size:15px;color:#fff;flex:1;font-weight:700}',
     /*
      * 목록의 스크롤 막대.
      *
@@ -615,7 +616,7 @@
 
     /* 지금 누구로 쓰는지 */
     '.ph .me{margin-left:auto;flex:none;font-size:12px;font-weight:800;letter-spacing:.02em;',
-    ' color:#5A6475;background:#EDF1F7;border:1.5px solid #D5DCE8;',
+    ' color:#E7EBF1;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.3);',
     ' border-radius:999px;padding:4px 11px;max-width:150px;overflow:hidden;',
     ' text-overflow:ellipsis;white-space:nowrap}',
     '.ph .me.asog{color:#fff;background:' + BRAND + ';border-color:' + BRAND + '}',
