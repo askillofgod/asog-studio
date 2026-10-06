@@ -1054,7 +1054,15 @@
     return '<div class="it" data-id="' + it.id + '">' +
       '<div class="top">' +
         '<span class="no" style="background:' + hueOf(it) + '">' + it.num + '</span>' +
-        '<span class="st" style="color:' + st.color + '">' + st.label + '</span>' +
+        /*
+         * 「접수」만 검은 글자로 둔다.
+         *
+         * 번호가 이미 그 색을 쓰고 있어, 배지까지 같은 색이면 한 덩어리로
+         * 뭉쳐 보였다. 아직 손대지 않은 상태라는 뜻이라 색으로 재촉할 일도
+         * 아니다. 작업 중·완료·협의 필요는 제 색을 그대로 쓴다.
+         */
+        '<span class="st" style="color:' +
+          (it.status === "new" ? "#141A26" : st.color) + '">' + st.label + '</span>' +
         (it.scope_out ? '<span class="so">별도 협의</span>' : '') +
         '<span class="ago">' + when(it.created_at) + '</span>' +
       '</div>' +
