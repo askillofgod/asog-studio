@@ -532,15 +532,22 @@
     ' border-radius:999px;padding:4px 11px;max-width:150px;overflow:hidden;',
     ' text-overflow:ellipsis;white-space:nowrap}',
     '.ph .me.asog{color:#fff;background:' + BRAND + ';border-color:' + BRAND + '}',
+    /*
+     * 맨 처음 글의 단추는 색을 채운다.
+     *
+     * 댓글의 단추와 모양이 같으면 어느 글을 고치는 것인지 헷갈린다. 면을
+     * 채워 "이 카드의 주인 글"임을 알리고, 댓글 쪽은 선만 있는 작은 단추로
+     * 남겨 위아래 위계를 세운다.
+     */
     '.it .acts{margin-top:10px;display:flex;gap:8px}',
     '.it .acts a{display:inline-flex;align-items:center;justify-content:center;',
-    ' padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:600;line-height:1;',
-    ' background:#fff;color:#0C2141;border:1.5px solid #D5DCE8;cursor:pointer;',
+    ' padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:700;line-height:1;',
+    ' background:#0C2141;color:#fff;border:1.5px solid #0C2141;cursor:pointer;',
     ' text-decoration:none;transition:background .12s,border-color .12s}',
-    '.it .acts a:hover{background:#F1F4F9;border-color:#AEBCD2}',
+    '.it .acts a:hover{background:#1B3157;border-color:#1B3157}',
     '.it .acts a:active{transform:translateY(1px)}',
-    '.it .acts a[data-act="del"]{color:#C8102E;border-color:#EFD3D8}',
-    '.it .acts a[data-act="del"]:hover{background:#FDECEF;border-color:#E0A9B3}',
+    '.it .acts a[data-act="del"]{background:#C8102E;border-color:#C8102E;color:#fff}',
+    '.it .acts a[data-act="del"]:hover{background:#A60D26;border-color:#A60D26}',
     '.it .lost{margin-top:6px;font-size:12px;color:#B07800}',
     '.empty{padding:34px 20px;text-align:center;color:#8A93A3;font-size:14px;line-height:1.7}',
     /* 목록 바닥 — 다음에 할 일을 한 자리에 둔다 */
