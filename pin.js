@@ -541,8 +541,17 @@
     '.say textarea{flex:1;min-height:38px;max-height:120px;padding:9px 10px;border:1.5px solid #D5DCE8;',
     ' border-radius:7px;font:inherit;font-size:13.5px;line-height:1.5;color:#0C2141;resize:vertical;background:#fff}',
     '.say textarea:focus{outline:none;border-color:' + BRAND + '}',
+    /*
+     * 보내기 단추도 글쓴이를 따라간다.
+     *
+     * 고객은 진한 회색, 어소그는 옅은 파랑. 쌓인 글의 면 색과 같은 편으로
+     * 두어, 누르기 전에 이미 "어느 쪽으로 적히는지" 보인다.
+     */
     '.say a{flex:none;display:inline-flex;align-items:center;padding:0 14px;height:38px;border-radius:7px;',
-    ' font-size:13.5px;font-weight:600;background:' + BRAND + ';color:#fff;cursor:pointer}',
+    ' font-size:13.5px;font-weight:700;background:#3A4354;color:#fff;cursor:pointer}',
+    '.say a:hover{background:#242C3A}',
+    '.say a.asog{background:#A7C8F7;color:#0C2141}',
+    '.say a.asog:hover{background:#8FB6F2}',
 
     /* 어소그 확인 번호를 묻는 카드 */
     '.gate{position:fixed;inset:0;background:rgba(12,33,65,.5);pointer-events:auto;',
@@ -1016,7 +1025,7 @@
       '<div class="say">' +
         '<textarea data-say rows="1" placeholder="답장 쓰기"></textarea>' +
         '<label class="pick sm">사진<input data-sayfile type="file" accept="image/*" multiple hidden></label>' +
-        '<a data-act="say">보내기</a>' +
+        '<a data-act="say"' + (isAsog ? ' class="asog"' : '') + '>보내기</a>' +
       '</div>' +
     '</div>';
   }
