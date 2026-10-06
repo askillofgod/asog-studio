@@ -784,7 +784,7 @@
       '<textarea id="t" placeholder="예) 이 버튼 색이 너무 흐려서 잘 안 보입니다"></textarea>' +
       '<input id="a" placeholder="작성하신 분 (선택)" value="' + esc(author) + '">' +
       (editingId ? '' :
-        '<label class="pick">예시 이미지 첨부' +
+        '<label class="pick">참고 이미지 첨부' +
           '<input id="f" type="file" accept="image/*" multiple hidden>' +
         '</label><span class="picked" id="fn"></span>') +
       '<div class="row">' +
