@@ -540,7 +540,7 @@
     ' background:rgba(255,255,255,.92);color:#0C2141;font-size:24px;line-height:1;cursor:pointer}',
 
     /* 사진 고르기 */
-    '.pick{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:7px 12px;',
+    '.pick{display:inline-flex;align-items:center;gap:6px;margin:8px 14px 4px;padding:7px 12px;',
     ' border:1.5px dashed #D5DCE8;border-radius:7px;font-size:13px;font-weight:600;',
     ' color:#5A6475;cursor:pointer}',
     '.pick:hover{border-color:' + BRAND + ';color:' + BRAND + '}',
@@ -573,10 +573,10 @@
      * 두어, 누르기 전에 이미 "어느 쪽으로 적히는지" 보인다.
      */
     '.say a{flex:none;display:inline-flex;align-items:center;padding:0 14px;height:38px;border-radius:7px;',
-    ' font-size:13.5px;font-weight:700;background:#3A4354;color:#fff;cursor:pointer}',
-    '.say a:hover{background:#242C3A}',
-    '.say a.asog{background:#A7C8F7;color:#0C2141}',
-    '.say a.asog:hover{background:#8FB6F2}',
+    ' font-size:13.5px;font-weight:800;background:#141A26;color:#fff;cursor:pointer}',
+    '.say a:hover{background:#000}',
+    '.say a.asog{background:#1F5FD0;color:#fff}',
+    '.say a.asog:hover{background:#17489E}',
 
     /* 어소그 확인 번호를 묻는 카드 */
     '.gate{position:fixed;inset:0;background:rgba(12,33,65,.5);pointer-events:auto;',
@@ -608,12 +608,12 @@
     '.it .acts{margin-top:10px;display:flex;gap:8px}',
     '.it .acts a{display:inline-flex;align-items:center;justify-content:center;',
     ' padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:700;line-height:1;',
-    ' background:#0C2141;color:#fff;border:1.5px solid #0C2141;cursor:pointer;',
+    ' background:#6B7488;color:#fff;border:1.5px solid #6B7488;cursor:pointer;',
     ' text-decoration:none;transition:background .12s,border-color .12s}',
-    '.it .acts a:hover{background:#1B3157;border-color:#1B3157}',
+    '.it .acts a:hover{background:#565E70;border-color:#565E70}',
     '.it .acts a:active{transform:translateY(1px)}',
-    '.it .acts a[data-act="del"]{background:#C8102E;border-color:#C8102E;color:#fff}',
-    '.it .acts a[data-act="del"]:hover{background:#A60D26;border-color:#A60D26}',
+    '.it .acts a[data-act="del"]{background:#D98090;border-color:#D98090;color:#fff}',
+    '.it .acts a[data-act="del"]:hover{background:#C8687A;border-color:#C8687A}',
     '.it .lost{margin-top:6px;font-size:12px;color:#B07800}',
     '.empty{padding:34px 20px;text-align:center;color:#8A93A3;font-size:14px;line-height:1.7}',
     /* 목록 바닥 — 다음에 할 일을 한 자리에 둔다 */
