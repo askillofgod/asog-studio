@@ -58,30 +58,55 @@
   var placing = false;     // 핀 찍기 모드
   var panelOpen = false;
   var editingId = null;
+  /*
+   * 작성자 이름.
+   *
+   * 고객이 한 번 적으면 이 브라우저가 기억한다. 어소그 이름("ASOG")은 그
+   * 칸에 쓰지 않는다 — 브라우저 공용이라 옆 탭의 고객 화면까지 ASOG로
+   * 적히게 된다.
+   */
   var author = "";
   try { author = localStorage.getItem("asog_pin_author") || ""; } catch (e) {}
 
   /*
    * 누구로 글을 남기는가.
    *
-   * ASOG는 주소에 `?as=asog`를 달아 한 번 열면 그 브라우저가 기억한다. 고객은
-   * 평소 링크 그대로 쓰면 된다. `?as=client`로 열면 다시 고객으로 돌아온다.
+   * 역할은 **탭마다** 따로 둔다(`sessionStorage`).
    *
-   * 주소만으로는 들어가지 않는다. 확인 번호를 한 번 묻는다. 링크는 고객과
-   * 같은 자리(시안 목록)에 걸려 있어, 번호가 없으면 누구나 ASOG로 적힐 수
-   * 있기 때문이다.
+   * 브라우저 전체가 공유하는 저장소에 두었더니, 한 브라우저에서 탭 둘을 열어
+   * 고객 화면과 어소그 화면을 같이 보면 둘이 같은 값을 보게 됐다. 한쪽에서
+   * 어소그로 들어가면 다른 탭도 어소그가 되어, 고객인 척 남긴 글까지 어소그로
+   * 적혔다. 탭마다 두면 한 브라우저로 양쪽을 동시에 볼 수 있다.
    *
-   * 다만 이건 잠금장치가 아니라 문턱이다. 이 파일을 열면 번호가 그대로
-   * 보인다. 서버가 보증하는 ASOG 글은 스튜디오에서 쓴 것(admin_fb_say)뿐이다.
+   * 확인 번호를 맞혔다는 사실만 브라우저에 남긴다. 그래야 탭을 새로 열 때마다
+   * 번호를 다시 묻지 않는다.
    *
-   * 주소에 그대로 둔다. 지금 어느 쪽으로 쓰는지 주소창만 봐도 갈리고, 즐겨찾기
-   * 해 두면 다음에도 그 모드로 열린다. 대신 핀에 적는 주소에서는 이 조각을
-   * 빼낸다(`stripAs`) — 안 그러면 같은 페이지의 핀이 `?as`가 붙고 안 붙고로
-   * 서로 갈린다.
+   * ASOG는 `?as=asog`가 붙은 주소로 연다. 고객은 평소 링크 그대로다.
+   * `?as=client`로 열면 그 탭은 고객으로 돌아온다.
+   *
+   * 이건 잠금장치가 아니라 문턱이다. 이 파일을 열면 번호가 그대로 보인다.
+   * 서버가 보증하는 ASOG 글은 스튜디오에서 쓴 것(admin_fb_say)뿐이다.
+   *
+   * 주소의 `?as`는 지우지 않는다. 지금 어느 쪽인지 주소창만 봐도 갈리고,
+   * 즐겨찾기 해 두면 다음에도 그 모드로 열린다. 대신 핀에 적는 주소에서는 이
+   * 조각을 빼낸다(`stripAs`).
    */
   var ASOG_CODE = "0912";
-  var isAsog = false;
-  try { isAsog = localStorage.getItem("asog_pin_role") === "asog"; } catch (e) {}
+
+  function roleGet() {
+    try { return sessionStorage.getItem("asog_pin_role") || ""; } catch (e) { return ""; }
+  }
+  function roleSet(v) {
+    try {
+      if (v) sessionStorage.setItem("asog_pin_role", v);
+      else sessionStorage.removeItem("asog_pin_role");
+    } catch (e) { /* 저장 못 해도 이번 화면에서는 역할이 선다 */ }
+  }
+  function codeOk() {
+    try { return localStorage.getItem("asog_pin_code_ok") === "1"; } catch (e) { return false; }
+  }
+
+  var isAsog = roleGet() === "asog";
 
   // 번호를 물어야 하는지만 가린다. 묻는 일은 화면이 선 뒤에 한다.
   var needCode = false;
@@ -91,10 +116,13 @@
     if (!q) return;
     if (q === "client") {
       isAsog = false;
-      try { localStorage.removeItem("asog_pin_role"); } catch (e) {}
+      roleSet("");
       return;
     }
-    if (q === "asog" && !isAsog) needCode = true;
+    if (q !== "asog" || isAsog) return;
+    // 이 브라우저에서 번호를 이미 맞혔다면 다시 묻지 않고 이 탭만 어소그로.
+    if (codeOk()) { isAsog = true; roleSet("asog"); return; }
+    needCode = true;
   })();
 
   /*
@@ -136,8 +164,9 @@
         return;
       }
       isAsog = true;
-      try { localStorage.setItem("asog_pin_role", "asog"); } catch (e) {}
-      if (!author) { author = "ASOG"; try { localStorage.setItem("asog_pin_author", author); } catch (e) {} }
+      roleSet("asog");
+      try { localStorage.setItem("asog_pin_code_ok", "1"); } catch (e) {}
+      if (!author) author = "ASOG";
       close();
     }
 
@@ -146,7 +175,7 @@
     inp.onkeydown = function (e) { if (e.key === "Enter") ok(); };
   }
 
-  if (isAsog && !author) author = "ASOG";
+  if (isAsog) author = "ASOG";
   function sayName() { return author || (isAsog ? "ASOG" : "고객"); }
 
   /* ── 통신 ────────────────────────────────────────────── */
@@ -583,7 +612,9 @@
       var body = ta.value.trim();
       if (!body) { ta.focus(); return; }
       author = pop.querySelector("#a").value.trim();
-      try { localStorage.setItem("asog_pin_author", author); } catch (e) {}
+      if (!isAsog) {
+        try { localStorage.setItem("asog_pin_author", author); } catch (e) {}
+      }
 
       var btn = pop.querySelector("#s");
       btn.disabled = true; btn.textContent = "보내는 중…";
