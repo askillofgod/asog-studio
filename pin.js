@@ -877,7 +877,11 @@
 
     pop.innerHTML =
       '<h4>' + (editingId ? "글 수정" : "무엇을 고칠까요?") + '</h4>' +
-      (editingId ? '<p class="note">이미 붙인 그림은 그대로 두고, 고른 것만 더합니다</p>' : '') +
+      '<p class="note">' +
+        (editingId
+          ? '이미 붙인 그림은 그대로 두고, 고른 것만 더합니다'
+          : '수정할 내용은 정확하고 구체적으로 작성해 주세요.') +
+      '</p>' +
       '<textarea id="t" placeholder="예) 이 버튼 색이 너무 흐려서 잘 안 보입니다"></textarea>' +
       '<input id="a" placeholder="작성하신 분 (선택)" value="' + esc(author) + '">' +
       '<label class="pick">참고 이미지 첨부<em>최대 5장</em>' +
