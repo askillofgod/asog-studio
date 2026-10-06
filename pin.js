@@ -354,6 +354,19 @@
       return search;
     }
   }
+  /*
+   * 핀과 번호의 색.
+   *
+   * 「접수」일 때만 누가 남겼는지로 가른다 — 고객은 보라, 어소그는 파랑.
+   * 작업 중·완료·협의 필요는 진행을 알리는 색이라 그대로 둔다. 그 단계부터는
+   * 누가 적었는지보다 어디까지 됐는지가 궁금하다.
+   */
+  function hueOf(it) {
+    var st = STATUS[it.status] || STATUS["new"];
+    if (it.status === "new" && it.by_asog) return ASOG_BLUE;
+    return st.color;
+  }
+
   function pathNow() { return location.pathname + stripAs(location.search); }
   function pageNow() { return location.pathname; }
   function pageOf(it) { return String(it.path || "").split("?")[0]; }
@@ -499,7 +512,7 @@
     '.it:last-child{border-bottom:0}',
     '.it:hover{background:#F7F9FC}',
     '.it.blink{animation:asogblink .8s ease-in-out 2}',
-    '@keyframes asogblink{0%,100%{background:transparent}50%{background:#FFE9C6}}',
+    '@keyframes asogblink{0%,100%{background:transparent}50%{background:#FFE400}}',
     '.it .top{display:flex;align-items:center;gap:8px;margin-bottom:5px}',
     /* 번호는 화면의 핀과 짝을 이루는 표시다. 핀만큼 또렷해야 서로 찾는다. */
     '.it .no{flex:none;width:30px;height:30px;border-radius:50%;display:inline-flex;',
@@ -740,7 +753,7 @@
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
       el.className = "pin" + (pt ? (pt.exact ? "" : " near") : " lost");
-      el.style.setProperty("--c", st.color);
+      el.style.setProperty("--c", hueOf(it));
       if (pt) {
         el.style.left = (pt.x - window.pageXOffset) + "px";
         el.style.top = (pt.y - window.pageYOffset) + "px";
@@ -850,7 +863,8 @@
             path: pathNow(), url: location.href,
             selector: draft.selector, x_pct: draft.x_pct, y_pct: draft.y_pct,
             vw: window.innerWidth, device: isMobile() ? "mobile" : "pc",
-            ua: navigator.userAgent, body: body, author: author, images: images
+            ua: navigator.userAgent, body: body, author: author, images: images,
+            by_asog: isAsog
           }
         }).then(done);
       });
@@ -1029,7 +1043,7 @@
     var pt = samePage(it) ? pointOf(it) : true;
     return '<div class="it" data-id="' + it.id + '">' +
       '<div class="top">' +
-        '<span class="no" style="background:' + st.color + '">' + it.num + '</span>' +
+        '<span class="no" style="background:' + hueOf(it) + '">' + it.num + '</span>' +
         '<span class="st" style="color:' + st.color + '">' + st.label + '</span>' +
         (it.scope_out ? '<span class="so">별도 협의</span>' : '') +
         '<span class="ago">' + when(it.created_at) + '</span>' +
