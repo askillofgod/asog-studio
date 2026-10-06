@@ -657,15 +657,20 @@
      * 목록 맨 끝 요청과 단추가 이어져 보여, 그 단추가 마지막 요청에 딸린
      * 것처럼 읽혔다. 요청 사이를 가르는 금과 같은 굵기로 끊는다.
      */
-    '.pact{padding:14px 18px;border-top:2px solid #C3CAD6}',
+    /* 바닥도 머리와 같은 어두운 면으로 눌러, 목록이 그 사이에 놓이게 한다. */
+    '.pact{padding:14px 18px;background:#141A26}',
     '.pact .btn{width:100%;justify-content:center;text-align:center;box-shadow:none}',
     /* 바로가기는 둘을 나란히 둔다. 고르는 단추보다 조용해야 한다. */
     '.pgo{display:flex;gap:6px;margin-top:6px}',
     '.pgo .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;',
-    ' padding:9px 0;font-size:13px;text-decoration:none;white-space:nowrap}',
+    ' padding:9px 0;font-size:13px;text-decoration:none;white-space:nowrap;',
+    ' background:transparent;color:#E7EBF1;border:1px solid rgba(255,255,255,.34)}',
+    '.pgo .btn:hover{background:rgba(255,255,255,.12)}',
     /* 어소그에게만 보이는 자리는 색으로도 갈라 둔다. */
-    '.pgo .btn.asog{border-color:' + BRAND + ';color:' + BRAND + '}',
-    '.pf{padding:12px 18px;border-top:1px solid #E9EDF4;font-size:12px;color:#8A93A3;line-height:1.6}',
+    '.pgo .btn.asog{border-color:' + BRAND + ';color:#E2B6FF}',
+    '.pgo .btn.asog:hover{background:rgba(176,38,255,.22)}',
+    '.pf{padding:0 18px 14px;background:#141A26;font-size:12px;color:#9AA3B2;line-height:1.6}',
+    '.pf b{color:#E7EBF1}',
 
     '@media (max-width:560px){',
     ' .tab{width:46px;padding:20px 0}',
