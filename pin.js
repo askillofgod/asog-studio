@@ -446,7 +446,19 @@
     '.ph{padding:16px 18px;border-bottom:1px solid #E9EDF4;display:flex;align-items:center;gap:10px}',
     '.ph h3{font-size:15px;color:#0C2141;flex:1;font-weight:700}',
     '.ph .x{border:0;background:none;font-size:22px;line-height:1;color:#7A8395;cursor:pointer;padding:0 2px}',
-    '.pb{flex:1;overflow-y:auto;padding:6px 0 18px}',
+    /*
+     * 목록의 스크롤 막대.
+     *
+     * 기본 막대는 옅어서 쌓인 것이 더 있는지 눈에 띄지 않았다. 검은 계열로
+     * 진하게, 폭도 넓혀 잡기 쉽게 둔다.
+     */
+    '.pb{flex:1;overflow-y:auto;padding:6px 0 18px;',
+    ' scrollbar-width:auto;scrollbar-color:#2B3445 #E7EBF1}',
+    '.pb::-webkit-scrollbar{width:14px}',
+    '.pb::-webkit-scrollbar-track{background:#E7EBF1}',
+    '.pb::-webkit-scrollbar-thumb{background:#2B3445;border-radius:999px;',
+    ' border:3px solid #E7EBF1}',
+    '.pb::-webkit-scrollbar-thumb:hover{background:#0C2141}',
     '.grp{padding:14px 18px 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8A93A3;font-weight:700}',
     '.it{padding:13px 18px;border-bottom:1px solid #F1F4F9;cursor:pointer}',
     '.it:hover{background:#F7F9FC}',
