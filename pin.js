@@ -532,9 +532,18 @@
     '@keyframes asogblink{0%,100%{background:transparent}50%{background:#FFE400}}',
     '.it .top{display:flex;align-items:center;gap:8px;margin-bottom:5px}',
     /* 번호는 화면의 핀과 짝을 이루는 표시다. 핀만큼 또렷해야 서로 찾는다. */
-    '.it .no{flex:none;width:30px;height:30px;border-radius:50%;display:inline-flex;',
-    ' align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;',
-    ' background:#8A93A3;box-shadow:0 2px 6px rgba(12,33,65,.22);letter-spacing:-.02em}',
+    /*
+     * 목록의 번호도 화면의 핀과 같은 모양으로 둔다.
+     *
+     * 동그라미와 핀이 서로 다른 것처럼 보였다. 같은 것을 가리키는 표시라면
+     * 생김새도 같아야 눈이 바로 잇는다. 꼬리가 왼쪽 아래를 향하도록 돌리고,
+     * 숫자는 되돌려 똑바로 세운다.
+     */
+    '.it .no{flex:none;width:30px;height:30px;border-radius:50% 50% 50% 4px;',
+    ' transform:rotate(-45deg);display:inline-flex;align-items:center;justify-content:center;',
+    ' font-size:14px;font-weight:800;color:#fff;background:#8A93A3;border:2px solid #fff;',
+    ' box-shadow:0 3px 8px rgba(12,33,65,.3);margin:2px 4px 2px 2px}',
+    '.it .no i{transform:rotate(45deg);font-style:normal;letter-spacing:-.02em}',
     '.it .st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid currentColor}',
     '.it .so{font-size:11px;font-weight:700;color:#B07800;background:#FFF6E0;border-radius:999px;padding:2px 8px}',
     '.it .ago{margin-left:auto;font-size:12px;color:#8A93A3;flex:none}',
@@ -1114,7 +1123,7 @@
     var pt = samePage(it) ? pointOf(it) : true;
     return '<div class="it" data-id="' + it.id + '">' +
       '<div class="top">' +
-        '<span class="no" style="background:' + hueOf(it) + '">' + it.num + '</span>' +
+        '<span class="no" style="background:' + hueOf(it) + '"><i>' + it.num + '</i></span>' +
         /*
          * 「접수」만 검은 글자로 둔다.
          *
