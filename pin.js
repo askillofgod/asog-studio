@@ -1459,7 +1459,22 @@
    * 그때도 핀을 다시 셈해야 그 화면의 것만 남는다.
    */
   (function () {
-    var fire = function () { reflow(); catchUp(); };
+    var fire = function () {
+      reflow();
+      catchUp();
+      /*
+       * 목록이 열려 있으면 그 화면의 것으로 다시 그린다.
+       *
+       * 열어 둔 채 메뉴를 눌러 옮기면 앞 화면의 목록이 그대로 남아 있었다.
+       * 보고 있는 화면과 목록이 어긋나면, 어느 화면 이야기인지 알 수 없다.
+       * 접어 둔 「다른 화면」도 다시 접는다 — 새 화면에서는 또 그 화면 것부터
+       * 보는 편이 맞다.
+       */
+      if (panelOpen) {
+        showOther = false;
+        openPanel(true);
+      }
+    };
     window.addEventListener("popstate", fire);
     ["pushState", "replaceState"].forEach(function (name) {
       var orig = history[name];
