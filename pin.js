@@ -523,6 +523,8 @@
     '.it .ago{margin-left:auto;font-size:12px;color:#8A93A3;flex:none}',
     '.it p{font-size:14.5px;line-height:1.55;color:#0C2141;white-space:pre-wrap;word-break:break-word}',
     '.it .who{margin-top:5px;font-size:12px;color:#8A93A3}',
+    '.it .who .by{font-weight:800;color:#5A6475}',
+    '.it .who .by.a{color:' + ASOG_BLUE + '}',
     '.it .rep{margin-top:8px;padding:9px 11px;background:#EAF1FF;border-radius:7px;font-size:13.5px;',
     ' line-height:1.55;color:#0C2141;white-space:pre-wrap}',
     '.it .rep b{display:block;font-size:11px;letter-spacing:.06em;color:' + BRAND + ';margin-bottom:3px}',
@@ -1058,7 +1060,20 @@
       '</div>' +
       '<p>' + esc(it.body) + '</p>' +
       shots(it.images) +
-      '<div class="who">' + (it.author ? esc(it.author) + " · " : "") + esc(it.path) + '</div>' +
+      /*
+       * 누가 남겼는지 먼저 적는다.
+       *
+       * 이름을 비워 두는 사람이 많아, 적힌 것이 없으면 자리만 보였다. 적어도
+       * 어느 편인지는 늘 보이게 「고객」·「ASOG」를 세우고, 이름을 적었으면
+       * 그 뒤에 붙인다.
+       */
+      '<div class="who">' +
+        '<b class="by' + (it.by_asog ? ' a' : '') + '">' +
+          esc(it.by_asog ? "ASOG" : "고객") +
+        '</b>' +
+        (it.author && it.author !== "ASOG" ? ' · ' + esc(it.author) : '') +
+        ' · ' + esc(it.path) +
+      '</div>' +
       /*
        * 글수정·삭제는 그 글 바로 아래 둔다.
        *
