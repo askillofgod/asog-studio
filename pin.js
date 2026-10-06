@@ -438,7 +438,10 @@
     /* 오른쪽 가운데 모서리에 반만 내민 손잡이.
        위아래는 머리글·전화·맨 위로 같은 단추가 이미 쓰고, 가운데는 거의
        비어 있다. 왼쪽만 둥글려 열리는 쪽을 형태로 가리킨다. */
-    '.tab{position:fixed;right:0;top:50%;transform:translateY(-50%);pointer-events:auto;',
+    '.tabs{position:fixed;right:0;top:50%;transform:translateY(-50%);pointer-events:none;',
+    ' display:flex;flex-direction:column;align-items:flex-end;gap:8px}',
+    '.tabs > *{pointer-events:auto}',
+    '.tab{position:relative;',
     ' display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;',
     ' width:56px;padding:26px 0;cursor:pointer;',
     /* 왼쪽만 완전히 둥글려 반달꼴로 둔다. 흰 테두리가 사진 위에서도 윤곽을 지킨다. */
@@ -449,8 +452,14 @@
     '.tab:hover{width:66px;box-shadow:-10px 0 32px rgba(176,38,255,.55),0 3px 14px rgba(12,33,65,.3)}',
     '.tab .ar{font-size:30px;line-height:1;font-weight:700;margin-right:2px}',
     /* 열려 있을 때 — 패널 왼쪽에 붙어 ×로 바뀐다 */
-    '.tab.is-open{right:min(380px, 100vw);width:52px;padding:20px 0}',
-    '.tab.is-open .ar{font-size:26px;margin-right:0}',
+    '.tabs.is-open{right:min(380px, 100vw)}',
+    '.tabs.is-open .tab{width:52px;padding:20px 0}',
+    '.tabs.is-open .tab .ar{font-size:26px;margin-right:0}',
+    /* 고를 곳을 바로 짚는 단추 — 손잡이보다 한 치수 작게 */
+    '.tab.pen{width:48px;padding:14px 0}',
+    '.tab.pen:hover{width:56px}',
+    '.tab.pen.on{background:#141A26;border-color:#141A26;',
+    ' box-shadow:-8px 0 26px rgba(20,26,38,.45),0 3px 14px rgba(12,33,65,.3)}',
     '.tab .lbl{font-size:12px;font-weight:800;letter-spacing:.02em}',
     '.btn{border:0;border-radius:999px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;',
     ' box-shadow:0 4px 14px rgba(12,33,65,.22);line-height:1;white-space:nowrap}',
@@ -701,8 +710,10 @@
 
     '@media (max-width:560px){',
     ' .tab{width:46px;padding:20px 0}',
+    ' .tab.pen{width:40px;padding:12px 0}',
     /* 패널이 화면을 다 덮으므로 비켜설 자리가 없다. 왼쪽 가장자리에 세운다. */
-    ' .tab.is-open{right:auto;left:0;width:46px;border-radius:0 999px 999px 0;',
+    ' .tabs.is-open{right:auto;left:0;align-items:flex-start}',
+    ' .tabs.is-open .tab{width:46px;border-radius:0 999px 999px 0;',
     '  border-left:0;border-right:2px solid #fff;',
     '  box-shadow:8px 0 26px rgba(176,38,255,.42),0 3px 14px rgba(12,33,65,.3)}',
     ' .btn{padding:10px 15px;font-size:13.5px}',
@@ -740,18 +751,38 @@
      * 화살표 대신 ×를 보인다.
      */
     ui.innerHTML =
-      '<button class="tab' + (panelOpen ? " is-open" : "") + '" id="list" title="' +
-        (panelOpen ? "목록 닫기" : "수정 요청 목록 열기") + '">' +
-        (panelOpen
-          ? '<span class="ar">×</span><span class="lbl">닫기</span>'
-          : '<span class="ar">‹</span>') +
-      '</button>' +
+      '<div class="tabs' + (panelOpen ? " is-open" : "") + '">' +
+        '<button class="tab" id="list" title="' +
+          (panelOpen ? "목록 닫기" : "수정 요청 목록 열기") + '">' +
+          (panelOpen
+            ? '<span class="ar">×</span><span class="lbl">닫기</span>'
+            : '<span class="ar">‹</span>') +
+        '</button>' +
+        /*
+         * 고를 곳을 바로 짚는 단추.
+         *
+         * 목록을 거쳐야만 고를 수 있어, 한 건 적을 때마다 목록을 열었다 닫는
+         * 걸음이 끼었다. 손잡이 바로 아래 둬 한 번에 들어가게 한다. 목록이
+         * 열려 있을 때는 그 안에 같은 단추가 있으므로 내보이지 않는다.
+         */
+        (panelOpen ? '' :
+          '<button class="tab pen' + (placing ? " on" : "") + '" id="pick" title="' +
+            (placing ? "그만두기" : "수정할곳 선택하기") + '">' +
+            (placing
+              ? '<span class="ar">×</span>'
+              : '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">' +
+                '<path d="M16.8 3.9a2 2 0 0 1 2.8 2.8L7.6 18.7 3.4 20l1.3-4.2L16.8 3.9Z" ' +
+                'fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>') +
+          '</button>') +
+      '</div>' +
       (placing
         ? '<div class="tip"><b>고치고 싶은 곳을 클릭하세요</b><u id="stop">취소 (Esc)</u></div>'
         : '');
 
     var lst = ui.querySelector("#list");
     if (lst) lst.onclick = function () { panelOpen ? closePanel() : openPanel(true); };
+    var pk = ui.querySelector("#pick");
+    if (pk) pk.onclick = function () { setPlacing(!placing); };
     var stop = ui.querySelector("#stop");
     if (stop) stop.onclick = function () { setPlacing(false); };
   }
