@@ -525,7 +525,7 @@
      * 끊기는지 보이지 않았다. 진한 선으로 긋고 위아래 숨을 더 준다.
      * 마지막 건 아래에는 긋지 않는다 — 더 있는 줄 알게 된다.
      */
-    '.it{padding:18px;border-bottom:2px solid #C3CAD6;cursor:pointer}',
+    '.it{padding:18px;border-bottom:2px solid #141A26;cursor:pointer}',
     '.it:last-child{border-bottom:0}',
     '.it:hover{background:#F7F9FC}',
     '.it.blink{animation:asogblink .8s ease-in-out 2}',
