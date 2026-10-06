@@ -431,9 +431,11 @@
     '.gc .row .btn{flex:1;justify-content:center;box-shadow:none}',
 
     /* 지금 누구로 쓰는지 */
-    '.ph .me{margin-left:auto;font-size:12px;font-weight:700;color:#8A93A3;background:#F1F4F9;',
-    ' border-radius:999px;padding:4px 10px}',
-    '.ph .me.asog{color:#fff;background:' + BRAND + '}',
+    '.ph .me{margin-left:auto;flex:none;font-size:12px;font-weight:800;letter-spacing:.02em;',
+    ' color:#5A6475;background:#EDF1F7;border:1.5px solid #D5DCE8;',
+    ' border-radius:999px;padding:4px 11px;max-width:150px;overflow:hidden;',
+    ' text-overflow:ellipsis;white-space:nowrap}',
+    '.ph .me.asog{color:#fff;background:' + BRAND + ';border-color:' + BRAND + '}',
     '.it .acts{margin-top:10px;display:flex;gap:8px}',
     '.it .acts a{display:inline-flex;align-items:center;justify-content:center;',
     ' padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:600;line-height:1;',
@@ -666,7 +668,17 @@
 
     panel.innerHTML =
       '<div class="ph"><h3>수정 요청' + (company ? " · " + esc(company) : "") + '</h3>' +
-      '<span class="me' + (isAsog ? " asog" : "") + '">' + esc(sayName()) + '</span>' +
+      /*
+       * 지금 누구로 쓰는지.
+       *
+       * 전에는 작성자 이름을 띄웠더니, 이름을 적어 둔 고객 화면에 그 이름만
+       * 보여 어느 쪽인지 알 수 없었다. 역할을 먼저 적고 이름은 뒤에 붙인다.
+       * 색도 함께 간다 — 고객은 회색, 어소그는 보라.
+       */
+      '<span class="me' + (isAsog ? " asog" : "") + '">' +
+        (isAsog ? "ASOG" : "고객") +
+        (!isAsog && author ? ' · ' + esc(author) : '') +
+      '</span>' +
       '<button class="x" id="x">&times;</button></div>' +
       '<div class="pb" id="pb"></div>' +
       '<div class="pact">' +
