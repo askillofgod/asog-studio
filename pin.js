@@ -612,7 +612,7 @@
     '.ln textarea:focus{outline:none;border-color:' + BRAND + '}',
 
     /* 답장 칸 */
-    '.say{margin-top:12px;padding-top:12px;border-top:2px dashed #7A8498;',
+    '.say{margin-top:12px;padding-top:12px;border-top:1px dashed #7A8498;',
     ' display:flex;gap:6px;align-items:flex-end}',
     '.say textarea{flex:1;min-height:38px;max-height:120px;padding:9px 10px;border:1.5px solid #D5DCE8;',
     ' border-radius:7px;font:inherit;font-size:13.5px;line-height:1.5;color:#0C2141;resize:vertical;background:#fff}',
