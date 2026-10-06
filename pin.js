@@ -584,7 +584,13 @@
     '.it .lost{margin-top:6px;font-size:12px;color:#B07800}',
     '.empty{padding:34px 20px;text-align:center;color:#8A93A3;font-size:14px;line-height:1.7}',
     /* 목록 바닥 — 다음에 할 일을 한 자리에 둔다 */
-    '.pact{padding:12px 18px;border-top:1px solid #E9EDF4}',
+    /*
+     * 쌓인 목록과 「다음에 할 일」 사이의 금.
+     *
+     * 목록 맨 끝 요청과 단추가 이어져 보여, 그 단추가 마지막 요청에 딸린
+     * 것처럼 읽혔다. 요청 사이를 가르는 금과 같은 굵기로 끊는다.
+     */
+    '.pact{padding:14px 18px;border-top:2px solid #C3CAD6}',
     '.pact .btn{width:100%;justify-content:center;text-align:center;box-shadow:none}',
     /* 바로가기는 둘을 나란히 둔다. 고르는 단추보다 조용해야 한다. */
     '.pgo{display:flex;gap:6px;margin-top:6px}',
