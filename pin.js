@@ -523,6 +523,11 @@
     '.pscroll::-webkit-scrollbar-thumb:hover{background:#0C2141}',
     '.pb{padding:6px 0 18px}',
     /* 머리글은 옅은 회색 면에 올려, 쌓인 글과 한 흐름으로 읽히지 않게 둔다. */
+    /* 다른 화면의 것을 펴고 접는 줄 */
+    '.more{display:block;width:100%;padding:13px 18px;border:0;border-top:2px solid #141A26;',
+    ' background:#EEF1F6;font:inherit;font-size:13px;font-weight:700;color:#5A6475;',
+    ' text-align:left;cursor:pointer}',
+    '.more:hover{background:#E2E7EF;color:#0C2141}',
     '.grp{padding:12px 18px;background:#EEF1F6;border-bottom:1px solid #DCE2EA;',
     ' font-size:12px;letter-spacing:.04em;color:#5A6475;font-weight:700}',
     '.grp span{display:block;margin-top:5px;font-size:12.5px;font-weight:500;',
@@ -974,6 +979,7 @@
   var panel = null;
   function closePanel() {
     panelOpen = false;
+    showOther = false;
     if (panel) { panel.classList.remove("on"); var p = panel; panel = null; setTimeout(function () { p.remove(); }, 240); }
     renderFab();
   }
@@ -1052,6 +1058,7 @@
     if (addBtn) addBtn.onclick = function () { setPlacing(true); };
 
     var pb = panel.querySelector("#pb"), html = "";
+    var moreBtn;
     if (!here.length && !other.length) {
       html = '<div class="empty">아직 등록된 수정 요청이 없습니다.<br>' +
              '아래 <b>수정할곳 선택하기</b>를 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
@@ -1062,11 +1069,28 @@
        * 어디서부터인지 알린다.
        */
       html += here.map(card).join("");
+      /*
+       * 다른 화면의 것은 접어 둔다.
+       *
+       * 지금 보는 화면을 손보는 중인데 다른 화면의 요청이 아래로 줄줄이
+       * 붙으면, 핀 세 개가 보이는 화면에서 목록은 열 건이 되어 어디까지가
+       * 이 화면 것인지 흐려진다. 세어서 알리고, 눌렀을 때만 편다.
+       */
       if (other.length) {
-        html += '<div class="grp">다른 페이지 (' + other.length + ')</div>' + other.map(card).join("");
+        html += '<button class="more" id="more">' +
+                  (showOther ? '다른 페이지 ' + other.length + '건 접기'
+                             : '다른 페이지 ' + other.length + '건 보기') +
+                '</button>' +
+                (showOther ? other.map(card).join("") : '');
       }
     }
     pb.innerHTML = html;
+
+    moreBtn = pb.querySelector("#more");
+    if (moreBtn) moreBtn.onclick = function () {
+      showOther = !showOther;
+      openPanel(true);
+    };
 
     /* 댓글 칸의 사진도 고른 것을 쌓아 둔다. */
     pb.querySelectorAll("[data-sayfile]").forEach(function (sf) {
@@ -1270,6 +1294,9 @@
    * 줄이 지워졌을 때 엉뚱한 줄을 건드린다.
    */
   var editingSay = null;
+
+  /* 다른 화면의 요청을 펴 두었는지. 목록을 닫으면 다시 접힌다. */
+  var showOther = false;
 
   function thread(it) {
     var th = Array.isArray(it.thread) ? it.thread : [];
