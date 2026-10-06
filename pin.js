@@ -477,8 +477,10 @@
     '.tip u{cursor:pointer;text-decoration:underline;opacity:.8;font-size:13px}',
 
     /* 작성 상자 */
-    '.pop{position:absolute;width:300px;background:#fff;border-radius:10px;pointer-events:auto;',
-    ' box-shadow:0 10px 34px rgba(12,33,65,.26);border:1px solid #E3E8F0;overflow:hidden}',
+    '.pop{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);',
+    ' width:340px;max-width:calc(100vw - 32px);max-height:calc(100vh - 32px);overflow:auto;',
+    ' background:#fff;border-radius:12px;pointer-events:auto;',
+    ' box-shadow:0 24px 70px rgba(12,33,65,.38);border:1px solid #E3E8F0}',
     '.pop h4{font-size:17px;color:#0C2141;padding:14px 14px 0;font-weight:800;letter-spacing:-.01em}',
     '.pop .note{padding:4px 14px 0;font-size:11.5px;line-height:1.5;color:#8A93A3}',
     /* 적는 법은 붉게 짚어 둔다. 흐리게 적으면 되묻느라 걸음이 한 번 더 든다. */
@@ -724,7 +726,7 @@
     '  border-left:0;border-right:2px solid #fff;',
     '  box-shadow:8px 0 26px rgba(176,38,255,.42),0 3px 14px rgba(12,33,65,.3)}',
     ' .btn{padding:10px 15px;font-size:13.5px}',
-    ' .pop{width:calc(100vw - 24px);left:12px!important;right:12px}',
+    ' .pop{width:calc(100vw - 24px)}',
     ' .tip{width:calc(100vw - 24px);justify-content:center;font-size:13px;padding:10px 12px}',
     '}'
   ].join("");
@@ -876,11 +878,13 @@
     pop = document.createElement("div");
     pop.className = "pop";
 
-    var vx = draft.px - window.pageXOffset, vy = draft.py - window.pageYOffset;
-    var left = Math.min(Math.max(12, vx + 18), window.innerWidth - 312);
-    var top  = Math.min(Math.max(12, vy - 20), window.innerHeight - 260);
-    pop.style.left = left + "px";
-    pop.style.top = top + "px";
+    /*
+     * 상자는 화면 한가운데에 띄운다.
+     *
+     * 누른 자리 옆에 띄웠더니, 화면 아래쪽을 고를 때 상자가 바닥에 걸려
+     * 「보내기」가 잘렸다. 가운데는 어디를 눌러도 같은 자리라 잘릴 일이 없고,
+     * 적는 동안 눈이 옮겨 다니지도 않는다.
+     */
 
     pop.innerHTML =
       '<h4>' + (editingId ? "글 수정" : "무엇을 고칠까요?") + '</h4>' +
