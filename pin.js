@@ -544,6 +544,9 @@
     ' font-size:14px;font-weight:800;color:#fff;background:#8A93A3;border:2px solid #fff;',
     ' box-shadow:0 3px 8px rgba(12,33,65,.3);margin:2px 4px 2px 2px}',
     '.it .no i{transform:rotate(45deg);font-style:normal;letter-spacing:-.02em}',
+    /* 눌러서 그 자리로 간다 — 화면의 핀과 같은 일을 한다 */
+    '.it .no{cursor:pointer;transition:scale .12s ease}',
+    '.it .no:hover{scale:1.14}',
     '.it .st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid currentColor}',
     '.it .so{font-size:11px;font-weight:700;color:#B07800;background:#FFF6E0;border-radius:999px;padding:2px 8px}',
     '.it .ago{margin-left:auto;font-size:12px;color:#8A93A3;flex:none}',
@@ -1079,6 +1082,12 @@
             if (!row) { sayBtn.textContent = "다시"; return; }
             load().then(function () { openPanel(true, id); });
           });
+          return;
+        }
+        /* 목록의 핀을 눌러도 「화면 이동」과 같이 그 자리로 간다. */
+        if (e.target && e.target.closest && e.target.closest(".no")) {
+          e.stopPropagation();
+          goSpot(it);
           return;
         }
         if (act === "goto") {
