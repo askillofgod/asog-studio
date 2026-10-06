@@ -79,7 +79,7 @@
    * 빼낸다(`stripAs`) — 안 그러면 같은 페이지의 핀이 `?as`가 붙고 안 붙고로
    * 서로 갈린다.
    */
-  var ASOG_CODE = "2190";
+  var ASOG_CODE = "0912";
   var isAsog = false;
   try { isAsog = localStorage.getItem("asog_pin_role") === "asog"; } catch (e) {}
 
