@@ -307,6 +307,14 @@ input:focus{border-color:var(--brand);outline:none}
 .st-thumb img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
 .st-body{flex:1;min-width:0}
 
+/* ── 운영 장부 ── */
+.lg-tots{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.lg-tot{flex:1;min-width:150px;border:1px solid var(--rule);border-radius:8px;padding:12px 16px;background:var(--ground)}
+.lg-tot span{display:block;font-size:13px;color:var(--ink-2);margin-bottom:4px}
+.lg-tot b{font-size:20px;letter-spacing:-.01em}
+.lg-warn{border:1px solid #F0C9A0;background:#FFF7EC;color:#8A5A1E;border-radius:8px;padding:11px 14px;font-size:14px;margin:0 0 14px}
+.lg-h{margin:22px 0 10px;font-size:14px;font-weight:700;color:var(--ink-2)}
+
 @media (max-width:900px){
   .shell{grid-template-columns:1fr;gap:0}
   .st-thumb{flex-basis:112px}
@@ -379,6 +387,7 @@ input:focus{border-color:var(--brand);outline:none}
         <button id="tab-f">수정 요청</button>
         <button id="tab-q">문의</button>
         <button id="tab-s">사이트</button>
+        <button id="tab-l">장부</button>
       </div>
       <h2 id="cnt">고객</h2>
       <button class="btn sm" id="add" style="width:100%;margin-bottom:14px">+ 고객 추가</button>
@@ -647,6 +656,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         loadFb();
         loadInq();
         loadSites();
+        loadLedger();
       });
   }
 
@@ -674,6 +684,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   $("tab-f").addEventListener("click", function(){ setView("feedback"); });
   $("tab-q").addEventListener("click", function(){ setView("inquiry"); });
   $("tab-s").addEventListener("click", function(){ setView("sites"); });
+  $("tab-l").addEventListener("click", function(){ setView("ledger"); });
 
   function setView(v){
     view = v;
@@ -681,6 +692,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     $("tab-f").setAttribute("aria-current", v === "feedback" ? "true" : "false");
     $("tab-q").setAttribute("aria-current", v === "inquiry" ? "true" : "false");
     $("tab-s").setAttribute("aria-current", v === "sites" ? "true" : "false");
+    $("tab-l").setAttribute("aria-current", v === "ledger" ? "true" : "false");
     if(v === "feedback"){
       $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
       loadFb();
@@ -690,6 +702,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     } else if(v === "sites"){
       $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
       loadSites();
+    } else if(v === "ledger"){
+      $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
+      loadLedger();
     } else {
       renderMain();
     }
@@ -801,10 +816,11 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   }
 
   function renderList(){
-    if(view === "inquiry" || view === "sites"){
+    if(view === "inquiry" || view === "sites" || view === "ledger"){
       $("cnt").textContent = "고객 " + rows.length + "곳";
       $("list").innerHTML = '<p class="blank" style="padding:10px 0;font-size:15px">' +
-        (view === "sites" ? '사이트 목록 화면입니다.' : '문의 화면입니다.') +
+        (view === "sites" ? '사이트 목록 화면입니다.' :
+         view === "ledger" ? '운영 장부 화면입니다.' : '문의 화면입니다.') +
         ' 고객 답변 탭으로 돌아가면 목록이 다시 보입니다.</p>';
       return;
     }
@@ -1307,6 +1323,220 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       }
       stEdit = null;
       loadSites();
+    });
+  }
+
+  /* ══════════════ 운영 장부 ══════════════
+     도메인·구독처럼 회사 운영에 드는 것들을 적어 두는 곳.
+     카드번호·비밀번호는 절대 적지 않는다. */
+
+  var lgRows = [], lgEdit = null;
+  var LKINDS = [
+    { id: "domain", label: "도메인" },
+    { id: "sub",    label: "구독·서비스" },
+    { id: "etc",    label: "기타" }
+  ];
+  function lkLabel(id){
+    var k = LKINDS.filter(function(x){ return x.id === id; })[0];
+    return k ? k.label : "기타";
+  }
+  var LCYCLES = [
+    { id: "month", label: "매달" },
+    { id: "year",  label: "매년" },
+    { id: "once",  label: "한 번만" }
+  ];
+
+  function loadLedger(){
+    return sb.rpc("ledger_list", { p_key: AKEY }).then(function(r){
+      lgRows = (r && r.data) || [];
+      if(view === "ledger") renderLedger();
+    });
+  }
+
+  // 오늘부터 날짜 d까지 며칠 남았는지. 지났으면 음수.
+  function dayDiff(d){
+    if(!d) return null;
+    var a = new Date(); a.setHours(0, 0, 0, 0);
+    return Math.round((new Date(d + "T00:00:00") - a) / 86400000);
+  }
+  // 시작일부터 오늘까지 몇 개월째인지. 시작한 달은 1개월째.
+  function monthsSince(d){
+    if(!d) return null;
+    var s = new Date(d + "T00:00:00"), n = new Date();
+    var full = (n.getFullYear() - s.getFullYear()) * 12 + (n.getMonth() - s.getMonth());
+    if(n.getDate() < s.getDate()) full -= 1;
+    return Math.max(full + 1, 1);
+  }
+  // 월 환산 금액. "한 번만"은 고정비에 넣지 않는다.
+  function monthlyOf(x){
+    if(x.price == null) return 0;
+    if(x.cycle === "year") return x.price / 12;
+    if(x.cycle === "month") return +x.price;
+    return 0;
+  }
+
+  function lgCard(x){
+    var dd = dayDiff(x.expires_at);
+    var ms = monthsSince(x.started_at);
+    var bits = [];
+    if(x.provider) bits.push(esc(x.provider));
+    if(x.started_at) bits.push(dot(x.started_at) + " 시작" + (ms ? " · " + ms + "개월째" : ""));
+    if(x.expires_at) bits.push(dot(x.expires_at) + " 만료");
+    if(x.price != null) bits.push(won(x.price) +
+      (x.cycle === "year" ? " / 년" : x.cycle === "month" ? " / 월" : ""));
+    if(x.pay_day) bits.push("매달 " + x.pay_day + "일 결제");
+    if(x.site) bits.push(esc(x.site));
+    var pills = "";
+    if(dd != null){
+      if(dd < 0) pills += '<span class="pill off">만료 지남</span>';
+      else if(dd <= 30) pills += '<span class="pill ing">만료 D-' + dd + '</span>';
+    }
+    if(x.auto_renew) pills += '<span class="pill done">자동갱신</span>';
+    return '<div class="st-card lg-card" data-id="' + x.id + '">' +
+      '<div class="line">' +
+        '<span class="nm" style="font-size:17px">' + esc(x.name) + '</span>' +
+        '<span class="st-cat">' + lkLabel(x.kind) + '</span>' + pills +
+      '</div>' +
+      (bits.length ? '<div class="sum">' + bits.join(" · ") + '</div>' : '') +
+      (x.memo ? '<div class="st-memo">' + esc(x.memo) + '</div>' : '') +
+      '<div class="tools"><button class="txt" data-act="edit">고치기</button>' +
+      '<button class="txt" data-act="del">목록에서 지우기</button></div>' +
+    '</div>';
+  }
+
+  function lfIn(id, label, val, type, ph, wide){
+    return '<div' + (wide ? ' class="pj-wide"' : '') + '><label for="lf-' + id + '">' + esc(label) + '</label>' +
+      '<input id="lf-' + id + '"' + (type ? ' type="' + type + '"' : '') +
+      (ph ? ' placeholder="' + att(ph) + '"' : '') +
+      ' value="' + att(val == null ? "" : String(val)) + '"></div>';
+  }
+
+  function lgForm(x){
+    x = x || {};
+    var kOpts = LKINDS.map(function(k){
+      return '<option value="' + k.id + '"' + ((x.kind || "sub") === k.id ? ' selected' : '') + '>' + esc(k.label) + '</option>';
+    }).join("");
+    var cOpts = '<option value="">—</option>' + LCYCLES.map(function(c){
+      return '<option value="' + c.id + '"' + (x.cycle === c.id ? ' selected' : '') + '>' + esc(c.label) + '</option>';
+    }).join("");
+    return '<section class="pj"><div class="pj-top"><h2>' + (x.id ? "항목 고치기" : "항목 추가") + '</h2></div>' +
+      '<div class="pj-form">' +
+        lfIn("name", "이름", x.name, "", "예: asog.kr, Claude") +
+        '<div><label for="lf-kind">분류</label><select id="lf-kind">' + kOpts + '</select></div>' +
+        lfIn("provider", "구입처·운영사", x.provider, "", "예: 가비아, Anthropic") +
+        lfIn("site", "연결된 사이트", x.site, "", "예: 어소그 공식") +
+        lfIn("started_at", "시작일(구매일)", ymd(x.started_at), "date") +
+        lfIn("expires_at", "만료일 — 기한이 있을 때만", ymd(x.expires_at), "date") +
+        lfIn("price", "금액(원)", x.price, "number", "예: 22000") +
+        '<div><label for="lf-cycle">결제 주기</label><select id="lf-cycle">' + cOpts + '</select></div>' +
+        lfIn("pay_day", "결제일 — 매달 며칠", x.pay_day, "number", "예: 25") +
+        '<div><label for="lf-auto_renew">자동갱신</label><select id="lf-auto_renew">' +
+          '<option value=""' + (x.auto_renew == null ? ' selected' : '') + '>—</option>' +
+          '<option value="true"' + (x.auto_renew === true ? ' selected' : '') + '>켜짐</option>' +
+          '<option value="false"' + (x.auto_renew === false ? ' selected' : '') + '>꺼짐</option></select></div>' +
+        '<div class="pj-wide"><label for="lf-memo">메모</label><textarea id="lf-memo">' + esc(x.memo || "") + '</textarea></div>' +
+      '</div>' +
+      '<p class="pj-warn">카드번호·비밀번호·계정 정보는 적지 마세요.</p>' +
+      '<div class="pj-save"><button class="btn sm" id="lf-save">저장</button>' +
+      '<button class="btn sm ghost" id="lf-cancel">취소</button>' +
+      '<span class="pj-err" id="lf-err"></span></div></section>';
+  }
+
+  function renderLedger(){
+    var editing = lgEdit === "new" ? {} :
+      lgRows.filter(function(x){ return x.id === lgEdit; })[0] || null;
+
+    var mTot = 0, yTot = 0, near = [];
+    lgRows.forEach(function(x){
+      mTot += monthlyOf(x);
+      if(x.price != null){
+        if(x.cycle === "month") yTot += +x.price * 12;
+        else if(x.cycle === "year") yTot += +x.price;
+      }
+      var dd = dayDiff(x.expires_at);
+      if(dd != null && dd <= 30) near.push(esc(x.name) + (dd < 0 ? " — 만료 지남" : " — 만료 D-" + dd));
+    });
+
+    var head =
+      '<div class="hd"><div><h1>운영 <b>장부</b></h1>' +
+      '<div class="meta">도메인·구독 ' + lgRows.length + '개 · 금액을 넣으면 고정비가 자동으로 계산됩니다</div></div>' +
+      '<div class="acts"><button class="btn sm" id="lg-add">+ 항목 추가</button></div></div>';
+
+    var warn = near.length ?
+      '<div class="lg-warn">⏰ 만료 확인 — ' + near.join(" · ") + '</div>' : "";
+
+    var tots =
+      '<div class="lg-tots">' +
+        '<div class="lg-tot"><span>이번 달 고정비</span><b>' + won(Math.round(mTot)) + '</b></div>' +
+        '<div class="lg-tot"><span>1년으로 치면</span><b>' + won(yTot) + '</b></div>' +
+        '<div class="lg-tot"><span>적어 둔 항목</span><b>' + lgRows.length + '개</b></div>' +
+      '</div>';
+
+    var formHtml = (lgEdit === "new" || editing) ? lgForm(editing || {}) : "";
+
+    var body = "";
+    LKINDS.forEach(function(k){
+      var items = lgRows.filter(function(x){ return (x.kind || "etc") === k.id; });
+      if(!items.length) return;
+      body += '<h3 class="lg-h">' + esc(k.label) + ' ' + items.length + '</h3>' + items.map(lgCard).join("");
+    });
+    if(!lgRows.length){
+      body = '<p class="blank">아직 적어 둔 항목이 없습니다. 오른쪽 위 <b>+ 항목 추가</b>로<br>' +
+        '도메인(만료일·구입처)이나 구독(클로드 시작일·월 요금)을 넣어 보세요.</p>';
+    }
+
+    $("main").innerHTML = head + warn + tots + formHtml + body;
+
+    $("lg-add").addEventListener("click", function(){
+      lgEdit = "new"; renderLedger(); window.scrollTo(0, 0);
+    });
+    if(formHtml){
+      $("lf-cancel").addEventListener("click", function(){ lgEdit = null; renderLedger(); });
+      $("lf-save").addEventListener("click", function(){ lgSave(editing ? editing.id : null); });
+    }
+    $("main").querySelectorAll(".lg-card").forEach(function(el){
+      var id = Number(el.dataset.id);
+      var x = lgRows.filter(function(r){ return r.id === id; })[0];
+      if(!x) return;
+      el.querySelectorAll("[data-act]").forEach(function(b){
+        b.addEventListener("click", function(){
+          if(b.dataset.act === "edit"){ lgEdit = id; renderLedger(); window.scrollTo(0, 0); return; }
+          if(b.dataset.act === "del"){
+            if(!confirm('"' + x.name + '" 을(를) 장부에서 지울까요?')) return;
+            sb.rpc("ledger_del", { p_key: AKEY, p_id: id }).then(function(){ lgEdit = null; loadLedger(); });
+          }
+        });
+      });
+    });
+  }
+
+  function lgSave(id){
+    var name = $("lf-name").value.trim();
+    if(!name){ $("lf-err").textContent = "이름을 적어주세요."; $("lf-name").focus(); return; }
+    var ar = $("lf-auto_renew").value;
+    var p = {
+      name: name,
+      kind: $("lf-kind").value,
+      provider: $("lf-provider").value,
+      site: $("lf-site").value,
+      started_at: $("lf-started_at").value,
+      expires_at: $("lf-expires_at").value,
+      price: $("lf-price").value,
+      cycle: $("lf-cycle").value,
+      pay_day: $("lf-pay_day").value,
+      auto_renew: ar === "" ? null : ar === "true",
+      memo: $("lf-memo").value
+    };
+    var btn = $("lf-save");
+    btn.disabled = true; btn.textContent = "저장 중…"; $("lf-err").textContent = "";
+    sb.rpc("ledger_save", { p_key: AKEY, p_id: id, p: p }).then(function(r){
+      if(r.error){
+        btn.disabled = false; btn.textContent = "저장";
+        $("lf-err").textContent = "저장하지 못했습니다 — " + r.error.message;
+        return;
+      }
+      lgEdit = null;
+      loadLedger();
     });
   }
 
