@@ -1180,11 +1180,39 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       '" target="_blank" rel="noopener noreferrer">' + esc(label) + ' ↗</a>';
   }
 
+  // 로컬주소: 누르면 서버 지킴이(8001)에 "이 사이트 켜줘"라고 부탁한 뒤 연다
+  function stLocalLink(url){
+    var u = safeUrl(url);
+    if(!u) return "";
+    var m = u.match(/^http:\/\/(?:127\.0\.0\.1|localhost):(\d+)/);
+    if(!m) return stLink("로컬주소", url);
+    return '<a class="st-local" href="' + att(u) + '" data-port="' + m[1] +
+      '" target="_blank" rel="noopener noreferrer">로컬주소 ↗</a>';
+  }
+
+  document.addEventListener("click", function(ev){
+    var a = ev.target.closest && ev.target.closest("a.st-local");
+    if(!a) return;
+    ev.preventDefault();
+    var url = a.href;
+    var port = a.getAttribute("data-port");
+    var w = window.open("about:blank", "_blank");
+    var ac = ("AbortController" in window) ? new AbortController() : null;
+    var timer = ac ? setTimeout(function(){ ac.abort(); }, 4000) : null;
+    fetch("http://127.0.0.1:8001/__start?port=" + encodeURIComponent(port),
+      ac ? { method: "POST", signal: ac.signal } : { method: "POST" })
+      .catch(function(){ return null; })
+      .then(function(){
+        if(timer) clearTimeout(timer);
+        if(w) w.location = url;
+      });
+  }, true);
+
   function stCard(s){
     var st = SST[s.status];
     var links =
       stLink("웹주소", s.deploy_url, true) +
-      stLink("로컬주소", s.local_url) +
+      stLocalLink(s.local_url) +
       stLink("GitHub", s.github_url);
     var du = safeUrl(s.deploy_url);
     var img = '<img src="thumbs/' + s.id + '.jpg" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\'">';
