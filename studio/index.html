@@ -302,9 +302,14 @@ input:focus{border-color:var(--brand);outline:none}
 .st-card .tools{margin-top:12px;display:flex;gap:10px}
 .st-card .tools .txt{background:none;border:0;color:var(--ink-2);font-size:14px;cursor:pointer;
   text-decoration:underline;padding:2px}
+.st-flex{display:flex;gap:16px;align-items:flex-start}
+.st-thumb{display:block;flex:0 0 172px;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:#F2F5FA}
+.st-thumb img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
+.st-body{flex:1;min-width:0}
 
 @media (max-width:900px){
   .shell{grid-template-columns:1fr;gap:0}
+  .st-thumb{flex-basis:112px}
   .side{position:static;padding:20px 0 0}
   .main{padding-top:22px}
   .hd .acts{margin-left:0;width:100%}
@@ -1162,7 +1167,13 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       stLink("열어보기", s.deploy_url, true) +
       stLink("내 컴퓨터에서 열기", s.local_url) +
       stLink("GitHub", s.github_url);
+    var du = safeUrl(s.deploy_url);
+    var img = '<img src="thumbs/' + s.id + '.jpg" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\'">';
+    var thumb = du
+      ? '<a class="st-thumb" href="' + att(du) + '" target="_blank" rel="noopener noreferrer" tabindex="-1">' + img + '</a>'
+      : '<span class="st-thumb">' + img + '</span>';
     return '<div class="st-card" data-id="' + s.id + '">' +
+      '<div class="st-flex">' + thumb + '<div class="st-body">' +
       '<div class="line">' +
         '<button class="st-star' + (s.fav ? " on" : "") + '" data-act="fav" title="즐겨찾기" aria-label="즐겨찾기" aria-pressed="' + (s.fav ? "true" : "false") + '">' + (s.fav ? "★" : "☆") + '</button>' +
         '<span class="nm">' + esc(s.name) + '</span>' +
@@ -1176,7 +1187,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       (s.memo ? '<div class="st-memo">' + esc(s.memo) + '</div>' : '') +
       '<div class="tools"><button class="txt" data-act="edit">고치기</button>' +
       '<button class="txt" data-act="del">목록에서 지우기</button></div>' +
-    '</div>';
+    '</div></div></div>';
   }
 
   function sfIn(id, label, val, type, ph, wide){
