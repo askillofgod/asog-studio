@@ -280,6 +280,29 @@ input:focus{border-color:var(--brand);outline:none}
 .fb .rep .save{margin-top:7px}
 .fb.done{opacity:.62}
 
+/* ── 사이트 목록 ── */
+.pill.off{background:#E8ECF3;color:#5A6478}
+.st-card{border:1px solid var(--rule);border-radius:8px;padding:18px 20px;margin-bottom:12px;background:var(--ground)}
+.st-card .line{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.st-card .nm{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.st-card .st-when{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.st-card .sum{margin-top:5px;font-size:15px;color:var(--ink-2)}
+.st-star{background:none;border:0;cursor:pointer;font-size:22px;line-height:1;padding:0 2px;color:#C9D2E0}
+.st-star.on{color:#F5B301}
+.st-cat{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--pale);color:var(--brand)}
+.st-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.st-links a{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:999px;
+  border:1.5px solid var(--rule);background:var(--ground);font-size:15px;font-weight:600;
+  text-decoration:none;color:var(--brand)}
+.st-links a:hover{border-color:var(--brand);background:var(--pale)}
+.st-links a.key{background:var(--brand);border-color:var(--brand);color:#fff}
+.st-links a.key:hover{background:#0037AC;border-color:#0037AC}
+.st-path{margin-top:11px;font-family:var(--mono);font-size:13px;color:var(--ink-2);word-break:break-all}
+.st-memo{margin-top:9px;font-size:15px;line-height:1.65;white-space:pre-wrap;color:var(--ink-2)}
+.st-card .tools{margin-top:12px;display:flex;gap:10px}
+.st-card .tools .txt{background:none;border:0;color:var(--ink-2);font-size:14px;cursor:pointer;
+  text-decoration:underline;padding:2px}
+
 @media (max-width:900px){
   .shell{grid-template-columns:1fr;gap:0}
   .side{position:static;padding:20px 0 0}
@@ -350,6 +373,7 @@ input:focus{border-color:var(--brand);outline:none}
         <button id="tab-a" aria-current="true">고객 답변</button>
         <button id="tab-f">수정 요청</button>
         <button id="tab-q">문의</button>
+        <button id="tab-s">사이트</button>
       </div>
       <h2 id="cnt">고객</h2>
       <button class="btn sm" id="add" style="width:100%;margin-bottom:14px">+ 고객 추가</button>
@@ -617,6 +641,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         if(view === "answers") renderMain();
         loadFb();
         loadInq();
+        loadSites();
       });
   }
 
@@ -643,18 +668,23 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   $("tab-a").addEventListener("click", function(){ setView("answers"); });
   $("tab-f").addEventListener("click", function(){ setView("feedback"); });
   $("tab-q").addEventListener("click", function(){ setView("inquiry"); });
+  $("tab-s").addEventListener("click", function(){ setView("sites"); });
 
   function setView(v){
     view = v;
     $("tab-a").setAttribute("aria-current", v === "answers" ? "true" : "false");
     $("tab-f").setAttribute("aria-current", v === "feedback" ? "true" : "false");
     $("tab-q").setAttribute("aria-current", v === "inquiry" ? "true" : "false");
+    $("tab-s").setAttribute("aria-current", v === "sites" ? "true" : "false");
     if(v === "feedback"){
       $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
       loadFb();
     } else if(v === "inquiry"){
       $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
       loadInq();
+    } else if(v === "sites"){
+      $("main").innerHTML = '<p class="blank">불러오는 중…</p>';
+      loadSites();
     } else {
       renderMain();
     }
@@ -766,10 +796,11 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   }
 
   function renderList(){
-    if(view === "inquiry"){
+    if(view === "inquiry" || view === "sites"){
       $("cnt").textContent = "고객 " + rows.length + "곳";
       $("list").innerHTML = '<p class="blank" style="padding:10px 0;font-size:15px">' +
-        '문의 화면입니다. 고객 답변 탭으로 돌아가면 목록이 다시 보입니다.</p>';
+        (view === "sites" ? '사이트 목록 화면입니다.' : '문의 화면입니다.') +
+        ' 고객 답변 탭으로 돌아가면 목록이 다시 보입니다.</p>';
       return;
     }
     $("cnt").textContent = "고객 " + rows.length + "곳";
@@ -1084,6 +1115,188 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       out.push("");
     });
     return out.join("\n");
+  }
+
+  /* ══════════════ 사이트 목록 ══════════════
+     예전에 했거나 지금 진행 중인 사이트들. 주소·폴더·메모를 한 곳에 모은다.
+     저장은 Supabase sites 테이블 — 파일에 적으면 배포될 때 밖에서 보인다. */
+  var stRows = [], stFilter = "all", stEdit = null;   // stEdit: "new" 또는 사이트 id
+  var CATS = [
+    { id: "asog",   label: "ASOG" },
+    { id: "client", label: "고객 사이트" },
+    { id: "own",    label: "자체 서비스" },
+    { id: "lab",    label: "실험·보관" }
+  ];
+  function catLabel(id){
+    var c = CATS.filter(function(x){ return x.id === id; })[0];
+    return c ? c.label : "";
+  }
+  var SST = {
+    live: { label: "운영 중", cls: "done" },
+    dev:  { label: "개발 중", cls: "ing" },
+    hold: { label: "중단",    cls: "off" }
+  };
+
+  function loadSites(){
+    return sb.rpc("sites_list", { p_key: AKEY }).then(function(r){
+      stRows = (r && r.data) || [];
+      if(view === "sites") renderSites();
+    });
+  }
+
+  function stVisible(){
+    if(stFilter === "all") return stRows;
+    return stRows.filter(function(s){ return s.category === stFilter; });
+  }
+
+  function stLink(label, url, key){
+    var u = safeUrl(url);
+    if(!u) return "";
+    return '<a' + (key ? ' class="key"' : '') + ' href="' + att(u) +
+      '" target="_blank" rel="noopener noreferrer">' + esc(label) + ' ↗</a>';
+  }
+
+  function stCard(s){
+    var st = SST[s.status];
+    var links =
+      stLink("열어보기", s.deploy_url, true) +
+      stLink("내 컴퓨터에서 열기", s.local_url) +
+      stLink("GitHub", s.github_url);
+    return '<div class="st-card" data-id="' + s.id + '">' +
+      '<div class="line">' +
+        '<button class="st-star' + (s.fav ? " on" : "") + '" data-act="fav" title="즐겨찾기" aria-label="즐겨찾기" aria-pressed="' + (s.fav ? "true" : "false") + '">' + (s.fav ? "★" : "☆") + '</button>' +
+        '<span class="nm">' + esc(s.name) + '</span>' +
+        (s.category ? '<span class="st-cat">' + esc(catLabel(s.category)) + '</span>' : '') +
+        (st ? '<span class="pill ' + st.cls + '">' + st.label + '</span>' : '') +
+        (s.worked_at ? '<span class="st-when">마지막 작업 ' + dot(s.worked_at) + '</span>' : '') +
+      '</div>' +
+      (s.summary ? '<div class="sum">' + esc(s.summary) + '</div>' : '') +
+      (links ? '<div class="st-links">' + links + '</div>' : '') +
+      (s.folder ? '<div class="st-path">' + esc(s.folder) + copyBtn(s.folder) + '</div>' : '') +
+      (s.memo ? '<div class="st-memo">' + esc(s.memo) + '</div>' : '') +
+      '<div class="tools"><button class="txt" data-act="edit">고치기</button>' +
+      '<button class="txt" data-act="del">목록에서 지우기</button></div>' +
+    '</div>';
+  }
+
+  function sfIn(id, label, val, type, ph, wide){
+    return '<div' + (wide ? ' class="pj-wide"' : '') + '><label for="sf-' + id + '">' + esc(label) + '</label>' +
+      '<input id="sf-' + id + '"' + (type ? ' type="' + type + '"' : '') +
+      (ph ? ' placeholder="' + att(ph) + '"' : '') +
+      ' value="' + att(val == null ? "" : String(val)) + '"></div>';
+  }
+
+  function stForm(s){
+    s = s || {};
+    var catOpts = '<option value="">—</option>' + CATS.map(function(c){
+      return '<option value="' + c.id + '"' + (s.category === c.id ? ' selected' : '') + '>' + esc(c.label) + '</option>';
+    }).join("");
+    var stOpts = '<option value="">—</option>' + Object.keys(SST).map(function(k){
+      return '<option value="' + k + '"' + (s.status === k ? ' selected' : '') + '>' + SST[k].label + '</option>';
+    }).join("");
+    return '<section class="pj"><div class="pj-top"><h2>' + (s.id ? "사이트 고치기" : "사이트 추가") + '</h2></div>' +
+      '<div class="pj-form">' +
+        sfIn("name", "이름", s.name) +
+        '<div><label for="sf-category">분류</label><select id="sf-category">' + catOpts + '</select></div>' +
+        '<div><label for="sf-status">상태</label><select id="sf-status">' + stOpts + '</select></div>' +
+        sfIn("worked_at", "마지막 작업일", ymd(s.worked_at), "date") +
+        sfIn("summary", "한 줄 설명", s.summary, "", "", true) +
+        sfIn("deploy_url", "배포 주소", s.deploy_url, "", "https://", true) +
+        sfIn("local_url", "로컬 주소 — 내 컴퓨터에서만 열림", s.local_url, "", "http://127.0.0.1:8000", true) +
+        sfIn("folder", "로컬 폴더 경로", s.folder, "", "/Volumes/…", true) +
+        sfIn("github_url", "GitHub 저장소", s.github_url, "", "https://github.com/…", true) +
+        '<div class="pj-wide"><label for="sf-memo">메모</label><textarea id="sf-memo">' + esc(s.memo || "") + '</textarea></div>' +
+      '</div>' +
+      '<p class="pj-warn">아이디·비밀번호·API 키는 적지 마세요. 스튜디오 코드 하나로 다 열립니다.</p>' +
+      '<div class="pj-save"><button class="btn sm" id="sf-save">저장</button>' +
+      '<button class="btn sm ghost" id="sf-cancel">취소</button>' +
+      '<span class="pj-err" id="sf-err"></span></div></section>';
+  }
+
+  function renderSites(){
+    var list = stVisible();
+    var editing = stEdit === "new" ? {} :
+      stRows.filter(function(s){ return s.id === stEdit; })[0] || null;
+
+    var head =
+      '<div class="hd"><div><h1>사이트 <b>목록</b></h1>' +
+      '<div class="meta">' + stRows.length + '곳 · ★를 누르면 맨 위에 고정됩니다</div></div>' +
+      '<div class="acts"><button class="btn sm" id="st-add">+ 사이트 추가</button></div></div>' +
+      '<div class="filters">' +
+        '<button data-c="all"' + (stFilter === "all" ? ' aria-current="true"' : '') + '>전체 ' + stRows.length + '</button>' +
+        CATS.map(function(c){
+          var n = stRows.filter(function(s){ return s.category === c.id; }).length;
+          return '<button data-c="' + c.id + '"' + (stFilter === c.id ? ' aria-current="true"' : '') + '>' +
+            esc(c.label) + ' ' + n + '</button>';
+        }).join("") + '</div>';
+
+    var formHtml = (stEdit === "new" || editing) ? stForm(editing || {}) : "";
+    var body = list.length ? list.map(stCard).join("")
+      : '<p class="blank">해당하는 사이트가 없습니다. 오른쪽 위 <b>+ 사이트 추가</b>로 넣을 수 있습니다.</p>';
+
+    $("main").innerHTML = head + formHtml + body;
+
+    $("st-add").addEventListener("click", function(){
+      stEdit = "new"; renderSites(); window.scrollTo(0, 0);
+    });
+    $("main").querySelectorAll(".filters button").forEach(function(b){
+      b.addEventListener("click", function(){ stFilter = b.dataset.c; renderSites(); });
+    });
+    if(formHtml){
+      $("sf-cancel").addEventListener("click", function(){ stEdit = null; renderSites(); });
+      $("sf-save").addEventListener("click", function(){ stSave(editing ? editing.id : null); });
+    }
+    bindStCards();
+  }
+
+  function bindStCards(){
+    $("main").querySelectorAll(".st-card").forEach(function(el){
+      var id = Number(el.dataset.id);
+      var s = stRows.filter(function(x){ return x.id === id; })[0];
+      if(!s) return;
+      el.querySelectorAll("[data-act]").forEach(function(b){
+        b.addEventListener("click", function(){
+          var act = b.dataset.act;
+          if(act === "fav"){
+            return sb.rpc("sites_fav", { p_key: AKEY, p_id: id, p_fav: !s.fav })
+              .then(function(){ loadSites(); });
+          }
+          if(act === "edit"){ stEdit = id; renderSites(); window.scrollTo(0, 0); return; }
+          if(act === "del"){
+            if(!confirm('"' + s.name + '" 을(를) 목록에서 지울까요? 사이트 자체는 지워지지 않습니다.')) return;
+            sb.rpc("sites_del", { p_key: AKEY, p_id: id }).then(function(){ stEdit = null; loadSites(); });
+          }
+        });
+      });
+    });
+  }
+
+  function stSave(id){
+    var name = $("sf-name").value.trim();
+    if(!name){ $("sf-err").textContent = "이름을 적어주세요."; $("sf-name").focus(); return; }
+    var p = {
+      name: name,
+      summary: $("sf-summary").value,
+      category: $("sf-category").value,
+      status: $("sf-status").value,
+      worked_at: $("sf-worked_at").value,
+      deploy_url: $("sf-deploy_url").value,
+      local_url: $("sf-local_url").value,
+      folder: $("sf-folder").value,
+      github_url: $("sf-github_url").value,
+      memo: $("sf-memo").value
+    };
+    var btn = $("sf-save");
+    btn.disabled = true; btn.textContent = "저장 중…"; $("sf-err").textContent = "";
+    sb.rpc("sites_save", { p_key: AKEY, p_id: id, p: p }).then(function(r){
+      if(r.error){
+        btn.disabled = false; btn.textContent = "저장";
+        $("sf-err").textContent = "저장하지 못했습니다 — " + r.error.message;
+        return;
+      }
+      stEdit = null;
+      loadSites();
+    });
   }
 
   /* ══════════════ 프로젝트 정보 ══════════════
