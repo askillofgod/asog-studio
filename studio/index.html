@@ -1183,8 +1183,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   function stCard(s){
     var st = SST[s.status];
     var links =
-      stLink("열어보기", s.deploy_url, true) +
-      stLink("내 컴퓨터에서 열기", s.local_url) +
+      stLink("웹주소", s.deploy_url, true) +
+      stLink("로컬주소", s.local_url) +
       stLink("GitHub", s.github_url);
     var du = safeUrl(s.deploy_url);
     var img = '<img src="thumbs/' + s.id + '.jpg" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\'">';
