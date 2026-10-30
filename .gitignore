@@ -1,3 +1,6 @@
 .DS_Store
 node_modules/
 *.log
+
+# 내부 자료 — 배포 저장소에 올리지 않는다
+어소그자료/
