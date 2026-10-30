@@ -11,7 +11,7 @@
 <style>
 :root{
   --navy:#0C2141; --brand:#0040C8; --bright:#246BFE; --pale:#EAF1FF;
-  --ground:#FFFFFF; --panel:#F7F8FA; --ink:#0C2141; --ink-2:#5A6478;
+  --ground:#FFFFFF; --panel:#F7F8FA; --ink:#000000; --ink-2:#000000;
   --rule:#D5DCE8; --rule-soft:#E8ECF3; --ok:#0E8A5F; --error:#C8102E;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:Pretendard,"Pretendard Variable",Inter,"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
@@ -306,6 +306,9 @@ input:focus{border-color:var(--brand);outline:none}
 .st-thumb{display:block;flex:0 0 172px;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:#F2F5FA}
 .st-thumb img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
 .st-body{flex:1;min-width:0}
+.cptx{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:left;word-break:break-all}
+.cptx:hover{color:var(--brand);text-decoration:underline}
+.cptx.ok::after{content:"  ✓ 복사됨 — Finder에서 ⇧⌘G 후 붙여넣기";color:var(--ok);font-weight:700;font-size:12px}
 
 /* ── 운영 장부 ── */
 .lg-tots{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}
@@ -1199,7 +1202,13 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       '</div>' +
       (s.summary ? '<div class="sum">' + esc(s.summary) + '</div>' : '') +
       (links ? '<div class="st-links">' + links + '</div>' : '') +
-      (s.folder ? '<div class="st-path">' + esc(s.folder) + copyBtn(s.folder) + '</div>' : '') +
+      (s.folder ? '<div class="st-path"><button type="button" class="cptx" data-cp="' + att(s.folder) + '" title="클릭하면 경로가 복사됩니다">' + esc(s.folder) + '</button>' + copyBtn(s.folder) + '</div>' : '') +
+      ((s.admin_id || s.test_id) ?
+        '<div class="st-path">' +
+        (s.admin_id ? '어드민 <b>' + esc(s.admin_id) + '</b>' + copyBtn(s.admin_id) : '') +
+        (s.admin_id && s.test_id ? '&nbsp;&nbsp;·&nbsp;&nbsp;' : '') +
+        (s.test_id ? '테스트 <b>' + esc(s.test_id) + '</b>' + copyBtn(s.test_id) : '') +
+        '</div>' : '') +
       (s.memo ? '<div class="st-memo">' + esc(s.memo) + '</div>' : '') +
       '<div class="tools"><button class="txt" data-act="edit">고치기</button>' +
       '<button class="txt" data-act="del">목록에서 지우기</button></div>' +
@@ -1232,6 +1241,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         sfIn("local_url", "로컬 주소 — 내 컴퓨터에서만 열림", s.local_url, "", "http://127.0.0.1:8000", true) +
         sfIn("folder", "로컬 폴더 경로", s.folder, "", "/Volumes/…", true) +
         sfIn("github_url", "GitHub 저장소", s.github_url, "", "https://github.com/…", true) +
+        sfIn("admin_id", "어드민 아이디 — 비밀번호는 적지 않기", s.admin_id) +
+        sfIn("test_id", "테스트 아이디", s.test_id) +
         '<div class="pj-wide"><label for="sf-memo">메모</label><textarea id="sf-memo">' + esc(s.memo || "") + '</textarea></div>' +
       '</div>' +
       '<p class="pj-warn">아이디·비밀번호·API 키는 적지 마세요. 스튜디오 코드 하나로 다 열립니다.</p>' +
@@ -1311,6 +1322,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       local_url: $("sf-local_url").value,
       folder: $("sf-folder").value,
       github_url: $("sf-github_url").value,
+      admin_id: $("sf-admin_id").value,
+      test_id: $("sf-test_id").value,
       memo: $("sf-memo").value
     };
     var btn = $("sf-save");
@@ -1625,7 +1638,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
 
   /* 화면을 다시 그려도 다시 붙일 필요가 없게 문서 전체에서 한 번만 듣는다 */
   document.addEventListener("click", function(ev){
-    var b = ev.target.closest && ev.target.closest(".cp");
+    var b = ev.target.closest && ev.target.closest(".cp, .cptx");
     if(!b) return;
     ev.preventDefault();
     navigator.clipboard.writeText(b.dataset.cp).then(function(){
