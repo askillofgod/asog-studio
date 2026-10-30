@@ -228,6 +228,10 @@ input:focus{border-color:var(--brand);outline:none}
 /* ── 수정 요청 ── */
 .tabs{display:flex;gap:6px}
 .menubtn{display:none;background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:var(--ink);padding:2px 6px}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(10,14,22,.45);
+  display:flex;align-items:flex-start;justify-content:center;padding:36px 16px;overflow:auto}
+.modal .pj{width:100%;max-width:680px;margin:0;background:var(--ground);
+  border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.28)}
 .inq{border:1px solid var(--rule);border-radius:8px;padding:22px 24px;margin-bottom:14px;background:var(--ground)}
 .inq.new{box-shadow:inset 3px 0 0 var(--brand)}
 .inq-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
@@ -1233,6 +1237,12 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       .catch(function(){ if(timer) clearTimeout(timer); });
   }
 
+  document.addEventListener("keydown", function(ev){
+    if(ev.key === "Escape" && stEdit !== null && document.getElementById("st-modal")){
+      stEdit = null; renderSites();
+    }
+  });
+
   document.addEventListener("click", function(ev){
     var b = ev.target.closest && ev.target.closest("button.st-stop");
     if(!b) return;
@@ -1292,7 +1302,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         (s.test_id ? '테스트 <b>' + esc(s.test_id) + '</b>' + copyBtn(s.test_id) : '') +
         '</div>' : '') +
       (s.memo ? '<div class="st-memo">' + esc(s.memo) + '</div>' : '') +
-      '<div class="tools"><button class="txt" data-act="edit">고치기</button>' +
+      '<div class="tools"><button class="txt" data-act="edit">수정</button>' +
       '<button class="txt" data-act="del">목록에서 지우기</button></div>' +
     '</div></div></div>';
   }
@@ -1312,7 +1322,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     var stOpts = '<option value="">—</option>' + Object.keys(SST).map(function(k){
       return '<option value="' + k + '"' + (s.status === k ? ' selected' : '') + '>' + SST[k].label + '</option>';
     }).join("");
-    return '<section class="pj"><div class="pj-top"><h2>' + (s.id ? "사이트 고치기" : "사이트 추가") + '</h2></div>' +
+    return '<section class="pj"><div class="pj-top"><h2>' + (s.id ? "사이트 수정" : "사이트 추가") + '</h2></div>' +
       '<div class="pj-form">' +
         sfIn("name", "이름", s.name) +
         '<div><label for="sf-category">분류</label><select id="sf-category">' + catOpts + '</select></div>' +
@@ -1350,7 +1360,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
             esc(c.label) + ' ' + n + '</button>';
         }).join("") + '</div>';
 
-    var formHtml = (stEdit === "new" || editing) ? stForm(editing || {}) : "";
+    var formHtml = (stEdit === "new" || editing)
+      ? '<div class="modal" id="st-modal">' + stForm(editing || {}) + '</div>' : "";
     var body = list.length ? list.map(stCard).join("")
       : '<p class="blank">해당하는 사이트가 없습니다. 오른쪽 위 <b>+ 사이트 추가</b>로 넣을 수 있습니다.</p>';
 
@@ -1364,6 +1375,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       b.addEventListener("click", function(){ stFilter = b.dataset.c; renderSites(); });
     });
     if(formHtml){
+      $("st-modal").addEventListener("click", function(ev){
+        if(ev.target === ev.currentTarget){ stEdit = null; renderSites(); }
+      });
       $("sf-cancel").addEventListener("click", function(){ stEdit = null; renderSites(); });
       $("sf-save").addEventListener("click", function(){ stSave(editing ? editing.id : null); });
     }
@@ -1495,7 +1509,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       '</div>' +
       (bits.length ? '<div class="sum">' + bits.join(" · ") + '</div>' : '') +
       (x.memo ? '<div class="st-memo">' + esc(x.memo) + '</div>' : '') +
-      '<div class="tools"><button class="txt" data-act="edit">고치기</button>' +
+      '<div class="tools"><button class="txt" data-act="edit">수정</button>' +
       '<button class="txt" data-act="del">목록에서 지우기</button></div>' +
     '</div>';
   }
@@ -1515,7 +1529,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     var cOpts = '<option value="">—</option>' + LCYCLES.map(function(c){
       return '<option value="' + c.id + '"' + (x.cycle === c.id ? ' selected' : '') + '>' + esc(c.label) + '</option>';
     }).join("");
-    return '<section class="pj"><div class="pj-top"><h2>' + (x.id ? "항목 고치기" : "항목 추가") + '</h2></div>' +
+    return '<section class="pj"><div class="pj-top"><h2>' + (x.id ? "항목 수정" : "항목 추가") + '</h2></div>' +
       '<div class="pj-form">' +
         lfIn("name", "이름", x.name, "", "예: asog.kr, Claude") +
         '<div><label for="lf-kind">분류</label><select id="lf-kind">' + kOpts + '</select></div>' +
@@ -1740,7 +1754,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   function projView(r){
     var links = Array.isArray(r.links) ? r.links : [];
     var h = '<section class="pj"><div class="pj-top"><h2>프로젝트 정보</h2>' +
-      '<button class="linkbtn" id="pjedit">고치기</button></div>';
+      '<button class="linkbtn" id="pjedit">수정</button></div>';
 
     // 지금 무엇을 기다리는가 — 이 칸이 이 화면의 핵심이라 맨 위에 크게 둔다.
     h += '<div class="pj-next' + (r.next_at && overdue(r.next_at) ? ' late' : '') + '">' +
@@ -1858,7 +1872,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       return '<option value="' + att(x) + '"' + (r.stage === x ? ' selected' : '') + '>' + esc(x) + '</option>';
     }).join("");
 
-    return '<section class="pj"><div class="pj-top"><h2>프로젝트 정보 고치기</h2></div>' +
+    return '<section class="pj"><div class="pj-top"><h2>프로젝트 정보 수정</h2></div>' +
 
       '<h3 class="pj-fh">지금</h3><div class="pj-form">' +
         '<div><label for="pf-stage">진행 단계</label><select id="pf-stage">' + opts + '</select></div>' +
