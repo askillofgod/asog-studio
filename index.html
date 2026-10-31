@@ -524,7 +524,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     return '<div class="files">' +
       '<ul class="f-list" id="fl-' + q.id + '">' + fileListHtml(q) + '</ul>' +
       '<label class="f-add"><input type="file" multiple data-qf="' + q.id + '" accept="' + FILE_ACCEPT + '">+ 파일 올리기</label>' +
-      '<p class="f-st" id="fs-' + q.id + '">한 번에 여러 개를 올릴 수 있습니다. 파일 하나는 20MB까지, 이 질문에는 10개까지 올릴 수 있습니다.</p></div>';
+      '<p class="f-st" id="fs-' + q.id + '">한 번에 여러 개를 올릴 수 있습니다. 파일 하나는 20MB까지, 이 질문에는 10개까지 올릴 수 있습니다. <b>신분증·통장 사본처럼 개인정보가 담긴 서류는 올리지 마세요.</b></p></div>';
   }
   function uploadFile(file){
     var ext = (file.name.split(".").pop() || "").toLowerCase();
