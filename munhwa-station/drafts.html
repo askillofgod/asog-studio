@@ -11,49 +11,51 @@
 <style>
 :root{
   --bg:#f7f4ee; --paper:#fffdf8; --ink:#171512; --mut:#6f6a60;
-  --faint:#a39d90; --line:#e2dccf; --green:#1f4d3a; --wine:#6d2434;
+  --faint:#a39d90; --line:#e2dccf; --wine:#6d2434;
   --serif:'Noto Serif KR', serif; --sans:'Noto Sans KR', sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{background:var(--bg); color:var(--ink); font-family:var(--sans);
-  font-size:16px; line-height:1.8; word-break:keep-all; overflow-wrap:break-word}
-.wrap{max-width:1080px; margin:0 auto; padding:0 24px}
-header{padding:80px 0 20px}
-.kicker{font-size:13px; letter-spacing:.22em; color:var(--mut); margin-bottom:14px}
-h1{font-family:var(--serif); font-weight:600; font-size:clamp(26px,4vw,38px); line-height:1.45}
-header p{color:var(--mut); margin-top:12px; font-size:15px}
+  font-size:16px; line-height:1.8; word-break:keep-all; overflow-wrap:break-word;
+  overflow-x:hidden}
+.wrap{max-width:960px; margin:0 auto; padding:0 20px}
+a{color:inherit; text-decoration:none}
 
-h2{font-family:var(--serif); font-weight:600; font-size:21px; margin:64px 0 6px;
-  display:flex; align-items:center; gap:10px}
-h2::before{content:""; width:22px; height:1px; background:var(--ink)}
-.sec-sub{color:var(--faint); font-size:14px; margin-bottom:26px}
+header{padding:70px 0 10px}
+.kicker{font-size:13px; letter-spacing:.22em; color:var(--mut); margin-bottom:12px}
+h1{font-family:var(--serif); font-weight:600; font-size:clamp(25px,4vw,36px); line-height:1.45}
+header p{color:var(--mut); margin-top:10px; font-size:15px}
 
-.grid{display:grid; grid-template-columns:1fr 1fr; gap:30px}
-.grid.three{grid-template-columns:repeat(3,1fr)}
+/* 빠른 이동 */
+.jump{display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 8px}
+.jump a{font-size:13px; padding:7px 15px; border:1px solid var(--line);
+  border-radius:999px; background:var(--paper); color:var(--mut)}
+.jump a:hover{border-color:var(--wine); color:var(--wine)}
 
-.item{display:block; text-decoration:none; color:inherit}
-.thumb{
-  position:relative; border:1px solid var(--line); background:var(--paper);
-  aspect-ratio:1200/780; overflow:hidden;
-}
-.thumb iframe{
-  width:1200px; height:780px; border:0;
-  transform-origin:0 0; pointer-events:none; display:block; background:var(--bg);
-}
-.item:hover .thumb{border-color:var(--ink)}
-.cap{display:flex; align-items:baseline; gap:10px; padding:14px 2px 0}
-.cap .chip{
-  font-size:11.5px; letter-spacing:.08em; padding:3px 10px; border-radius:999px;
-  color:#fff; flex:none;
-}
-.chip.g{background:var(--green)} .chip.w{background:var(--wine)} .chip.k{background:var(--ink)}
-.cap h3{font-family:var(--serif); font-size:17px; font-weight:600}
-.cap p{font-size:13.5px; color:var(--faint); margin-left:auto}
-footer{padding:80px 0 100px; color:var(--faint); font-size:13.5px}
-@media (max-width:860px){
-  .grid,.grid.three{grid-template-columns:1fr}
-  .cap p{display:none}
-}
+/* 세로 나열 항목 */
+.entry{padding:52px 0 8px}
+.e-head{display:flex; align-items:baseline; gap:12px; margin-bottom:16px; flex-wrap:wrap}
+.chip{font-size:12px; letter-spacing:.08em; padding:4px 12px; border-radius:999px;
+  color:#fff; background:var(--ink); flex:none}
+.chip.w{background:var(--wine)}
+.e-head h2{font-family:var(--serif); font-size:21px; font-weight:600}
+.e-head .d{font-size:13.5px; color:var(--faint)}
+.e-head .open{margin-left:auto; font-size:13.5px; color:var(--wine);
+  border-bottom:1px solid var(--wine); padding-bottom:1px; flex:none}
+.thumb{position:relative; border:1px solid var(--line); background:var(--paper);
+  overflow:hidden; display:block}
+.thumb iframe{width:1200px; border:0; transform-origin:0 0;
+  pointer-events:none; display:block; background:var(--bg)}
+.thumb:hover{border-color:var(--ink)}
+.tall{aspect-ratio:1200/2400}
+.tall iframe{height:2400px}
+.short{aspect-ratio:1200/840}
+.short iframe{height:840px}
+.sec-note{font-size:13.5px; color:var(--faint); margin-top:14px}
+.sec-note::before{content:"● "; font-size:9px; color:var(--wine)}
+
+footer{padding:70px 0 100px; color:var(--faint); font-size:13.5px}
 </style>
 </head>
 <body>
@@ -62,41 +64,82 @@ footer{padding:80px 0 100px; color:var(--faint); font-size:13.5px}
   <div class="wrap">
     <p class="kicker">CULTURE STATION — DRAFTS</p>
     <h1>문화정거장 시안 모음</h1>
-    <p>카드를 누르면 해당 시안이 열립니다. 썸네일은 실제 화면을 그대로 축소한 것입니다.</p>
+    <p>아래로 내리면서 보세요. 화면을 누르면 해당 시안이 실제 크기로 열립니다.</p>
+    <div class="jump">
+      <a href="#a">A안 원페이지</a>
+      <a href="#b">B안 원페이지</a>
+      <a href="#l1">로고 1안</a>
+      <a href="#l2">로고 2안</a>
+      <a href="#l3">로고 3안</a>
+    </div>
   </div>
 </header>
 
 <div class="wrap">
 
-  <h2>원페이지 홈페이지 — 시안 2안</h2>
-  <p class="sec-sub">포인트 색은 <b>버건디로 확정</b>. 레이아웃·구조·톤이 서로 다른 두 안입니다. 히어로 배경에는 전체 영상이 들어갑니다(자리 표시 중).</p>
-  <div class="grid">
-    <a class="item" href="index.html">
-      <div class="thumb"><iframe src="index.html?embed=1" loading="lazy" scrolling="no" tabindex="-1" title="원페이지 A안"></iframe></div>
-      <div class="cap"><span class="chip k">A안</span><h3>화이트 × 블랙 · 갤러리형</h3><p>상단 메뉴 · 카드 그리드 · 다크 반전</p></div>
+  <!-- A안 -->
+  <section class="entry" id="a">
+    <div class="e-head">
+      <span class="chip">A안</span>
+      <h2>원페이지 · 화이트 × 블랙 — 갤러리형</h2>
+      <span class="d">상단 메뉴 · 카드 그리드 · 다크 반전</span>
+      <a class="open" href="index.html">실제 크기로 열기 →</a>
+    </div>
+    <a class="thumb tall" href="index.html">
+      <iframe src="index.html?embed=1" loading="lazy" scrolling="no" tabindex="-1" title="원페이지 A안"></iframe>
     </a>
-    <a class="item" href="b.html">
-      <div class="thumb"><iframe src="b.html?embed=1" loading="lazy" scrolling="no" tabindex="-1" title="원페이지 B안"></iframe></div>
-      <div class="cap"><span class="chip w">B안</span><h3>베이지 · 도록형</h3><p>좌측 레일 · 중앙 히어로 · 목록·연표</p></div>
-    </a>
-  </div>
+  </section>
 
-  <h2>로고 — 3안</h2>
-  <p class="sec-sub">모두 ‘[’(기록을 담는 공간)과 ‘●’(머무는 정거장) 모티프를 잇습니다. 색은 버건디 한 색(확정)입니다.</p>
-  <div class="grid three">
-    <a class="item" href="logo.html#p1">
-      <div class="thumb"><iframe src="logo.html?embed=1#p1" loading="lazy" scrolling="no" tabindex="-1" title="로고 1안"></iframe></div>
-      <div class="cap"><span class="chip k">1안</span><h3>정거장 표지</h3></div>
+  <!-- B안 -->
+  <section class="entry" id="b">
+    <div class="e-head">
+      <span class="chip w">B안</span>
+      <h2>원페이지 · 베이지 — 도록형</h2>
+      <span class="d">좌측 레일 · 중앙 히어로 · 목록·연표</span>
+      <a class="open" href="b.html">실제 크기로 열기 →</a>
+    </div>
+    <a class="thumb tall" href="b.html">
+      <iframe src="b.html?embed=1" loading="lazy" scrolling="no" tabindex="-1" title="원페이지 B안"></iframe>
     </a>
-    <a class="item" href="logo.html#p2">
-      <div class="thumb"><iframe src="logo.html?embed=1#p2" loading="lazy" scrolling="no" tabindex="-1" title="로고 2안"></iframe></div>
-      <div class="cap"><span class="chip k">2안</span><h3>머무름</h3></div>
+    <p class="sec-note">포인트 색은 버건디로 확정 — 두 안은 레이아웃·구조·바탕 톤이 다릅니다. 히어로 배경에는 전체 영상이 들어갑니다(자리 표시 중).</p>
+  </section>
+
+  <!-- 로고 1안 -->
+  <section class="entry" id="l1">
+    <div class="e-head">
+      <span class="chip">로고 1안</span>
+      <h2>정거장 표지</h2>
+      <a class="open" href="logo.html#p1">실제 크기로 열기 →</a>
+    </div>
+    <a class="thumb short" href="logo.html#p1">
+      <iframe src="logo.html?embed=1#p1" loading="lazy" scrolling="no" tabindex="-1" title="로고 1안"></iframe>
     </a>
-    <a class="item" href="logo.html#p3">
-      <div class="thumb"><iframe src="logo.html?embed=1#p3" loading="lazy" scrolling="no" tabindex="-1" title="로고 3안"></iframe></div>
-      <div class="cap"><span class="chip k">3안</span><h3>아카이브 라벨</h3></div>
+  </section>
+
+  <!-- 로고 2안 -->
+  <section class="entry" id="l2">
+    <div class="e-head">
+      <span class="chip">로고 2안</span>
+      <h2>머무름</h2>
+      <a class="open" href="logo.html#p2">실제 크기로 열기 →</a>
+    </div>
+    <a class="thumb short" href="logo.html#p2">
+      <iframe src="logo.html?embed=1#p2" loading="lazy" scrolling="no" tabindex="-1" title="로고 2안"></iframe>
     </a>
-  </div>
+  </section>
+
+  <!-- 로고 3안 -->
+  <section class="entry" id="l3">
+    <div class="e-head">
+      <span class="chip">로고 3안</span>
+      <h2>아카이브 라벨</h2>
+      <a class="open" href="logo.html#p3">실제 크기로 열기 →</a>
+    </div>
+    <a class="thumb short" href="logo.html#p3">
+      <iframe src="logo.html?embed=1#p3" loading="lazy" scrolling="no" tabindex="-1" title="로고 3안"></iframe>
+    </a>
+    <p class="sec-note">세 안 모두 ‘[’(기록을 담는 공간)과 ‘●’(머무는 정거장) 모티프 — 색은 버건디 한 색(확정)입니다.</p>
+  </section>
 
 </div>
 
@@ -108,11 +151,11 @@ footer{padding:80px 0 100px; color:var(--faint); font-size:13.5px}
 function fit(){
   document.querySelectorAll('.thumb').forEach(function(t){
     var f = t.querySelector('iframe');
-    var s = t.clientWidth / 1200;
-    f.style.transform = 'scale(' + s + ')';
+    f.style.transform = 'scale(' + (t.clientWidth / 1200) + ')';
   });
 }
 addEventListener('resize', fit);
+addEventListener('load', fit);
 fit();
 </script>
 </body>
