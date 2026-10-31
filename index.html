@@ -44,6 +44,8 @@ input[type=text],input[type=email],input[type=url],input[type=tel],textarea,sele
   width:100%;background:var(--ground);border:1.5px solid var(--rule);border-radius:4px;
   padding:0 16px;height:56px;transition:border-color .12s}
 textarea{height:auto;min-height:118px;padding:14px 16px;line-height:1.65;resize:vertical}
+/* 문화정거장 고객은 긴 답을 많이 쓰므로 글 상자를 3배(118px → 354px)로 둔다. 다른 고객은 그대로. */
+body.tall textarea{min-height:354px}
 input:focus,textarea:focus,select:focus{border-color:var(--brand);outline:none}
 input::placeholder,textarea::placeholder{color:#5B6270}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
@@ -418,6 +420,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         fetch("questions.js", { cache: "reload" }).then(again, again);
         return;
       }
+      document.body.classList.toggle("tall", (brief.modules || []).indexOf("munhwa") >= 0);
       answers = brief.answers || {};
       submitted = !!brief.submitted_at;
       buildSteps(brief.modules || ["common"]);
