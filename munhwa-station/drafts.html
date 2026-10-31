@@ -10,8 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f7f4ee; --paper:#fffdf8; --ink:#171512; --mut:#6f6a60;
-  --faint:#a39d90; --line:#e2dccf; --wine:#6d2434;
+  --bg:#ffffff; --paper:#ffffff; --ink:#171512; --mut:#6f6a60;
+  --faint:#a39d90; --line:#e5e2db; --wine:#6d2434;
   --serif:'Noto Serif KR', serif; --sans:'Noto Sans KR', sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -27,12 +27,6 @@ header{padding:70px 0 10px}
 h1{font-family:var(--serif); font-weight:600; font-size:clamp(25px,4vw,36px); line-height:1.45}
 header p{color:var(--mut); margin-top:10px; font-size:16px}
 
-/* 빠른 이동 */
-.jump{display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 8px}
-.jump a{font-size:16px; padding:7px 15px; border:1px solid var(--line);
-  border-radius:999px; background:var(--paper); color:var(--mut)}
-.jump a:hover{border-color:var(--wine); color:var(--wine)}
-
 /* 세로 나열 항목 */
 .entry{padding:52px 0 8px}
 .e-head{display:flex; align-items:baseline; gap:12px; margin-bottom:16px; flex-wrap:wrap}
@@ -44,12 +38,12 @@ header p{color:var(--mut); margin-top:10px; font-size:16px}
 .e-head .open{margin-left:auto; font-size:16px; color:var(--wine);
   border-bottom:1px solid var(--wine); padding-bottom:1px; flex:none}
 .thumb{position:relative; border:1px solid var(--line); background:var(--paper);
-  overflow:hidden; display:block}
+  overflow:hidden; display:block; max-width:660px}
 .thumb iframe{width:1200px; border:0; transform-origin:0 0;
   pointer-events:none; display:block; background:var(--bg)}
 .thumb:hover{border-color:var(--ink)}
-.tall{aspect-ratio:1200/2400}
-.tall iframe{height:2400px}
+.tall{aspect-ratio:1200/1500}
+.tall iframe{height:1500px}
 .short{aspect-ratio:1200/840}
 .short iframe{height:840px}
 .sec-note{font-size:16px; color:var(--faint); margin-top:14px}
@@ -65,13 +59,6 @@ footer{padding:70px 0 100px; color:var(--faint); font-size:16px}
     <p class="kicker">CULTURE STATION — DRAFTS</p>
     <h1>문화정거장 시안 모음</h1>
     <p>아래로 내리면서 보세요. 화면을 누르면 해당 시안이 실제 크기로 열립니다.</p>
-    <div class="jump">
-      <a href="#a">A안 원페이지</a>
-      <a href="#b">B안 원페이지</a>
-      <a href="#l1">로고 1안</a>
-      <a href="#l2">로고 2안</a>
-      <a href="#l3">로고 3안</a>
-    </div>
   </div>
 </header>
 
@@ -144,7 +131,7 @@ footer{padding:70px 0 100px; color:var(--faint); font-size:16px}
 </div>
 
 <footer>
-  <div class="wrap">ASOG 내부 시안 페이지 · 검색 제외(noindex) · 이미지는 자리 표시 상태 — 파일이 들어오면 자동 표시됩니다.</div>
+  <div class="wrap">ASOG 내부 시안 페이지 · 검색 제외(noindex) · 이미지·영상은 임시 표시 상태 — 실제 파일이 들어오면 자동 교체됩니다.</div>
 </footer>
 
 <script>

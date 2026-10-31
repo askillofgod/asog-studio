@@ -79,9 +79,11 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
 /* ── 인트로 ── */
 .hero{padding:190px 0 130px; position:relative; overflow:hidden}
 .hero .wrap{position:relative; z-index:2}
-/* 배경 전체 영상 자리 — images/hero.mp4 를 넣으면 자동 재생 (Flow 제작 예정) */
+/* 배경 전체 영상 자리 — images/a-hero.mp4 를 넣으면 자동 재생 (Flow 제작 예정)
+   영상 전에는 images/a-hero.jpg 가 배경 — 파일 없으면 임시 스톡(모노크롬 처리) */
 .hero-media{position:absolute; inset:0; z-index:0}
-.hero-media video{width:100%; height:100%; object-fit:cover}
+.hero-media img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:grayscale(1)}
+.hero-media video{position:relative; z-index:1; width:100%; height:100%; object-fit:cover}
 .hero-media::after{content:""; position:absolute; inset:0;
   background:linear-gradient(90deg, var(--bg) 0%,
     color-mix(in srgb, var(--bg) 74%, transparent) 48%,
@@ -153,7 +155,7 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
   color:var(--faint); font-size:16px; letter-spacing:.06em; text-align:center; padding:12px;
   position:relative; overflow:hidden;
 }
-.card .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.card .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:grayscale(1)}
 .card .ph b{font-weight:500; letter-spacing:.12em}
 .card .cat{font-size:16px; letter-spacing:.18em; color:var(--accent); margin:20px 0 8px}
 .card h3{font-family:var(--serif); font-size:19px; margin-bottom:8px; line-height:1.5}
@@ -299,8 +301,10 @@ footer a{text-decoration:underline; text-underline-offset:3px}
 <!-- ① 인트로 -->
 <header class="hero" id="top">
   <div class="hero-media">
+    <img src="images/a-hero.jpg" alt=""
+      onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=2000&q=75'">
     <video autoplay muted loop playsinline>
-      <source src="images/hero.mp4" type="video/mp4"
+      <source src="images/a-hero.mp4" type="video/mp4"
         onerror="document.querySelector('.hero-media').classList.add('empty')">
     </video>
     <span class="hv-tag">HERO-VIDEO · 16:9 · 배경 전체 영상 자리 (Flow 제작)</span>
@@ -401,19 +405,19 @@ footer a{text-decoration:underline; text-underline-offset:3px}
       문화적 가치가 있는 기록을 모으고 맥락을 붙여 남깁니다.</p>
     <div class="cards">
       <article class="card">
-        <div class="ph"><img src="images/ar-01.jpg" alt="" onerror="this.remove()"><b>AR-01 · 4:5</b>전시 팸플릿·도록 기록 사진</div>
+        <div class="ph"><img src="images/a-ar-01.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=1200&q=75'"><b>A-AR-01 · 4:5</b>전시 공간·액자 벽 기록</div>
         <p class="cat">전시 기록</p>
         <h3>전시 팸플릿 · 도록 아카이브</h3>
         <p>전시가 끝나도 사라지지 않도록, 인쇄물과 기획안을 주제별로 분류해 남깁니다.</p>
       </article>
       <article class="card">
-        <div class="ph"><img src="images/ar-02.jpg" alt="" onerror="this.remove()"><b>AR-02 · 4:5</b>인터뷰 현장 사진</div>
+        <div class="ph"><img src="images/a-ar-02.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&q=75'"><b>A-AR-02 · 4:5</b>기록 노트·문서</div>
         <p class="cat">사람의 이야기</p>
         <h3>현장 인터뷰 기록</h3>
         <p>창작자·관계자·지역 주민의 목소리를 텍스트로 수집하고 에디토리얼 해설을 붙입니다.</p>
       </article>
       <article class="card">
-        <div class="ph"><img src="images/ar-03.jpg" alt="" onerror="this.remove()"><b>AR-03 · 4:5</b>브랜드 아카이빙 북</div>
+        <div class="ph"><img src="images/a-ar-03.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=1200&q=75'"><b>A-AR-03 · 4:5</b>지면·종이 질감 아카이브</div>
         <p class="cat">브랜드 서사</p>
         <h3>브랜드 아카이빙 북</h3>
         <p>흩어진 브랜드의 기록을 모아 기록집·도록·인터뷰집의 형태로 완성합니다.</p>

@@ -66,7 +66,8 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
   min-height:92vh; display:flex; align-items:center; justify-content:center;
   text-align:center; padding:140px 0}
 .hero-media{position:absolute; inset:0; z-index:0}
-.hero-media video{width:100%; height:100%; object-fit:cover}
+.hero-media img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.hero-media video{position:relative; z-index:1; width:100%; height:100%; object-fit:cover}
 .hero-media::after{content:""; position:absolute; inset:0;
   background:radial-gradient(ellipse at center,
     var(--bg) 18%, color-mix(in srgb, var(--bg) 66%, transparent) 60%,
@@ -241,6 +242,7 @@ footer a{text-decoration:underline; text-underline-offset:3px}
 <!-- ① 히어로: 중앙 대칭 -->
 <header class="hero" id="top">
   <div class="hero-media">
+    <img src="images/hero-f1.jpg" alt="" onerror="this.remove()">
     <video autoplay muted loop playsinline>
       <source src="images/hero.mp4" type="video/mp4"
         onerror="document.querySelector('.hero-media').classList.add('empty')">
