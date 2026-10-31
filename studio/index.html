@@ -2045,6 +2045,16 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     }
     var r = pick, a = r.answers || {}, use = r.modules || ["common"];
 
+    /* 고객이 올린 파일(type:"file")은 {n,u,s} 목록. 주소는 우리 저장 공간(brief-files) 것만 링크로 쓴다. */
+    var FILE_URL = /^https:\/\/[a-z0-9]+\.supabase\.co\/storage\/v1\/object\/public\/brief-files\//;
+    function isFiles(v){ return Array.isArray(v) && v.length && v[0] && typeof v[0] === "object" && "u" in v[0]; }
+    function fileLinks(v){
+      return v.filter(function(f){ return f && FILE_URL.test(String(f.u)); }).map(function(f){
+        var img = /\.(png|jpe?g|webp|gif)$/i.test(String(f.n)) ? '<img src="' + esc(f.u) + '" alt="" style="height:64px;border-radius:4px;vertical-align:middle;margin-right:10px">' : "";
+        var kb = f.s > 1048576 ? (f.s / 1048576).toFixed(1) + "MB" : Math.max(1, Math.round((f.s || 0) / 1024)) + "KB";
+        return '<div style="margin:4px 0">' + img + '<a href="' + esc(f.u) + '" target="_blank" rel="noopener noreferrer">' + esc(f.n) + '</a> <span style="opacity:.7">' + kb + '</span></div>';
+      }).join("");
+    }
     var body = "", lastMod = null;
     ALL.forEach(function(e){
       if(e.modId !== "closing" && use.indexOf(e.modId) < 0) return;
@@ -2053,11 +2063,12 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         var v = a[q.id];
         var has = Array.isArray(v) ? v.length > 0 : (v != null && String(v).trim() !== "");
         if(!has && hideEmpty) return "";
-        var txt = has ? (Array.isArray(v) ? v.join(" · ") : String(v))
+        var files = has && isFiles(v);
+        var txt = has ? (files ? "" : (Array.isArray(v) ? v.join(" · ") : String(v)))
                       : '<span class="empty-note">— 비어 있음</span>';
         return '<div class="row' + (has ? '' : ' empty') + '">' +
           '<div class="q">' + esc(q.label) + '</div>' +
-          '<div class="a">' + (has ? esc(txt) : txt) + '</div></div>';
+          '<div class="a">' + (files ? fileLinks(v) : (has ? esc(txt) : txt)) + '</div></div>';
       }).join("");
       if(!rowsHtml) return;
       if(e.mod !== lastMod){
@@ -2119,7 +2130,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         var has = Array.isArray(v) ? v.length > 0 : (v != null && String(v).trim() !== "");
         if(!has) return;
         lines.push("Q. " + q.label);
-        lines.push("A. " + (Array.isArray(v) ? v.join(" · ") : String(v)));
+        lines.push("A. " + (Array.isArray(v) ? (v[0] && typeof v[0] === "object" ? v.map(function(f){ return (f.n || "") + " " + (f.u || ""); }).join("\n   ") : v.join(" · ")) : String(v)));
         lines.push("");
       });
       if(!lines.length) return;

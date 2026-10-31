@@ -164,6 +164,17 @@ input::placeholder,textarea::placeholder{color:#5B6270}
 .gd .gd-row b{color:var(--ink)}
 .gd .gd-row span{color:var(--ink-2)}
 .gd .gd-card .mini{display:block;margin:2px 0 8px;font-size:14.5px;font-weight:700;color:var(--brand)}
+/* 파일 올리기(file) 질문 */
+.files{margin-top:4px}
+.f-list{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.f-list li{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--rule);border-radius:8px;background:#fff;font-size:15.5px}
+.f-list a{flex:1;min-width:0;color:#000;font-weight:600;word-break:break-all}
+.f-list small{color:#000;white-space:nowrap}
+.f-del{border:1px solid var(--rule);background:#fff;color:#000;border-radius:6px;padding:5px 12px;font-size:14px;cursor:pointer}
+.f-add{position:relative;display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border:2px dashed var(--brand);border-radius:10px;background:#fff;color:var(--brand);font-size:16px;font-weight:700;cursor:pointer}
+.f-add input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.f-add:hover{background:var(--pale)}
+.f-st{margin:10px 0 0;font-size:14.5px;line-height:1.6;color:#000}
 @media (max-width:640px){.gd .gd-two{grid-template-columns:1fr}.gd .gd-step{grid-template-columns:34px 1fr;gap:12px;padding:14px}.gd .gd-row{grid-template-columns:1fr}.gd .gd-num{width:34px;height:34px;font-size:16px}.gd .gd-t{font-size:17px}}
 .ref p{margin-top:14px;font-size:16px;line-height:1.65;color:var(--ink-2)}
 .q{padding:26px 0;border-top:1px solid var(--rule-soft)}
@@ -477,6 +488,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
           '<input type="' + (many ? "checkbox" : "radio") + '" name="' + q.id + '" value="' + esc(o) + '"' +
           ' data-q="' + q.id + '" data-many="' + many + '"' + (on ? " checked" : "") + '>' + o + '</label>';
       }).join("") + '</div>';
+    } else if(q.type === "file"){
+      body = fileHtml(q);
     } else {
       body = '<input type="' + q.type + '" data-q="' + q.id + '" value="' + esc(v || "") +
              '" placeholder="' + (q.ph || "") + '">';
@@ -487,8 +500,88 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
+  /* ── 파일 올리기 (type:"file") ──
+     파일은 Supabase 저장 공간 brief-files/<고객코드>/ 에 올라가고, 답변에는 {n:이름, u:주소, s:크기} 목록만 저장된다.
+     고객 코드가 맞는 폴더에만 올릴 수 있다(서버 규칙). 올린 뒤 '빼기'는 목록에서만 뺀다. */
+  var FILE_MAX_BYTES = 20 * 1024 * 1024, FILE_MAX_COUNT = 10;
+  var FILE_EXT = ["png","jpg","jpeg","webp","gif","svg","pdf","ai","eps","psd","zip","hwp","hwpx","doc","docx","ppt","pptx","xls","xlsx","txt"];
+  var FILE_ACCEPT = FILE_EXT.map(function(e){ return "." + e; }).join(",");
+  function fmtSize(n){ return n > 1048576 ? (n / 1048576).toFixed(1) + "MB" : Math.max(1, Math.round(n / 1024)) + "KB"; }
+  function findQ(id){
+    for(var i = 0; i < STEPS.length; i++) for(var j = 0; j < STEPS[i].qs.length; j++) if(STEPS[i].qs[j].id === id) return STEPS[i].qs[j];
+    return null;
+  }
+  function fileListHtml(q){
+    var list = Array.isArray(answers[q.id]) ? answers[q.id] : [];
+    return list.map(function(f, i){
+      return '<li><a href="' + esc(f.u) + '" target="_blank" rel="noopener noreferrer">' + esc(f.n) + '</a>' +
+        '<small>' + fmtSize(f.s || 0) + '</small>' +
+        '<button type="button" class="f-del" data-fq="' + q.id + '" data-i="' + i + '">빼기</button></li>';
+    }).join("");
+  }
+  function fileHtml(q){
+    return '<div class="files">' +
+      '<ul class="f-list" id="fl-' + q.id + '">' + fileListHtml(q) + '</ul>' +
+      '<label class="f-add"><input type="file" multiple data-qf="' + q.id + '" accept="' + FILE_ACCEPT + '">+ 파일 올리기</label>' +
+      '<p class="f-st" id="fs-' + q.id + '">한 번에 여러 개를 올릴 수 있습니다. 파일 하나는 20MB까지, 이 질문에는 10개까지 올릴 수 있습니다.</p></div>';
+  }
+  function uploadFile(file){
+    var ext = (file.name.split(".").pop() || "").toLowerCase();
+    var path = KEY + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
+    return fetch(SUPABASE_URL + "/storage/v1/object/brief-files/" + path, {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY,
+                 "Content-Type": file.type || "application/octet-stream", "x-upsert": "false" },
+      body: file
+    }).then(function(r){
+      return r.ok ? { n: file.name, u: SUPABASE_URL + "/storage/v1/object/public/brief-files/" + path, s: file.size } : null;
+    }).catch(function(){ return null; });
+  }
+  function refreshFiles(qid, msg){
+    var q = findQ(qid), l = $("fl-" + qid), st = $("fs-" + qid);
+    if(l && q) l.innerHTML = fileListHtml(q);
+    if(st && msg != null) st.textContent = msg;
+    bindFileDel(); renderSide(); updateBar();
+  }
+  function onFiles(qid, input){
+    var files = [].slice.call(input.files || []); input.value = "";
+    var have = Array.isArray(answers[qid]) ? answers[qid].slice() : [];
+    var st = $("fs-" + qid), room = FILE_MAX_COUNT - have.length, ok = [], notes = [];
+    files.forEach(function(f){
+      var ext = (f.name.split(".").pop() || "").toLowerCase();
+      if(FILE_EXT.indexOf(ext) < 0) notes.push(f.name + " — 올릴 수 없는 종류입니다");
+      else if(f.size > FILE_MAX_BYTES) notes.push(f.name + " — 20MB보다 큽니다");
+      else if(ok.length >= room) notes.push(f.name + " — 10개까지만 올릴 수 있습니다");
+      else ok.push(f);
+    });
+    if(!ok.length){ if(st) st.textContent = notes.join(" / ") || "올릴 파일이 없습니다."; return; }
+    if(st) st.textContent = ok.length + "개를 올리는 중입니다…";
+    Promise.all(ok.map(uploadFile)).then(function(res){
+      var done = res.filter(Boolean), fail = res.length - done.length;
+      if(done.length){ answers[qid] = have.concat(done); queueSave(); }
+      refreshFiles(qid, (done.length ? done.length + "개를 올렸습니다. " : "") +
+        (fail ? fail + "개는 올리지 못했습니다. 잠시 뒤 다시 시도해 주세요. " : "") + notes.join(" / "));
+    });
+  }
+  function bindFileDel(){
+    $("qs").querySelectorAll(".f-del").forEach(function(b){
+      b.onclick = function(){
+        var qid = b.dataset.fq, list = Array.isArray(answers[qid]) ? answers[qid].slice() : [];
+        list.splice(+b.dataset.i, 1); answers[qid] = list; queueSave();
+        refreshFiles(qid, "목록에서 뺐습니다.");
+      };
+    });
+  }
+  function bindFiles(){
+    $("qs").querySelectorAll("input[type=file][data-qf]").forEach(function(el){
+      el.addEventListener("change", function(){ onFiles(el.dataset.qf, el); });
+    });
+    bindFileDel();
+  }
+
   function bindInputs(){
     var box = $("qs");
+    bindFiles();
     box.querySelectorAll("input[type=text],input[type=tel],input[type=email],input[type=url],textarea")
       .forEach(function(el){
         el.addEventListener("input", function(){
