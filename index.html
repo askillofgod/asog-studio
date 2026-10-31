@@ -10,8 +10,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
+  /* 고객 질문 페이지: 글씨는 완전 검정(#000)으로 둔다. --ink, --ink-2 는 바꾸지 않는다. 파란색(--brand)은 버튼·강조에만 쓴다. */
   --navy:#0C2141; --brand:#0040C8; --bright:#246BFE; --pale:#EAF1FF;
-  --ground:#FFFFFF; --panel:#F7F8FA; --ink:#0C2141; --ink-2:#5A6478;
+  --ground:#FFFFFF; --panel:#F7F8FA; --ink:#000000; --ink-2:#000000;
   --rule:#D5DCE8; --rule-soft:#E8ECF3; --ok:#0E8A5F; --error:#C8102E;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:Pretendard,"Pretendard Variable",Inter,"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
@@ -44,7 +45,7 @@ input[type=text],input[type=email],input[type=url],input[type=tel],textarea,sele
   padding:0 16px;height:56px;transition:border-color .12s}
 textarea{height:auto;min-height:118px;padding:14px 16px;line-height:1.65;resize:vertical}
 input:focus,textarea:focus,select:focus{border-color:var(--brand);outline:none}
-input::placeholder,textarea::placeholder{color:#9AA4B8}
+input::placeholder,textarea::placeholder{color:#5B6270}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
   height:60px;padding:0 28px;border:0;border-radius:4px;font-size:17px;font-weight:600;cursor:pointer;
   background:var(--brand);color:#fff;width:100%}
@@ -54,7 +55,7 @@ input::placeholder,textarea::placeholder{color:#9AA4B8}
 .btn.ghost:hover{background:var(--pale)}
 .btn.sm{height:48px;padding:0 20px;font-size:16px;width:auto}
 .msg{margin-top:18px;padding:16px 18px;border-radius:4px;font-size:16px;line-height:1.6}
-.msg.ok{background:var(--pale);color:var(--navy)}
+.msg.ok{background:var(--pale);color:#000}
 .msg.err{background:#FDECEF;color:var(--error)}
 .gate .fine{margin-top:32px;padding-top:20px;border-top:1px solid var(--rule-soft);
   font-size:15px;color:var(--ink-2);line-height:1.65}
@@ -100,7 +101,7 @@ input::placeholder,textarea::placeholder{color:#9AA4B8}
 .main .intro{margin-top:14px;color:var(--ink-2);font-size:17px;max-width:56ch}
 .qs{margin-top:38px}
 .warn{margin-top:22px;padding:18px 20px;border-radius:5px;
-  background:#FFF3CD;color:#6B4E00;box-shadow:inset 0 0 0 1px #F0DFA8;
+  background:#FFF3CD;color:#000;box-shadow:inset 0 0 0 1px #F0DFA8;
   font-size:17px;line-height:1.65;max-width:62ch}
 .warn b{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.14em;
   text-transform:uppercase;margin-bottom:6px;font-weight:700}
@@ -151,9 +152,9 @@ input::placeholder,textarea::placeholder{color:#9AA4B8}
 .gd .gd-btn.ghost{background:#fff;color:var(--brand)!important;border:1px solid var(--brand)}
 .gd .gd-btn:hover{filter:brightness(1.12)}
 .gd .gd-mail{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;padding:12px 14px;background:#fff;border:1px dashed var(--brand);border-radius:8px}
-.gd .gd-mail code{font-family:var(--mono);font-size:15.5px;font-weight:600;color:var(--navy);word-break:break-all;user-select:all}
+.gd .gd-mail code{font-family:var(--mono);font-size:15.5px;font-weight:600;color:#000;word-break:break-all;user-select:all}
 .gd .gd-copy{border:1px solid var(--brand);background:#fff;color:var(--brand);border-radius:6px;padding:6px 14px;font-size:14px;font-weight:600;cursor:pointer}
-.gd .gd-tip{margin-top:12px;padding:10px 14px;border-radius:8px;background:#FFF7E0;color:#7A5200;font-size:14.5px;line-height:1.65}
+.gd .gd-tip{margin-top:12px;padding:10px 14px;border-radius:8px;background:#FFF7E0;color:#000;font-size:14.5px;line-height:1.65}
 .gd .gd-note{margin-top:16px;font-size:14px;line-height:1.7;color:var(--ink-2)}
 .gd .gd-menu{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;margin:2px 0 18px;padding:14px 18px;border-radius:10px;background:var(--navy);color:#fff;font-size:15.5px;font-weight:600}
 .gd .gd-menu .logo{margin-right:auto;font-size:16px;letter-spacing:-.01em}
@@ -217,7 +218,7 @@ input::placeholder,textarea::placeholder{color:#9AA4B8}
   box-shadow:0 4px 14px rgba(12,33,65,.18);transition:transform .15s ease,background-color .15s ease}
 .fab-b:hover{transform:translateY(-2px)}
 .fab-b svg{width:26px;height:26px;display:block}
-.fab-b.kakao{background:#FEE500;color:#3C1E1E}
+.fab-b.kakao{background:#FEE500;color:#000}
 .fab-b.kakao:hover{background:#FFDE00}
 .fab-b.tel{background:var(--brand);color:#fff}
 .fab-b.tel:hover{background:#0037AC}
