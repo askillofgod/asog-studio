@@ -25,7 +25,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg); color:var(--ink); font-family:var(--sans);
-  font-size:18px; line-height:1.9; word-break:keep-all; overflow-wrap:break-word;
+  font-size:20px; line-height:1.9; word-break:keep-all; overflow-wrap:break-word;
   letter-spacing:-0.01em}
 a{color:inherit; text-decoration:none}
 ::selection{background:var(--accent); color:#fff}
@@ -40,13 +40,13 @@ a{color:inherit; text-decoration:none}
 .rail .brand{font-family:var(--serif); font-weight:600; font-size:18px;
   display:flex; align-items:center; gap:8px; margin-bottom:6px}
 .rail .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.rail .en{font-size:16px; letter-spacing:.3em; color:var(--faint); margin-bottom:46px}
-.rail ol{list-style:none; display:flex; flex-direction:column; gap:16px; font-size:16px}
+.rail .en{font-size:18px; letter-spacing:.3em; color:var(--faint); margin-bottom:46px}
+.rail ol{list-style:none; display:flex; flex-direction:column; gap:16px; font-size:18px}
 .rail ol a{display:flex; gap:12px; color:var(--mut); letter-spacing:.1em}
 .rail ol a:hover{color:var(--accent)}
-.rail ol .no{font-family:var(--serif); color:var(--faint); font-size:16px}
+.rail ol .no{font-family:var(--serif); color:var(--faint); font-size:18px}
 .rail .cta{margin-top:auto; text-align:center; border:1px solid var(--ink);
-  border-radius:999px; padding:11px 0; font-size:16px}
+  border-radius:999px; padding:11px 0; font-size:18px}
 .rail .cta:hover{border-color:var(--accent); color:var(--accent)}
 
 main{margin-left:var(--rail)}
@@ -56,7 +56,7 @@ main{margin-left:var(--rail)}
 section{padding:120px 0; border-top:1px solid var(--line)}
 .folio{display:flex; align-items:baseline; gap:18px; margin-bottom:34px}
 .folio .num{font-family:var(--serif); font-size:52px; line-height:1; color:var(--accent)}
-.folio .lb{font-size:16px; letter-spacing:.3em; color:var(--faint)}
+.folio .lb{font-size:18px; letter-spacing:.3em; color:var(--faint)}
 h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
   line-height:1.5; margin-bottom:26px}
 .lead{color:var(--mut); max-width:600px}
@@ -73,7 +73,7 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
     var(--bg) 18%, color-mix(in srgb, var(--bg) 66%, transparent) 60%,
     color-mix(in srgb, var(--bg) 30%, transparent) 100%)}
 .hero-media .hv-tag{position:absolute; right:16px; bottom:14px; z-index:2;
-  font-size:16px; letter-spacing:.1em; color:var(--faint);
+  font-size:18px; letter-spacing:.1em; color:var(--faint);
   border:1px dashed var(--line); border-radius:3px; padding:4px 10px;
   background:color-mix(in srgb, var(--bg) 72%, transparent)}
 .hero-media.empty video{display:none}
@@ -83,30 +83,37 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
 .hero h1{font-family:var(--serif); font-weight:600;
   font-size:clamp(34px,4.6vw,56px); line-height:1.5; margin-bottom:24px}
 .hero h1 b{color:var(--accent); font-weight:600}
-.hero p{color:var(--mut); font-size:18px; margin-bottom:40px}
+.hero p{color:var(--mut); font-size:20px; margin-bottom:40px}
 .hero .rule{width:1px; height:56px; background:var(--ink); margin:0 auto 40px; opacity:.35}
 .btns{display:flex; gap:12px; justify-content:center; flex-wrap:wrap}
-.btn{display:inline-flex; padding:15px 32px; border-radius:999px; font-size:16px; font-weight:500}
+.btn{display:inline-flex; padding:15px 32px; border-radius:999px; font-size:18px; font-weight:500}
 .btn-fill{background:var(--accent); color:#fff}
 .btn-fill:hover{background:var(--accent-deep)}
 .btn-line{border:1px solid var(--ink)}
 .btn-line:hover{border-color:var(--accent); color:var(--accent)}
 .scroll-hint{position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
-  z-index:2; font-size:16px; letter-spacing:.34em; color:var(--faint)}
+  z-index:2; font-size:18px; letter-spacing:.34em; color:var(--faint)}
 
 /* ── ABOUT ── */
 .quote{font-family:var(--serif); font-size:21.5px; line-height:2.1; max-width:680px}
 .quote .mark{color:var(--accent)}
 .about-sub{margin-top:30px; color:var(--mut); max-width:640px}
-.ab-num{margin-top:40px; font-family:var(--serif); font-size:19px; color:var(--mut)}
+.ab-num{margin-top:40px; font-family:var(--serif); font-size:20px; color:var(--mut)}
 .ab-num b{font-size:34px; color:var(--accent); font-weight:600; margin-right:2px}
 .ab-num i{font-style:normal; color:var(--faint); margin:0 10px}
+/* 플로팅 버튼 — 전화 · 맨 위로 */
+.fab{position:fixed; right:18px; bottom:20px; z-index:70; display:flex; flex-direction:column; gap:10px}
+.fab a,.fab button{width:52px; height:52px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; cursor:pointer; border:1px solid var(--line); background:var(--bg);
+  color:var(--ink); box-shadow:0 4px 18px rgba(0,0,0,.14); padding:0}
+.fab .call{background:var(--accent); border-color:var(--accent); color:#fff}
+.fab svg{width:22px; height:22px; display:block}
 .ceo-line{margin-top:48px; padding-top:26px; border-top:1px solid var(--line);
   display:flex; flex-wrap:wrap; gap:6px 26px; align-items:baseline}
-.ceo-line .en{font-size:16px; letter-spacing:.26em; color:var(--accent)}
-.ceo-line .nm{font-family:var(--serif); font-size:19px}
-.ceo-line .rl{font-size:16px; color:var(--mut)}
-.ceo-line p{width:100%; font-size:16px; color:var(--mut); margin-top:8px}
+.ceo-line .en{font-size:18px; letter-spacing:.26em; color:var(--accent)}
+.ceo-line .nm{font-family:var(--serif); font-size:18px}
+.ceo-line .rl{font-size:18px; color:var(--mut)}
+.ceo-line p{width:100%; font-size:20px; color:var(--mut); margin-top:8px}
 
 /* ── WORK: 목차형 행 ── */
 .toc{border-top:1px solid var(--ink)}
@@ -115,36 +122,36 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
 .toc .t-ph{position:relative; aspect-ratio:1/1; overflow:hidden; background:var(--ph);
   border:1px solid var(--line)}
 .toc .t-ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
-.toc .t-no{font-family:var(--serif); font-size:16px; color:var(--accent)}
+.toc .t-no{font-family:var(--serif); font-size:18px; color:var(--accent)}
 .toc h3{font-family:var(--serif); font-size:21px; font-weight:600}
-.toc .t-en{display:block; font-family:var(--sans); font-size:16px;
+.toc .t-en{display:block; font-family:var(--sans); font-size:18px;
   letter-spacing:.26em; color:var(--faint); margin-top:4px}
-.toc p{font-size:16px; color:var(--mut)}
+.toc p{font-size:20px; color:var(--mut)}
 .deliver{margin-top:40px; display:flex; flex-wrap:wrap; gap:8px 22px;
-  font-size:16px; color:var(--mut)}
+  font-size:18px; color:var(--mut)}
 .deliver span::before{content:"· "; color:var(--accent)}
 
 /* ── ARCHIVE: 카탈로그 목록 ── */
 .cat-item{display:grid; grid-template-columns:1fr 150px; gap:34px;
   padding:34px 2px; border-bottom:1px solid var(--line); align-items:center}
 .cat-item:first-of-type{border-top:1px solid var(--ink)}
-.cat-item .no{font-family:var(--serif); font-size:16px; color:var(--accent);
+.cat-item .no{font-family:var(--serif); font-size:18px; color:var(--accent);
   letter-spacing:.14em; margin-bottom:8px}
 .cat-item h3{font-family:var(--serif); font-size:22px; font-weight:600; margin-bottom:8px}
-.cat-item p{font-size:16px; color:var(--mut); max-width:520px}
+.cat-item p{font-size:20px; color:var(--mut); max-width:520px}
 .cat-item .ph{aspect-ratio:4/5; background:var(--ph); border:1px solid var(--line);
   position:relative; overflow:hidden; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:4px;
-  color:var(--faint); font-size:16px; letter-spacing:.06em; text-align:center; padding:8px}
+  color:var(--faint); font-size:18px; letter-spacing:.06em; text-align:center; padding:8px}
 .cat-item .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
 /* 도판 — images/ 에 파일이 들어오면 자동 교체 */
 .plate{position:relative; overflow:hidden; aspect-ratio:16/9; margin-top:46px;
   background:var(--ph); border:1px solid var(--line)}
 .plate img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
-.plate b{position:absolute; left:14px; bottom:12px; font-size:16px; letter-spacing:.12em;
+.plate b{position:absolute; left:14px; bottom:12px; font-size:18px; letter-spacing:.12em;
   color:#fff; background:rgba(26,22,18,.5); padding:3px 10px; font-weight:500}
-.note-ex{margin-top:36px; font-size:16px; color:var(--faint)}
-.note-ex::before{content:"● "; font-size:16px; color:var(--accent)}
+.note-ex{margin-top:36px; font-size:18px; color:var(--faint)}
+.note-ex::before{content:"● "; font-size:18px; color:var(--accent)}
 
 /* ── PROJECTS: 연표 ── */
 .chrono{border-left:1px solid var(--ink); margin-left:6px; padding-left:40px;
@@ -152,10 +159,10 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
 .ch-item{position:relative}
 .ch-item::before{content:""; position:absolute; left:-45px; top:12px;
   width:9px; height:9px; border-radius:50%; background:var(--accent)}
-.ch-item .pd{font-size:16px; letter-spacing:.22em; color:var(--faint); margin-bottom:6px}
+.ch-item .pd{font-size:18px; letter-spacing:.22em; color:var(--faint); margin-bottom:6px}
 .ch-item h3{font-family:var(--serif); font-size:21px; font-weight:600; margin-bottom:6px}
-.ch-item p{font-size:16px; color:var(--mut); max-width:560px}
-.ch-item .tag{display:inline-block; margin-top:10px; font-size:16px;
+.ch-item p{font-size:20px; color:var(--mut); max-width:560px}
+.ch-item .tag{display:inline-block; margin-top:10px; font-size:18px;
   letter-spacing:.14em; color:var(--accent); border:1px solid
   color-mix(in srgb, var(--accent) 36%, transparent); border-radius:999px; padding:3px 12px}
 
@@ -163,36 +170,36 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
 .notes-list{border-top:1px solid var(--ink)}
 .note{display:grid; grid-template-columns:110px 80px 1fr; gap:20px; align-items:baseline;
   padding:22px 2px; border-bottom:1px solid var(--line)}
-.note .dt{font-size:16px; color:var(--faint); letter-spacing:.06em}
-.note .tp{font-size:16px; letter-spacing:.14em; color:var(--accent)}
-.note h3{font-size:16px; font-weight:500}
+.note .dt{font-size:18px; color:var(--faint); letter-spacing:.06em}
+.note .tp{font-size:18px; letter-spacing:.14em; color:var(--accent)}
+.note h3{font-size:20px; font-weight:500}
 
 /* ── CONTACT: 중앙 1단 ── */
 .contact{text-align:center}
 .contact .folio{justify-content:center}
 .contact .lead{margin:0 auto 36px}
 .kakao{display:inline-flex; padding:16px 36px; background:var(--accent);
-  border-radius:999px; color:#fff; font-weight:500; font-size:16px; margin-bottom:18px}
+  border-radius:999px; color:#fff; font-weight:500; font-size:18px; margin-bottom:18px}
 .kakao:hover{background:var(--accent-deep)}
-.ct-meta{font-size:16px; color:var(--mut); margin-bottom:40px}
+.ct-meta{font-size:20px; color:var(--mut); margin-bottom:40px}
 form{max-width:520px; margin:0 auto; text-align:left}
 .fld{margin-bottom:18px}
-label{display:block; font-size:16px; letter-spacing:.06em; color:var(--mut); margin-bottom:7px}
-input,select,textarea{width:100%; padding:13px 15px; font:inherit; font-size:16px;
+label{display:block; font-size:18px; letter-spacing:.06em; color:var(--mut); margin-bottom:7px}
+input,select,textarea{width:100%; padding:13px 15px; font:inherit; font-size:20px;
   border:1px solid var(--line); border-radius:3px; background:var(--paper); color:var(--ink)}
 input:focus,select:focus,textarea:focus{outline:none; border-color:var(--accent)}
 textarea{min-height:130px; resize:vertical}
-.agree{display:flex; gap:10px; align-items:flex-start; font-size:16px; color:var(--mut); margin-bottom:24px}
+.agree{display:flex; gap:10px; align-items:flex-start; font-size:18px; color:var(--mut); margin-bottom:24px}
 .agree input{width:auto; margin-top:5px}
 .submit{width:100%; padding:16px; border:none; border-radius:3px; cursor:pointer;
-  background:var(--ink); color:#fff; font:inherit; font-size:16px; font-weight:500}
+  background:var(--ink); color:#fff; font:inherit; font-size:18px; font-weight:500}
 .submit:hover{background:var(--accent-deep)}
-.clients{margin-top:34px; font-size:16px; color:var(--faint); letter-spacing:.04em}
+.clients{margin-top:34px; font-size:18px; color:var(--faint); letter-spacing:.04em}
 
 /* ── 푸터 ── */
 footer{border-top:1px solid var(--line); padding:50px 0 120px;
-  font-size:16px; color:var(--faint); line-height:2.1; text-align:center}
-footer .f-brand{font-family:var(--serif); font-size:16px; color:var(--mut); margin-bottom:10px}
+  font-size:18px; color:var(--faint); line-height:2.1; text-align:center}
+footer .f-brand{font-family:var(--serif); font-size:18px; color:var(--mut); margin-bottom:10px}
 footer a{text-decoration:underline; text-underline-offset:3px}
 
 /* ── 모바일 하단 CTA · 시안 바 ── */
@@ -205,7 +212,7 @@ footer a{text-decoration:underline; text-underline-offset:3px}
 .draft-bar{position:fixed; z-index:70; left:18px; bottom:18px;
   background:var(--ink); color:#fff; border-radius:999px;
   display:flex; align-items:center; gap:10px; padding:6px 8px 6px 16px;
-  font-size:16px; box-shadow:0 6px 24px rgba(0,0,0,.18)}
+  font-size:18px; box-shadow:0 6px 24px rgba(0,0,0,.18)}
 .draft-bar .lb{opacity:.75}
 .draft-bar .go{border-radius:999px; padding:7px 16px; background:var(--accent);
   color:#fff; text-decoration:none}
@@ -228,6 +235,7 @@ footer a{text-decoration:underline; text-underline-offset:3px}
   .toc .t-ph{display:none}
   .cat-item{grid-template-columns:1fr 110px; gap:18px}
   .m-cta{display:block}
+  .fab{bottom:calc(86px + env(safe-area-inset-bottom))}
   footer{padding-bottom:170px}
   .draft-bar{left:12px; bottom:calc(84px + env(safe-area-inset-bottom))}
 }
@@ -482,6 +490,16 @@ footer a{text-decoration:underline; text-underline-offset:3px}
 </main>
 
 <!-- 모바일 하단 고정 CTA -->
+<!-- 플로팅 버튼 — 전화 · 맨 위로 -->
+<div class="fab">
+  <a class="call" href="#" onclick="draftAlert();return false" aria-label="전화하기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg>
+  </a>
+  <button type="button" onclick="scrollTo({top:0,behavior:'smooth'})" aria-label="맨 위로">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
+</div>
+
 <div class="m-cta">
   <a href="#" onclick="draftAlert();return false">카카오톡으로 상담하기</a>
 </div>
@@ -498,6 +516,7 @@ footer a{text-decoration:underline; text-underline-offset:3px}
   if(q.get('embed')==='1'){
     document.querySelector('.draft-bar').style.display='none';
     document.querySelector('.m-cta').style.display='none';
+    document.querySelector('.fab').style.display='none';
   }
 })();
 function draftAlert(){

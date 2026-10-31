@@ -17,25 +17,25 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg); color:var(--ink); font-family:var(--sans);
-  font-size:18px; line-height:1.8; word-break:keep-all; overflow-wrap:break-word;
+  font-size:20px; line-height:1.8; word-break:keep-all; overflow-wrap:break-word;
   overflow-x:hidden}
 .wrap{max-width:960px; margin:0 auto; padding:0 20px}
 a{color:inherit; text-decoration:none}
 
 header{padding:70px 0 10px}
-.kicker{font-size:16px; letter-spacing:.22em; color:var(--mut); margin-bottom:12px}
+.kicker{font-size:18px; letter-spacing:.22em; color:var(--mut); margin-bottom:12px}
 h1{font-family:var(--serif); font-weight:600; font-size:clamp(25px,4vw,36px); line-height:1.45}
-header p{color:var(--mut); margin-top:10px; font-size:16px}
+header p{color:var(--mut); margin-top:10px; font-size:20px}
 
 /* 세로 나열 항목 */
 .entry{padding:52px 0 8px}
 .e-head{display:flex; align-items:baseline; gap:12px; margin-bottom:16px; flex-wrap:wrap}
-.chip{font-size:16px; letter-spacing:.08em; padding:4px 12px; border-radius:999px;
+.chip{font-size:18px; letter-spacing:.08em; padding:4px 12px; border-radius:999px;
   color:#fff; background:var(--ink); flex:none}
 .chip.w{background:var(--wine)}
 .e-head h2{font-family:var(--serif); font-size:21px; font-weight:600}
-.e-head .d{font-size:16px; color:var(--faint)}
-.e-head .open{margin-left:auto; font-size:16px; color:var(--wine);
+.e-head .d{font-size:18px; color:var(--faint)}
+.e-head .open{margin-left:auto; font-size:18px; color:var(--wine);
   border-bottom:1px solid var(--wine); padding-bottom:1px; flex:none}
 .thumb{position:relative; border:1px solid var(--line); background:var(--paper);
   overflow:hidden; display:block; max-width:660px}
@@ -46,10 +46,10 @@ header p{color:var(--mut); margin-top:10px; font-size:16px}
 .tall iframe{height:1500px}
 .short{aspect-ratio:1200/840}
 .short iframe{height:840px}
-.sec-note{font-size:16px; color:var(--faint); margin-top:14px}
-.sec-note::before{content:"● "; font-size:16px; color:var(--wine)}
+.sec-note{font-size:18px; color:var(--faint); margin-top:14px}
+.sec-note::before{content:"● "; font-size:18px; color:var(--wine)}
 
-footer{padding:70px 0 100px; color:var(--faint); font-size:16px}
+footer{padding:70px 0 100px; color:var(--faint); font-size:18px}
 </style>
 </head>
 <body>
@@ -91,41 +91,17 @@ footer{padding:70px 0 100px; color:var(--faint); font-size:16px}
     <p class="sec-note">포인트 색은 버건디로 확정 — 두 안은 레이아웃·구조·바탕 톤이 다릅니다. 히어로 배경에는 전체 영상이 들어갑니다(자리 표시 중).</p>
   </section>
 
-  <!-- 로고 1안 -->
-  <section class="entry" id="l1">
+  <!-- 로고 시안 -->
+  <section class="entry" id="logo">
     <div class="e-head">
-      <span class="chip">로고 1안</span>
-      <h2>정거장 표지</h2>
-      <a class="open" href="logo.html#p1" target="_blank" rel="noopener">실제 크기로 열기 →</a>
+      <span class="chip">로고</span>
+      <h2>로고 시안 3종 — 정거장 표지 · 머무름 · 아카이브 라벨</h2>
+      <a class="open" href="logo.html" target="_blank" rel="noopener">전체 보기 →</a>
     </div>
-    <a class="thumb short" href="logo.html#p1" target="_blank" rel="noopener">
-      <iframe src="logo.html?embed=1#p1" loading="lazy" scrolling="no" tabindex="-1" title="로고 1안"></iframe>
+    <a class="thumb short" href="logo.html" target="_blank" rel="noopener">
+      <iframe src="logo.html?embed=1" loading="lazy" scrolling="no" tabindex="-1" title="로고 시안"></iframe>
     </a>
-  </section>
-
-  <!-- 로고 2안 -->
-  <section class="entry" id="l2">
-    <div class="e-head">
-      <span class="chip">로고 2안</span>
-      <h2>머무름</h2>
-      <a class="open" href="logo.html#p2" target="_blank" rel="noopener">실제 크기로 열기 →</a>
-    </div>
-    <a class="thumb short" href="logo.html#p2" target="_blank" rel="noopener">
-      <iframe src="logo.html?embed=1#p2" loading="lazy" scrolling="no" tabindex="-1" title="로고 2안"></iframe>
-    </a>
-  </section>
-
-  <!-- 로고 3안 -->
-  <section class="entry" id="l3">
-    <div class="e-head">
-      <span class="chip">로고 3안</span>
-      <h2>아카이브 라벨</h2>
-      <a class="open" href="logo.html#p3" target="_blank" rel="noopener">실제 크기로 열기 →</a>
-    </div>
-    <a class="thumb short" href="logo.html#p3" target="_blank" rel="noopener">
-      <iframe src="logo.html?embed=1#p3" loading="lazy" scrolling="no" tabindex="-1" title="로고 3안"></iframe>
-    </a>
-    <p class="sec-note">세 안 모두 ‘[’(기록을 담는 공간)과 ‘●’(머무는 정거장) 모티프 — 색은 버건디 한 색(확정)입니다.</p>
+    <p class="sec-note">클릭하면 세 안이 한 페이지에 이어서 보입니다. 모두 ‘[’(기록을 담는 공간)과 ‘●’(머무는 정거장) 모티프 — 색은 버건디 한 색(확정)입니다.</p>
   </section>
 
 </div>
