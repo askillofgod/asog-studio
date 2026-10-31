@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ko" data-accent="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>문화정거장 — 로고 시안 v0.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#6d2434; --accent-deep:#521a27;
+  --serif:'Noto Serif KR', serif; --sans:'Noto Sans KR', sans-serif;
+}
+/* A안: 흰색·블랙 / B안: 베이지 — 포인트는 버건디 확정 */
+:root[data-accent="a"]{ --bg:#ffffff; --paper:#fafaf9; --ink:#101010; --mut:#5f5f5f; --faint:#9b9b9b; --line:#e8e6e3; }
+:root[data-accent="b"]{ --bg:#f7f4ee; --paper:#fffdf8; --ink:#171512; --mut:#6f6a60; --faint:#a39d90; --line:#e2dccf; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--sans);
+  font-size:16px; line-height:1.8; word-break:keep-all; overflow-wrap:break-word}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+header{padding:90px 0 30px}
+.kicker{font-size:13px; letter-spacing:.22em; color:var(--accent); margin-bottom:16px}
+h1{font-family:var(--serif); font-weight:600; font-size:clamp(26px,4vw,38px); line-height:1.45}
+header p{color:var(--mut); margin-top:14px; max-width:620px; font-size:15px}
+
+.prop{padding:70px 0}
+.prop + .prop{border-top:1px solid var(--line)}
+.p-head{display:flex; align-items:baseline; gap:16px; margin-bottom:10px}
+.p-no{font-size:13px; letter-spacing:.2em; color:var(--accent)}
+.p-head h2{font-family:var(--serif); font-size:24px; font-weight:600}
+.p-desc{color:var(--mut); font-size:15px; max-width:640px; margin-bottom:36px}
+
+.board{display:grid; grid-template-columns:2fr 1fr; gap:22px}
+.tile{
+  border:1px solid var(--line); background:var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  padding:48px 32px; position:relative; min-height:230px;
+}
+.tile.dark{background:var(--ink); border-color:var(--ink)}
+.tile .tag{
+  position:absolute; top:14px; left:16px; font-size:11.5px;
+  letter-spacing:.14em; color:var(--faint);
+}
+.tile.dark .tag{color:rgba(255,255,255,.45)}
+.sub{display:grid; grid-template-rows:1fr 1fr; gap:22px}
+.sub .tile{min-height:0; padding:28px}
+
+svg text{font-family:var(--serif)}
+.lk-ko{font-weight:600; fill:var(--ink); letter-spacing:.02em}
+.lk-en{font-family:var(--sans); font-weight:400; fill:var(--mut); letter-spacing:.42em}
+.dark .lk-ko{fill:#f3f0e9}
+.dark .lk-en{fill:rgba(255,255,255,.55)}
+.ac{fill:var(--accent)}
+.ac-st{stroke:var(--accent)}
+.ink-st{stroke:var(--ink)}
+.dark .ink-st{stroke:#f3f0e9}
+.dark .ac{fill:#e2ae9f}
+.dark .ac-st{stroke:#e2ae9f}
+
+footer{padding:60px 0 120px; color:var(--faint); font-size:13.5px}
+
+.draft-bar{
+  position:fixed; z-index:70; left:18px; bottom:18px;
+  background:var(--ink); color:#fff; border-radius:999px;
+  display:flex; align-items:center; gap:4px; padding:6px 8px 6px 16px;
+  font-size:12.5px; box-shadow:0 6px 24px rgba(0,0,0,.18);
+}
+.draft-bar .lb{opacity:.65; margin-right:6px}
+.draft-bar button{font:inherit; border:none; cursor:pointer; border-radius:999px;
+  padding:7px 14px; background:transparent; color:#fff; opacity:.55}
+.draft-bar button.on{opacity:1; background:var(--accent)}
+.back{display:inline-block; margin:22px 0 0 24px; font-size:13px;
+  background:var(--paper); border:1px solid var(--line); border-radius:999px;
+  padding:8px 16px; color:var(--mut); text-decoration:none}
+.back:hover{color:var(--accent)}
+
+@media (max-width:860px){
+  .board{grid-template-columns:1fr}
+  .sub{grid-template-rows:none; grid-template-columns:1fr 1fr}
+  header{padding-top:76px}
+}
+
+/* PDF 출력용 */
+@media print{
+  body{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .draft-bar,.back{display:none!important}
+  header{padding:30px 0 0}
+  .prop{padding:36px 0; page-break-inside:avoid}
+  footer{padding:30px 0}
+}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">← 원페이지 시안</a>
+
+<header>
+  <div class="wrap">
+    <p class="kicker">CULTURE STATION — LOGO DRAFT v0.1</p>
+    <h1>문화정거장 로고 시안 3안</h1>
+    <p>세 안 모두 기존 로고의 언어를 잇습니다 — <b>‘[’ 는 기록과 이야기를 담는 공간,
+    ‘●’ 는 영감이 머무는 정거장.</b> 색은 <b>버건디 한 색(확정)</b>.
+    왼쪽 아래에서 바탕 톤(화이트/베이지)을 바꿔 보세요.
+    확정 후 AI·SVG 원본과 사용 안내서를 만듭니다.</p>
+  </div>
+</header>
+
+<!-- ─────────── 1안 ─────────── -->
+<section class="prop" id="p1">
+  <div class="wrap">
+    <div class="p-head"><span class="p-no">PROPOSAL 1</span><h2>정거장 표지</h2></div>
+    <p class="p-desc">괄호가 ●를 품은 가장 단순한 조합. 정거장 표지판처럼 한눈에 읽히고,
+      명함·파비콘·SNS 프로필까지 작게 줄여도 무너지지 않습니다.</p>
+    <div class="board">
+      <div class="tile">
+        <span class="tag">가로형</span>
+        <svg viewBox="0 0 560 120" width="100%" style="max-width:520px">
+          <!-- symbol [●] -->
+          <path class="ac-st" d="M34 18 H16 V102 H34" fill="none" stroke-width="7"/>
+          <path class="ac-st" d="M86 18 H104 V102 H86" fill="none" stroke-width="7"/>
+          <circle class="ac" cx="60" cy="60" r="13"/>
+          <!-- wordmark -->
+          <text class="lk-ko" x="150" y="70" font-size="44">문화정거장</text>
+          <text class="lk-en" x="152" y="102" font-size="14">CULTURE STATION</text>
+        </svg>
+      </div>
+      <div class="sub">
+        <div class="tile">
+          <span class="tag">심볼</span>
+          <svg viewBox="0 0 120 120" width="86">
+            <path class="ac-st" d="M34 18 H16 V102 H34" fill="none" stroke-width="7"/>
+            <path class="ac-st" d="M86 18 H104 V102 H86" fill="none" stroke-width="7"/>
+            <circle class="ac" cx="60" cy="60" r="13"/>
+          </svg>
+        </div>
+        <div class="tile dark">
+          <span class="tag">역상</span>
+          <svg viewBox="0 0 400 86" width="100%" style="max-width:300px">
+            <path class="ac-st" d="M26 12 H12 V74 H26" fill="none" stroke-width="5.5"/>
+            <path class="ac-st" d="M64 12 H78 V74 H64" fill="none" stroke-width="5.5"/>
+            <circle class="ac" cx="45" cy="43" r="9.5"/>
+            <text class="lk-ko" x="108" y="56" font-size="32">문화정거장</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── 2안 ─────────── -->
+<section class="prop" id="p2">
+  <div class="wrap">
+    <div class="p-head"><span class="p-no">PROPOSAL 2</span><h2>머무름</h2></div>
+    <p class="p-desc">괄호를 하나만 열어 두었습니다 — 기록은 계속 쌓이는 중이고,
+      ●(영감)는 글자 사이에 잠시 내려앉습니다. ‘잇다’의 여운이 있는 에디토리얼 조판형.</p>
+    <div class="board">
+      <div class="tile">
+        <span class="tag">가로형</span>
+        <svg viewBox="0 0 560 120" width="100%" style="max-width:520px">
+          <path class="ac-st" d="M38 16 H18 V104 H38" fill="none" stroke-width="6"/>
+          <text class="lk-ko" x="58" y="72" font-size="46">문화정거장</text>
+          <circle class="ac" cx="306" cy="66" r="8"/>
+          <text class="lk-en" x="60" y="103" font-size="13.5">CULTURE STATION · ARCHIVE</text>
+        </svg>
+      </div>
+      <div class="sub">
+        <div class="tile">
+          <span class="tag">세로 조합</span>
+          <svg viewBox="0 0 150 120" width="96">
+            <path class="ac-st" d="M86 10 H100 V46 H86" fill="none" stroke-width="4"/>
+            <circle class="ac" cx="60" cy="28" r="7"/>
+            <text class="lk-ko" x="18" y="86" font-size="26">문화정거장</text>
+            <text class="lk-en" x="19" y="108" font-size="8.5">CULTURE STATION</text>
+          </svg>
+        </div>
+        <div class="tile dark">
+          <span class="tag">역상</span>
+          <svg viewBox="0 0 400 86" width="100%" style="max-width:300px">
+            <path class="ac-st" d="M28 10 H14 V76 H28" fill="none" stroke-width="4.5">
+            </path>
+            <text class="lk-ko" x="42" y="54" font-size="33">문화정거장</text>
+            <circle class="ac" cx="220" cy="50" r="6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── 3안 ─────────── -->
+<section class="prop" id="p3">
+  <div class="wrap">
+    <div class="p-head"><span class="p-no">PROPOSAL 3</span><h2>아카이브 라벨</h2></div>
+    <p class="p-desc">수장고의 기록물 라벨, 도록의 판권면에서 가져온 형태.
+      틀 안에 심볼과 이름이 정돈되어 — 스탬프·스티커·굿즈·책등까지 쓰임이 넓습니다.</p>
+    <div class="board">
+      <div class="tile">
+        <span class="tag">라벨형</span>
+        <svg viewBox="0 0 330 190" width="100%" style="max-width:300px">
+          <rect class="ink-st" x="8" y="8" width="314" height="174" fill="none" stroke-width="2.5"/>
+          <line class="ink-st" x1="8" y1="54" x2="322" y2="54" stroke-width="1.6"/>
+          <path class="ac-st" d="M152 22 H144 V44 H152" fill="none" stroke-width="3"/>
+          <circle class="ac" cx="165" cy="33" r="5"/>
+          <path class="ac-st" d="M178 22 H186 V44 H178" fill="none" stroke-width="3"/>
+          <text class="lk-ko" x="165" y="118" font-size="36" text-anchor="middle">문화정거장</text>
+          <text class="lk-en" x="168" y="155" font-size="11" text-anchor="middle">CULTURE STATION</text>
+        </svg>
+      </div>
+      <div class="sub">
+        <div class="tile">
+          <span class="tag">스탬프 (원형)</span>
+          <svg viewBox="0 0 120 120" width="96">
+            <circle class="ink-st" cx="60" cy="60" r="52" fill="none" stroke-width="2.2"/>
+            <circle class="ink-st" cx="60" cy="60" r="44" fill="none" stroke-width="1"/>
+            <path class="ac-st" d="M48 42 H41 V62 H48" fill="none" stroke-width="2.6"/>
+            <circle class="ac" cx="60" cy="52" r="4.5"/>
+            <path class="ac-st" d="M72 42 H79 V62 H72" fill="none" stroke-width="2.6"/>
+            <text class="lk-ko" x="60" y="86" font-size="14" text-anchor="middle">문화정거장</text>
+          </svg>
+        </div>
+        <div class="tile dark">
+          <span class="tag">역상</span>
+          <svg viewBox="0 0 220 120" width="150">
+            <rect class="ink-st" x="6" y="6" width="208" height="108" fill="none" stroke-width="2"/>
+            <path class="ac-st" d="M96 20 H90 V38 H96" fill="none" stroke-width="2.4"/>
+            <circle class="ac" cx="107" cy="29" r="4"/>
+            <path class="ac-st" d="M118 20 H124 V38 H118" fill="none" stroke-width="2.4"/>
+            <text class="lk-ko" x="110" y="78" font-size="22" text-anchor="middle">문화정거장</text>
+            <text class="lk-en" x="112" y="100" font-size="7.5" text-anchor="middle">CULTURE STATION</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    선택 후 진행되는 것 — AI·SVG 원본 제작 · 가로/세로/심볼 3종 세트 · 색 코드와 최소 여백을 담은 사용 안내서 ·
+    명함과 홈페이지, 카카오 채널 프로필에 일괄 적용. <br>세 안의 서체는 시안용(Noto Serif KR)이며, 확정 안은 자간·획을 다듬어 완성합니다.
+  </div>
+</footer>
+
+<div class="draft-bar">
+  <span class="lb">로고 시안 v0.1 · 바탕 톤</span>
+  <button id="btn-a" class="on" onclick="setAccent('a')">A 화이트</button>
+  <button id="btn-b" onclick="setAccent('b')">B 베이지</button>
+</div>
+
+<script>
+function setAccent(k){
+  document.documentElement.dataset.accent = k;
+  document.getElementById('btn-a').classList.toggle('on', k==='a');
+  document.getElementById('btn-b').classList.toggle('on', k==='b');
+  try{ localStorage.setItem('mh-accent', k); }catch(e){}
+}
+try{
+  var saved = localStorage.getItem('mh-accent');
+  if(saved==='a'||saved==='b') setAccent(saved);
+}catch(e){}
+/* 임베드 모드: 모음 페이지 썸네일용 */
+(function(){
+  var q = new URLSearchParams(location.search);
+  var acc = q.get('accent');
+  if(acc==='a'||acc==='b'){
+    document.documentElement.dataset.accent = acc;
+    document.getElementById('btn-a').classList.toggle('on', acc==='a');
+    document.getElementById('btn-b').classList.toggle('on', acc==='b');
+  }
+  if(q.get('embed')==='1'){
+    document.querySelector('.draft-bar').style.display='none';
+    document.querySelector('.back').style.display='none';
+  }
+})();
+</script>
+</body>
+</html>

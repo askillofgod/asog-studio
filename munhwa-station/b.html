@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><!-- 시안 단계 — 오픈 시 제거 -->
+<title>문화정거장 아카이브 | 콘텐츠 기획 · 아키비스트 · 에디팅 — B안</title>
+<meta name="description" content="영감을 모으고 맥락을 다듬어 기록으로 남기는 문화예술 플랫폼, 문화정거장.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ──────────────────────────────────────────
+   문화정거장 원페이지 시안 — B안 · 베이지 도록형
+   구조: 좌측 레일 네비 + 중앙 대칭 히어로 + 카탈로그 목록
+   포인트: 버건디 (확정)
+   ────────────────────────────────────────── */
+:root{
+  --bg:#f6f2ea; --paper:#fdfbf5; --ink:#1b1812; --mut:#6f6a60;
+  --faint:#a39d90; --line:#ddd5c4; --ph:#eae4d6;
+  --accent:#6d2434; --accent-deep:#521a27;
+  --serif:'Noto Serif KR', serif; --sans:'Noto Sans KR', sans-serif;
+  --rail:200px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg); color:var(--ink); font-family:var(--sans);
+  font-size:16.5px; line-height:1.9; word-break:keep-all; overflow-wrap:break-word;
+  letter-spacing:-0.01em}
+a{color:inherit; text-decoration:none}
+::selection{background:var(--accent); color:#fff}
+
+/* ── 좌측 레일 ── */
+.rail{
+  position:fixed; top:0; bottom:0; left:0; width:var(--rail); z-index:50;
+  border-right:1px solid var(--line); padding:34px 26px;
+  display:flex; flex-direction:column;
+  background:var(--bg);
+}
+.rail .brand{font-family:var(--serif); font-weight:600; font-size:18px;
+  display:flex; align-items:center; gap:8px; margin-bottom:6px}
+.rail .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.rail .en{font-size:10.5px; letter-spacing:.3em; color:var(--faint); margin-bottom:46px}
+.rail ol{list-style:none; display:flex; flex-direction:column; gap:16px; font-size:13px}
+.rail ol a{display:flex; gap:12px; color:var(--mut); letter-spacing:.1em}
+.rail ol a:hover{color:var(--accent)}
+.rail ol .no{font-family:var(--serif); color:var(--faint); font-size:12px}
+.rail .cta{margin-top:auto; text-align:center; border:1px solid var(--ink);
+  border-radius:999px; padding:11px 0; font-size:13.5px}
+.rail .cta:hover{border-color:var(--accent); color:var(--accent)}
+
+main{margin-left:var(--rail)}
+.inner{max-width:880px; margin:0 auto; padding:0 48px}
+
+/* ── 섹션 공통: 도록 판면 ── */
+section{padding:120px 0; border-top:1px solid var(--line)}
+.folio{display:flex; align-items:baseline; gap:18px; margin-bottom:34px}
+.folio .num{font-family:var(--serif); font-size:52px; line-height:1; color:var(--accent)}
+.folio .lb{font-size:12px; letter-spacing:.3em; color:var(--faint)}
+h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
+  line-height:1.5; margin-bottom:26px}
+.lead{color:var(--mut); max-width:600px}
+
+/* ── 히어로: 중앙 대칭 ── */
+.hero{position:relative; overflow:hidden; border-top:none;
+  min-height:92vh; display:flex; align-items:center; justify-content:center;
+  text-align:center; padding:140px 0}
+.hero-media{position:absolute; inset:0; z-index:0}
+.hero-media video{width:100%; height:100%; object-fit:cover}
+.hero-media::after{content:""; position:absolute; inset:0;
+  background:radial-gradient(ellipse at center,
+    var(--bg) 18%, color-mix(in srgb, var(--bg) 66%, transparent) 60%,
+    color-mix(in srgb, var(--bg) 30%, transparent) 100%)}
+.hero-media .hv-tag{position:absolute; right:16px; bottom:14px; z-index:2;
+  font-size:11.5px; letter-spacing:.1em; color:var(--faint);
+  border:1px dashed var(--line); border-radius:3px; padding:4px 10px;
+  background:color-mix(in srgb, var(--bg) 72%, transparent)}
+.hero-media.empty video{display:none}
+.hero .in{position:relative; z-index:2; max-width:720px; padding:0 24px}
+.hero .sym{font-family:var(--serif); font-size:30px; color:var(--accent); margin-bottom:28px;
+  letter-spacing:.2em}
+.hero h1{font-family:var(--serif); font-weight:600;
+  font-size:clamp(34px,4.6vw,56px); line-height:1.5; margin-bottom:24px}
+.hero h1 b{color:var(--accent); font-weight:600}
+.hero p{color:var(--mut); font-size:17.5px; margin-bottom:40px}
+.hero .rule{width:1px; height:56px; background:var(--ink); margin:0 auto 40px; opacity:.35}
+.btns{display:flex; gap:12px; justify-content:center; flex-wrap:wrap}
+.btn{display:inline-flex; padding:15px 32px; border-radius:999px; font-size:15.5px; font-weight:500}
+.btn-fill{background:var(--accent); color:#fff}
+.btn-fill:hover{background:var(--accent-deep)}
+.btn-line{border:1px solid var(--ink)}
+.btn-line:hover{border-color:var(--accent); color:var(--accent)}
+.scroll-hint{position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+  z-index:2; font-size:11px; letter-spacing:.34em; color:var(--faint)}
+
+/* ── ABOUT ── */
+.quote{font-family:var(--serif); font-size:21.5px; line-height:2.1; max-width:680px}
+.quote .mark{color:var(--accent)}
+.about-sub{margin-top:30px; color:var(--mut); max-width:640px}
+.ceo-line{margin-top:48px; padding-top:26px; border-top:1px solid var(--line);
+  display:flex; flex-wrap:wrap; gap:6px 26px; align-items:baseline}
+.ceo-line .en{font-size:11.5px; letter-spacing:.26em; color:var(--accent)}
+.ceo-line .nm{font-family:var(--serif); font-size:19px}
+.ceo-line .rl{font-size:14px; color:var(--mut)}
+.ceo-line p{width:100%; font-size:14.5px; color:var(--mut); margin-top:8px}
+
+/* ── WORK: 목차형 행 ── */
+.toc{border-top:1px solid var(--ink)}
+.toc .t-row{display:grid; grid-template-columns:70px 200px 1fr; gap:22px;
+  align-items:baseline; padding:30px 2px; border-bottom:1px solid var(--line)}
+.toc .t-no{font-family:var(--serif); font-size:15px; color:var(--accent)}
+.toc h3{font-family:var(--serif); font-size:21px; font-weight:600}
+.toc .t-en{display:block; font-family:var(--sans); font-size:10.5px;
+  letter-spacing:.26em; color:var(--faint); margin-top:4px}
+.toc p{font-size:15px; color:var(--mut)}
+.deliver{margin-top:40px; display:flex; flex-wrap:wrap; gap:8px 22px;
+  font-size:14px; color:var(--mut)}
+.deliver span::before{content:"· "; color:var(--accent)}
+
+/* ── ARCHIVE: 카탈로그 목록 ── */
+.cat-item{display:grid; grid-template-columns:1fr 150px; gap:34px;
+  padding:34px 2px; border-bottom:1px solid var(--line); align-items:center}
+.cat-item:first-of-type{border-top:1px solid var(--ink)}
+.cat-item .no{font-family:var(--serif); font-size:13px; color:var(--accent);
+  letter-spacing:.14em; margin-bottom:8px}
+.cat-item h3{font-family:var(--serif); font-size:22px; font-weight:600; margin-bottom:8px}
+.cat-item p{font-size:14.5px; color:var(--mut); max-width:520px}
+.cat-item .ph{aspect-ratio:4/5; background:var(--ph); border:1px solid var(--line);
+  position:relative; overflow:hidden; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:4px;
+  color:var(--faint); font-size:10.5px; letter-spacing:.06em; text-align:center; padding:8px}
+.cat-item .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.note-ex{margin-top:36px; font-size:13.5px; color:var(--faint)}
+.note-ex::before{content:"● "; font-size:9px; color:var(--accent)}
+
+/* ── PROJECTS: 연표 ── */
+.chrono{border-left:1px solid var(--ink); margin-left:6px; padding-left:40px;
+  display:flex; flex-direction:column; gap:44px}
+.ch-item{position:relative}
+.ch-item::before{content:""; position:absolute; left:-45px; top:12px;
+  width:9px; height:9px; border-radius:50%; background:var(--accent)}
+.ch-item .pd{font-size:12px; letter-spacing:.22em; color:var(--faint); margin-bottom:6px}
+.ch-item h3{font-family:var(--serif); font-size:21px; font-weight:600; margin-bottom:6px}
+.ch-item p{font-size:14.5px; color:var(--mut); max-width:560px}
+.ch-item .tag{display:inline-block; margin-top:10px; font-size:12px;
+  letter-spacing:.14em; color:var(--accent); border:1px solid
+  color-mix(in srgb, var(--accent) 36%, transparent); border-radius:999px; padding:3px 12px}
+
+/* ── NOTES ── */
+.notes-list{border-top:1px solid var(--ink)}
+.note{display:grid; grid-template-columns:110px 80px 1fr; gap:20px; align-items:baseline;
+  padding:22px 2px; border-bottom:1px solid var(--line)}
+.note .dt{font-size:13px; color:var(--faint); letter-spacing:.06em}
+.note .tp{font-size:12px; letter-spacing:.14em; color:var(--accent)}
+.note h3{font-size:16px; font-weight:500}
+
+/* ── CONTACT: 중앙 1단 ── */
+.contact{text-align:center}
+.contact .folio{justify-content:center}
+.contact .lead{margin:0 auto 36px}
+.kakao{display:inline-flex; padding:16px 36px; background:var(--accent);
+  border-radius:999px; color:#fff; font-weight:500; font-size:15.5px; margin-bottom:18px}
+.kakao:hover{background:var(--accent-deep)}
+.ct-meta{font-size:14px; color:var(--mut); margin-bottom:40px}
+form{max-width:520px; margin:0 auto; text-align:left}
+.fld{margin-bottom:18px}
+label{display:block; font-size:13px; letter-spacing:.06em; color:var(--mut); margin-bottom:7px}
+input,select,textarea{width:100%; padding:13px 15px; font:inherit; font-size:15.5px;
+  border:1px solid var(--line); border-radius:3px; background:var(--paper); color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none; border-color:var(--accent)}
+textarea{min-height:130px; resize:vertical}
+.agree{display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--mut); margin-bottom:24px}
+.agree input{width:auto; margin-top:5px}
+.submit{width:100%; padding:16px; border:none; border-radius:3px; cursor:pointer;
+  background:var(--ink); color:#fff; font:inherit; font-size:15.5px; font-weight:500}
+.submit:hover{background:var(--accent-deep)}
+.clients{margin-top:34px; font-size:13px; color:var(--faint); letter-spacing:.04em}
+
+/* ── 푸터 ── */
+footer{border-top:1px solid var(--line); padding:50px 0 120px;
+  font-size:13px; color:var(--faint); line-height:2.1; text-align:center}
+footer .f-brand{font-family:var(--serif); font-size:15px; color:var(--mut); margin-bottom:10px}
+footer a{text-decoration:underline; text-underline-offset:3px}
+
+/* ── 모바일 하단 CTA · 시안 바 ── */
+.m-cta{display:none; position:fixed; left:0; right:0; bottom:0; z-index:60;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(10px);
+  border-top:1px solid var(--line)}
+.m-cta a{display:flex; justify-content:center; padding:15px;
+  background:var(--accent); color:#fff; border-radius:999px; font-weight:500}
+.draft-bar{position:fixed; z-index:70; left:18px; bottom:18px;
+  background:var(--ink); color:#fff; border-radius:999px;
+  display:flex; align-items:center; gap:10px; padding:6px 8px 6px 16px;
+  font-size:12.5px; box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.draft-bar .lb{opacity:.75}
+.draft-bar .go{border-radius:999px; padding:7px 16px; background:var(--accent);
+  color:#fff; text-decoration:none}
+.draft-bar .go:hover{background:var(--accent-deep)}
+
+/* ── 반응형 ── */
+@media (max-width:980px){
+  .rail{position:static; width:auto; height:auto; border-right:none;
+    border-bottom:1px solid var(--line); padding:18px 24px;
+    flex-direction:row; align-items:center; gap:14px}
+  .rail .en,.rail ol{display:none}
+  .rail .brand{margin:0}
+  .rail .cta{margin:0 0 0 auto; padding:9px 18px}
+  main{margin-left:0}
+  .inner{padding:0 24px}
+  section{padding:84px 0}
+  .hero{min-height:78vh; padding:110px 0}
+  .toc .t-row{grid-template-columns:48px 1fr; gap:10px}
+  .toc .t-row p{grid-column:2}
+  .cat-item{grid-template-columns:1fr 110px; gap:18px}
+  .m-cta{display:block}
+  footer{padding-bottom:170px}
+  .draft-bar{left:12px; bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+</style>
+</head>
+<body>
+
+<!-- 좌측 레일 -->
+<aside class="rail">
+  <p class="brand"><span class="dot"></span>문화정거장</p>
+  <p class="en">CULTURE STATION</p>
+  <ol>
+    <li><a href="#about"><span class="no">01</span>ABOUT</a></li>
+    <li><a href="#work"><span class="no">02</span>WORK</a></li>
+    <li><a href="#archive"><span class="no">03</span>ARCHIVE</a></li>
+    <li><a href="#projects"><span class="no">04</span>PROJECTS</a></li>
+    <li><a href="#notes"><span class="no">05</span>NOTES</a></li>
+    <li><a href="#contact"><span class="no">06</span>CONTACT</a></li>
+  </ol>
+  <a class="cta" href="#contact">상담 문의</a>
+</aside>
+
+<main>
+
+<!-- ① 히어로: 중앙 대칭 -->
+<header class="hero" id="top">
+  <div class="hero-media">
+    <video autoplay muted loop playsinline>
+      <source src="images/hero.mp4" type="video/mp4"
+        onerror="document.querySelector('.hero-media').classList.add('empty')">
+    </video>
+    <span class="hv-tag">HERO-VIDEO · 16:9 · 배경 전체 영상 자리 (Flow 제작)</span>
+  </div>
+  <div class="in">
+    <p class="sym">[ ● ]</p>
+    <h1>영감을 모으고<br><b>맥락을 잇다</b></h1>
+    <p>영감을 모으고 맥락을 다듬어 기록으로 남기는<br>문화예술 플랫폼, 문화정거장입니다.</p>
+    <div class="rule"></div>
+    <div class="btns">
+      <a class="btn btn-fill" href="#contact">카카오톡으로 상담</a>
+      <a class="btn btn-line" href="#contact">프로젝트 문의</a>
+    </div>
+  </div>
+  <p class="scroll-hint">SCROLL</p>
+</header>
+
+<!-- ② ABOUT -->
+<section id="about">
+  <div class="inner">
+    <div class="folio"><span class="num">01</span><span class="lb">ABOUT — 소개</span></div>
+    <h2>기록과 사람이 잠시 머무는 곳</h2>
+    <p class="quote">
+      정거장은 수많은 이동 속에서 잠시 멈추어 서고, 서로 다른 방향을 가진
+      이들이 만나 다음 목적지로 떠나는 공간입니다.
+      <span class="mark">문화정거장</span>은 문화예술의 기록, 사람의 이야기,
+      창의적인 영감이 잠시 머물렀다 가치 있게 확장되는 쉼표이자 연결점입니다.
+    </p>
+    <p class="about-sub">
+      문화예술과 콘텐츠를 아카이빙하고 재해석하여 가치 있는 결과물로 연결합니다.
+      체계적인 기록과 창의적인 기획이 필요한 모든 이들을 위한 문화예술 콘텐츠를 만듭니다.
+    </p>
+    <div class="ceo-line">
+      <span class="en">LEEYUNSEO</span>
+      <span class="nm">이윤서</span>
+      <span class="rl">콘텐츠 기획자 · 아키비스트 · 에디터</span>
+      <p>박물관·미술관 10년 — 유물·아카이브 관리와 전시기획 · 디자인 기업 에디터 3년 — 웹진 창간과 운영 · 다수의 문화예술 연구 프로젝트</p>
+    </div>
+  </div>
+</section>
+
+<!-- ③ WORK: 목차형 -->
+<section id="work">
+  <div class="inner">
+    <div class="folio"><span class="num">02</span><span class="lb">WORK — 하는 일</span></div>
+    <h2>세 가지 역할, 하나의 흐름</h2>
+    <p class="lead" style="margin-bottom:40px">기록이 모이고, 맥락이 다듬어지고, 새로운 가치로
+      연결됩니다. 세 역할은 같은 무게로 움직입니다.</p>
+    <div class="toc">
+      <div class="t-row">
+        <span class="t-no">Ⅰ.</span>
+        <h3>콘텐츠 기획자<span class="t-en">PLANNER</span></h3>
+        <p>문화적 영감을 모아 콘텐츠의 방향을 세웁니다.</p>
+      </div>
+      <div class="t-row">
+        <span class="t-no">Ⅱ.</span>
+        <h3>아키비스트<span class="t-en">ARCHIVIST</span></h3>
+        <p>기록을 수집하고 분류해 오래 남깁니다.</p>
+      </div>
+      <div class="t-row">
+        <span class="t-no">Ⅲ.</span>
+        <h3>에디터<span class="t-en">EDITOR</span></h3>
+        <p>모은 기록을 재해석해 가치 있는 콘텐츠로 엮습니다.</p>
+      </div>
+    </div>
+    <div class="deliver">
+      <span>콘텐츠 제작 (글·사진·영상)</span>
+      <span>콘텐츠 편집 · 에디팅</span>
+      <span>아카이브 구축 · 정리</span>
+      <span>기록물 · 자료집</span>
+      <span>온라인 아카이브</span>
+      <span>컨설팅</span>
+    </div>
+  </div>
+</section>
+
+<!-- ④ ARCHIVE: 카탈로그 목록 -->
+<section id="archive">
+  <div class="inner">
+    <div class="folio"><span class="num">03</span><span class="lb">ARCHIVE — 기록</span></div>
+    <h2>머물렀다 가는 기록들</h2>
+    <p class="lead" style="margin-bottom:40px">전시의 팸플릿과 도록, 현장의 사진, 사람의 인터뷰 —
+      문화적 가치가 있는 기록을 모으고 맥락을 붙여 남깁니다.</p>
+    <div class="cat-item">
+      <div>
+        <p class="no">NO. 001 — 전시 기록</p>
+        <h3>전시 팸플릿 · 도록 아카이브</h3>
+        <p>전시가 끝나도 사라지지 않도록, 인쇄물과 기획안을 주제별로 분류해 남깁니다.</p>
+      </div>
+      <div class="ph"><img src="images/ar-01.jpg" alt="" onerror="this.remove()"><b>AR-01</b>4:5</div>
+    </div>
+    <div class="cat-item">
+      <div>
+        <p class="no">NO. 002 — 사람의 이야기</p>
+        <h3>현장 인터뷰 기록</h3>
+        <p>창작자·관계자·지역 주민의 목소리를 텍스트로 수집하고 에디토리얼 해설을 붙입니다.</p>
+      </div>
+      <div class="ph"><img src="images/ar-02.jpg" alt="" onerror="this.remove()"><b>AR-02</b>4:5</div>
+    </div>
+    <div class="cat-item">
+      <div>
+        <p class="no">NO. 003 — 브랜드 서사</p>
+        <h3>브랜드 아카이빙 북</h3>
+        <p>흩어진 브랜드의 기록을 모아 기록집·도록·인터뷰집의 형태로 완성합니다.</p>
+      </div>
+      <div class="ph"><img src="images/ar-03.jpg" alt="" onerror="this.remove()"><b>AR-03</b>4:5</div>
+    </div>
+    <p class="note-ex">위 목록은 구성 예시입니다 — 실제 기록으로 교체되며, 기록이 쌓이면 독립된 아카이브 페이지로 확장됩니다.</p>
+  </div>
+</section>
+
+<!-- ⑤ PROJECTS: 연표 -->
+<section id="projects">
+  <div class="inner">
+    <div class="folio"><span class="num">04</span><span class="lb">PROJECTS — 지나온 정거장</span></div>
+    <h2>박물관과 미술관, 웹진과 연구 현장에서</h2>
+    <p class="lead" style="margin-bottom:46px">쌓아 온 10년의 기록입니다.</p>
+    <div class="chrono">
+      <div class="ch-item">
+        <p class="pd">10 YEARS</p>
+        <h3>박물관 · 미술관 전시기획과 아카이브 관리</h3>
+        <p>국공립·사립 박물관과 미술관에서 유물·자료·아카이브 관리, 전시기획, 도록 제작.</p>
+        <span class="tag">연구원 · 큐레이터</span>
+      </div>
+      <div class="ch-item">
+        <p class="pd">3 YEARS</p>
+        <h3>문화예술 웹진 창간과 운영</h3>
+        <p>디자인 전문 기업에서 웹진을 창간하고 기획·운영. 국문과 영문 콘텐츠 에디팅.</p>
+        <span class="tag">에디터</span>
+      </div>
+      <div class="ch-item">
+        <p class="pd">ONGOING</p>
+        <h3>문화예술 연구 · 아트 프로젝트</h3>
+        <p>다수의 미술 분야 아트 프로젝트와 문화예술 연구 프로젝트에 참여.</p>
+        <span class="tag">기획 · 리서치</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ NOTES -->
+<section id="notes">
+  <div class="inner">
+    <div class="folio"><span class="num">05</span><span class="lb">NOTES — 소식</span></div>
+    <h2>소식과 일정</h2>
+    <div class="notes-list" style="margin-top:36px">
+      <div class="note">
+        <p class="dt">2026.11</p>
+        <p class="tp">공지</p>
+        <h3>문화정거장 홈페이지를 준비하고 있습니다.</h3>
+      </div>
+      <div class="note">
+        <p class="dt">2026.11</p>
+        <p class="tp">소식</p>
+        <h3>아카이브 첫 기록을 정리하는 중입니다.</h3>
+      </div>
+      <div class="note">
+        <p class="dt">—</p>
+        <p class="tp">일정</p>
+        <h3>진행 중인 프로젝트 일정이 이곳에 올라옵니다.</h3>
+      </div>
+    </div>
+    <p class="note-ex">예시 목록입니다 — 오픈 후 관리자 화면에서 직접 쓰고 고칠 수 있습니다.</p>
+  </div>
+</section>
+
+<!-- ⑦ CONTACT: 중앙 1단 -->
+<section class="contact" id="contact">
+  <div class="inner">
+    <div class="folio"><span class="num">06</span><span class="lb">CONTACT — 문의</span></div>
+    <h2>다음 정거장을 함께 그려요</h2>
+    <p class="lead">기획, 아카이빙, 에디팅이 필요한 모든 이야기를 환영합니다.</p>
+    <a class="kakao" href="#" onclick="draftAlert();return false">카카오톡으로 상담하기</a>
+    <p class="ct-meta">이메일 only6565@naver.com · 답변은 오전 10시 – 밤 10시 사이에 드립니다</p>
+    <form onsubmit="draftAlert();return false">
+      <div class="fld">
+        <label for="f-name">이름</label>
+        <input id="f-name" type="text" placeholder="성함 또는 단체명">
+      </div>
+      <div class="fld">
+        <label for="f-contact">연락처 또는 이메일</label>
+        <input id="f-contact" type="text" placeholder="회신받으실 곳">
+      </div>
+      <div class="fld">
+        <label for="f-type">문의 유형</label>
+        <select id="f-type">
+          <option>프로젝트 의뢰</option>
+          <option>협업 제안</option>
+          <option>기타 문의</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label for="f-body">내용</label>
+        <textarea id="f-body" placeholder="어떤 기록과 이야기를 생각하고 계신가요?"></textarea>
+      </div>
+      <div class="agree">
+        <input id="f-agree" type="checkbox">
+        <label for="f-agree" style="margin:0">개인정보 수집·이용에 동의합니다. 문의 답변 목적으로만 사용합니다.</label>
+      </div>
+      <button class="submit" type="submit">문의 보내기</button>
+    </form>
+    <p class="clients">지자체·공공기관 · 문화재단·예술단체 · 기업·브랜드 · 지역 상점·소상공인 · 개인·작가</p>
+  </div>
+</section>
+
+<footer>
+  <div class="inner">
+    <p class="f-brand">● 문화정거장 · Culture Station</p>
+    <p>대표 이윤서 · 사업자등록번호 000-00-00000 (확정 후 기재) · only6565@naver.com<br>
+    <a href="#" onclick="draftAlert();return false">개인정보처리방침</a></p>
+  </div>
+</footer>
+
+</main>
+
+<!-- 모바일 하단 고정 CTA -->
+<div class="m-cta">
+  <a href="#" onclick="draftAlert();return false">카카오톡으로 상담하기</a>
+</div>
+
+<!-- 시안 도구 — 오픈 전 제거 -->
+<div class="draft-bar">
+  <span class="lb">원페이지 시안 · <b>B안</b> 베이지 · 도록형</span>
+  <a class="go" href="index.html">A안 보기</a>
+</div>
+
+<script>
+(function(){
+  var q = new URLSearchParams(location.search);
+  if(q.get('embed')==='1'){
+    document.querySelector('.draft-bar').style.display='none';
+    document.querySelector('.m-cta').style.display='none';
+  }
+})();
+function draftAlert(){
+  alert('시안 화면입니다 — 실제로 전송·연결되지 않습니다.');
+}
+</script>
+</body>
+</html>

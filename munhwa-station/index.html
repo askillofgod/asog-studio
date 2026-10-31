@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="ko" data-accent="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><!-- 시안 단계 — 오픈 시 제거 -->
+<title>문화정거장 아카이브 | 콘텐츠 기획 · 아키비스트 · 에디팅</title>
+<meta name="description" content="영감을 모으고 맥락을 다듬어 기록으로 남기는 문화예술 플랫폼, 문화정거장.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ──────────────────────────────────────────
+   문화정거장 원페이지 시안 v0.1
+   A안: 짙은 초록 포인트 / B안: 버건디 포인트
+   ────────────────────────────────────────── */
+:root{
+  --accent:#6d2434;      /* 포인트: 버건디 (확정) */
+  --accent-deep:#521a27;
+  --accent-soft:#f0e5e4;
+  --serif:'Noto Serif KR', serif;
+  --sans:'Noto Sans KR', sans-serif;
+}
+/* A안: 흰색·블랙 바탕 */
+:root[data-accent="a"]{
+  --bg:#ffffff; --paper:#fafaf9; --ink:#101010; --mut:#5f5f5f;
+  --faint:#9b9b9b; --line:#e8e6e3; --ph:#f2f1ef;
+}
+/* B안: 베이지 바탕 */
+:root[data-accent="b"]{
+  --bg:#f7f4ee; --paper:#fffdf8; --ink:#171512; --mut:#6f6a60;
+  --faint:#a39d90; --line:#e2dccf; --ph:#ebe6db;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-weight:400; font-size:17px; line-height:1.8;
+  word-break:keep-all; overflow-wrap:break-word;
+  letter-spacing:-0.01em;
+}
+a{color:inherit; text-decoration:none}
+img{max-width:100%; display:block}
+::selection{background:var(--accent); color:#fff}
+
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+
+/* ── 상단 네비 ── */
+nav{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav-in{max-width:1080px; margin:0 auto; padding:0 24px; height:62px;
+  display:flex; align-items:center; justify-content:space-between}
+.brand{font-family:var(--serif); font-weight:600; font-size:19px; display:flex; align-items:center; gap:9px}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block}
+.nav-links{display:flex; gap:26px; font-size:13.5px; letter-spacing:.08em; color:var(--mut)}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{
+  font-size:13.5px; padding:9px 18px; border-radius:999px;
+  background:var(--accent); color:#fff; letter-spacing:.02em;
+}
+.nav-cta:hover{background:var(--accent-deep)}
+
+/* ── 섹션 공통 ── */
+section{padding:110px 0}
+.sec-label{
+  font-size:13px; letter-spacing:.22em; color:var(--accent);
+  display:flex; align-items:center; gap:10px; margin-bottom:22px;
+}
+.sec-label::before{content:""; width:26px; height:1px; background:var(--accent)}
+h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); line-height:1.45; margin-bottom:28px}
+.lead{color:var(--mut); max-width:640px}
+.hr{border:none; border-top:1px solid var(--line)}
+
+/* ── 인트로 ── */
+.hero{padding:190px 0 130px; position:relative; overflow:hidden}
+.hero .wrap{position:relative; z-index:2}
+/* 배경 전체 영상 자리 — images/hero.mp4 를 넣으면 자동 재생 (Flow 제작 예정) */
+.hero-media{position:absolute; inset:0; z-index:0}
+.hero-media video{width:100%; height:100%; object-fit:cover}
+.hero-media::after{content:""; position:absolute; inset:0;
+  background:linear-gradient(90deg, var(--bg) 0%,
+    color-mix(in srgb, var(--bg) 74%, transparent) 48%,
+    color-mix(in srgb, var(--bg) 30%, transparent) 100%)}
+.hero-media .hv-tag{position:absolute; right:16px; bottom:14px; z-index:2;
+  font-size:11.5px; letter-spacing:.1em; color:var(--faint);
+  border:1px dashed var(--line); border-radius:3px; padding:4px 10px;
+  background:color-mix(in srgb, var(--bg) 72%, transparent)}
+.hero-media.empty video{display:none}
+.hero .bracket{
+  position:absolute; right:-10px; top:120px;
+  font-family:var(--serif); font-size:420px; line-height:1;
+  color:var(--accent); opacity:.07; user-select:none; pointer-events:none;
+}
+.hero-kicker{font-size:14px; letter-spacing:.3em; color:var(--accent); margin-bottom:26px}
+.hero h1{
+  font-family:var(--serif); font-weight:600;
+  font-size:clamp(34px,6vw,62px); line-height:1.4; margin-bottom:26px;
+}
+.hero h1 b{color:var(--accent); font-weight:600}
+.hero p{color:var(--mut); font-size:18px; max-width:560px; margin-bottom:44px}
+.btns{display:flex; gap:12px; flex-wrap:wrap}
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:15px 30px; border-radius:999px; font-size:15.5px; font-weight:500;
+}
+.btn-fill{background:var(--accent); color:#fff}
+.btn-fill:hover{background:var(--accent-deep)}
+.btn-line{border:1px solid var(--ink); }
+.btn-line:hover{border-color:var(--accent); color:var(--accent)}
+.hero-roles{margin-top:64px; font-size:14px; letter-spacing:.14em; color:var(--faint)}
+.hero-roles em{font-style:normal; color:var(--mut)}
+
+/* ── ABOUT ── */
+.about-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:70px; align-items:start}
+.about-story{
+  font-family:var(--serif); font-size:20px; line-height:2.05; color:var(--ink);
+}
+.about-story .mark{color:var(--accent)}
+.about-sub{margin-top:34px; color:var(--mut)}
+.about-side{border-left:1px solid var(--line); padding-left:36px}
+.about-side h3{font-family:var(--serif); font-size:17px; margin-bottom:14px}
+.about-side p{font-size:15px; color:var(--mut); margin-bottom:26px}
+.ceo{display:flex; flex-direction:column; gap:4px}
+.ceo .nm{font-family:var(--serif); font-size:18px}
+.ceo .en{font-size:12.5px; letter-spacing:.24em; color:var(--accent)}
+.ceo .rl{font-size:14px; color:var(--mut)}
+
+/* ── WORK ── */
+.work{background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+.roles{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line);
+  border:1px solid var(--line); margin:54px 0 64px}
+.role{background:var(--paper); padding:40px 32px}
+.role .no{font-size:12.5px; letter-spacing:.2em; color:var(--accent); margin-bottom:18px}
+.role h3{font-family:var(--serif); font-size:21px; margin-bottom:12px}
+.role p{font-size:15px; color:var(--mut)}
+.deliver{display:flex; flex-wrap:wrap; gap:10px}
+.deliver span{
+  font-size:14px; padding:9px 18px; border-radius:999px;
+  border:1px solid var(--line); background:var(--bg); color:var(--mut);
+}
+.deliver-t{font-size:14px; color:var(--faint); margin-bottom:16px; letter-spacing:.08em}
+
+/* ── ARCHIVE ── */
+.cards{display:grid; grid-template-columns:repeat(3,1fr); gap:34px; margin-top:54px}
+.card .ph{
+  aspect-ratio:4/5; background:var(--ph); border:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  color:var(--faint); font-size:12.5px; letter-spacing:.06em; text-align:center; padding:12px;
+  position:relative; overflow:hidden;
+}
+.card .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.card .ph b{font-weight:500; letter-spacing:.12em}
+.card .cat{font-size:12.5px; letter-spacing:.18em; color:var(--accent); margin:20px 0 8px}
+.card h3{font-family:var(--serif); font-size:19px; margin-bottom:8px; line-height:1.5}
+.card p{font-size:14.5px; color:var(--mut)}
+.note-ex{
+  margin-top:44px; font-size:13.5px; color:var(--faint);
+  display:flex; align-items:center; gap:8px;
+}
+.note-ex::before{content:"●"; font-size:8px; color:var(--accent)}
+
+/* ── PROJECTS ── */
+.proj{background:var(--ink); color:#efece6}
+.proj .sec-label{color:var(--bg)}
+.proj .sec-label::before{background:var(--bg)}
+.proj h2{color:#fff}
+.proj .lead{color:#b4afa4}
+.rows{margin-top:50px; border-top:1px solid rgba(255,255,255,.16)}
+.row{
+  display:grid; grid-template-columns:150px 1fr 170px; gap:24px; align-items:baseline;
+  padding:30px 4px; border-bottom:1px solid rgba(255,255,255,.16);
+}
+.row .pd{font-size:13.5px; letter-spacing:.1em; color:#8f897d}
+.row h3{font-family:var(--serif); font-size:20px; font-weight:500; color:#fff; line-height:1.55}
+.row p{font-size:14px; color:#b4afa4; margin-top:6px}
+.row .tag{font-size:12.5px; letter-spacing:.14em; text-align:right; color:var(--bg);
+  opacity:.85}
+
+/* ── NOTES ── */
+.notes-list{margin-top:50px; border-top:1px solid var(--line)}
+.note{
+  display:grid; grid-template-columns:120px 90px 1fr; gap:20px; align-items:baseline;
+  padding:24px 4px; border-bottom:1px solid var(--line);
+}
+.note .dt{font-size:13.5px; color:var(--faint); letter-spacing:.06em}
+.note .tp{font-size:12.5px; letter-spacing:.14em; color:var(--accent)}
+.note h3{font-size:16.5px; font-weight:500}
+
+/* ── CONTACT ── */
+.contact{background:var(--paper); border-top:1px solid var(--line)}
+.ct-grid{display:grid; grid-template-columns:.9fr 1.1fr; gap:80px; margin-top:54px}
+.ct-info h3{font-family:var(--serif); font-size:19px; margin-bottom:12px}
+.ct-info p{font-size:15px; color:var(--mut); margin-bottom:30px}
+.ct-info .kakao{
+  display:inline-flex; align-items:center; gap:10px; padding:16px 30px;
+  background:var(--accent); border-radius:999px; color:#fff; font-weight:500; font-size:15.5px;
+  margin-bottom:34px;
+}
+.ct-info .kakao:hover{background:var(--accent-deep)}
+.ct-meta{font-size:14px; color:var(--mut); line-height:2.1}
+.ct-meta b{font-weight:500; color:var(--ink)}
+.clients{margin-top:30px; display:flex; flex-wrap:wrap; gap:8px}
+.clients span{font-size:13px; padding:7px 14px; border:1px solid var(--line); border-radius:999px; color:var(--mut)}
+form .fld{margin-bottom:20px}
+label{display:block; font-size:13.5px; letter-spacing:.06em; color:var(--mut); margin-bottom:8px}
+input,select,textarea{
+  width:100%; padding:14px 16px; font:inherit; font-size:15.5px;
+  border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--ink);
+}
+input:focus,select:focus,textarea:focus{outline:none; border-color:var(--accent)}
+textarea{min-height:140px; resize:vertical}
+.agree{display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:var(--mut); margin-bottom:26px}
+.agree input{width:auto; margin-top:5px}
+.submit{
+  width:100%; padding:17px; border:none; border-radius:4px; cursor:pointer;
+  background:var(--ink); color:#fff; font:inherit; font-size:16px; font-weight:500;
+}
+.submit:hover{background:var(--accent-deep)}
+
+/* ── 푸터 ── */
+footer{padding:54px 0 120px; font-size:13.5px; color:var(--faint); line-height:2.1}
+footer .f-brand{font-family:var(--serif); font-size:16px; color:var(--mut); margin-bottom:14px;
+  display:flex; align-items:center; gap:8px}
+footer .f-brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+footer a{text-decoration:underline; text-underline-offset:3px}
+
+/* ── 모바일 하단 고정 CTA ── */
+.m-cta{
+  display:none; position:fixed; left:0; right:0; bottom:0; z-index:60;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+}
+.m-cta a{
+  display:flex; justify-content:center; padding:15px;
+  background:var(--accent); color:#fff; border-radius:999px; font-weight:500;
+}
+
+/* ── 시안 도구 (오픈 전 제거) ── */
+.draft-bar{
+  position:fixed; z-index:70; left:18px; bottom:18px;
+  background:var(--ink); color:#fff; border-radius:999px;
+  display:flex; align-items:center; gap:4px; padding:6px 8px 6px 16px;
+  font-size:12.5px; box-shadow:0 6px 24px rgba(0,0,0,.18);
+}
+.draft-bar .lb{opacity:.65; margin-right:6px; letter-spacing:.04em}
+.draft-bar .go{
+  border-radius:999px; padding:7px 16px; background:var(--accent);
+  color:#fff; text-decoration:none;
+}
+.draft-bar .go:hover{background:var(--accent-deep)}
+
+/* ── 반응형 ── */
+@media (max-width:900px){
+  .nav-links{display:none}
+  section{padding:80px 0}
+  .hero{padding:140px 0 90px}
+  .hero .bracket{font-size:260px; top:auto; bottom:-40px}
+  .about-grid,.ct-grid{grid-template-columns:1fr; gap:46px}
+  .about-side{border-left:none; padding-left:0; border-top:1px solid var(--line); padding-top:34px}
+  .roles{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr; gap:40px}
+  .card .ph{aspect-ratio:16/10}
+  .row{grid-template-columns:1fr; gap:6px; padding:26px 0}
+  .row .tag{text-align:left}
+  .note{grid-template-columns:86px 70px 1fr; gap:12px}
+  .m-cta{display:block}
+  footer{padding-bottom:160px}
+  .draft-bar{left:12px; bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="#top"><span class="dot"></span>문화정거장</a>
+    <div class="nav-links">
+      <a href="#about">ABOUT</a>
+      <a href="#work">WORK</a>
+      <a href="#archive">ARCHIVE</a>
+      <a href="#projects">PROJECTS</a>
+      <a href="#notes">NOTES</a>
+      <a href="#contact">CONTACT</a>
+    </div>
+    <a class="nav-cta" href="#contact">상담 문의</a>
+  </div>
+</nav>
+
+<!-- ① 인트로 -->
+<header class="hero" id="top">
+  <div class="hero-media">
+    <video autoplay muted loop playsinline>
+      <source src="images/hero.mp4" type="video/mp4"
+        onerror="document.querySelector('.hero-media').classList.add('empty')">
+    </video>
+    <span class="hv-tag">HERO-VIDEO · 16:9 · 배경 전체 영상 자리 (Flow 제작)</span>
+  </div>
+  <div class="bracket">[</div>
+  <div class="wrap">
+    <p class="hero-kicker">CULTURE STATION</p>
+    <h1>영감을 모으고<br><b>맥락을 잇다</b></h1>
+    <p>영감을 모으고 맥락을 다듬어 기록으로 남기는 문화예술 플랫폼,
+      문화정거장입니다.</p>
+    <div class="btns">
+      <a class="btn btn-fill" href="#contact">카카오톡으로 상담</a>
+      <a class="btn btn-line" href="#contact">프로젝트 문의</a>
+    </div>
+    <p class="hero-roles">콘텐츠 기획 <em>·</em> 아카이빙 <em>·</em> 에디팅</p>
+  </div>
+</header>
+
+<!-- ② ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <p class="sec-label">01 · ABOUT</p>
+    <h2>기록과 사람이<br>잠시 머무는 곳</h2>
+    <div class="about-grid">
+      <div>
+        <p class="about-story">
+          정거장은 수많은 이동 속에서 잠시 멈추어 서고, 서로 다른 방향을 가진
+          이들이 만나 다음 목적지로 떠나는 공간입니다.
+          <span class="mark">문화정거장</span>은 문화예술의 기록, 사람의 이야기,
+          창의적인 영감이 잠시 머물렀다 가치 있게 확장되는
+          쉼표이자 연결점입니다.
+        </p>
+        <p class="about-sub">
+          문화예술과 콘텐츠를 아카이빙하고 재해석하여 가치 있는 결과물로
+          연결합니다. 체계적인 기록과 창의적인 기획이 필요한 모든 이들을 위한
+          문화예술 콘텐츠를 만듭니다.
+        </p>
+      </div>
+      <aside class="about-side">
+        <h3>이끄는 사람</h3>
+        <div class="ceo">
+          <span class="en">LEEYUNSEO</span>
+          <span class="nm">이윤서</span>
+          <span class="rl">콘텐츠 기획자 · 아키비스트 · 에디터</span>
+        </div>
+        <p style="margin-top:22px">
+          박물관·미술관에서 10년 — 유물·아카이브 관리와 전시기획.
+          디자인 기업 에디터로 3년 — 문화예술 웹진 창간과 운영.
+          그리고 다수의 문화예술 연구 프로젝트.
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ③ WORK -->
+<section class="work" id="work">
+  <div class="wrap">
+    <p class="sec-label">02 · WORK</p>
+    <h2>세 가지 역할,<br>하나의 흐름</h2>
+    <p class="lead">기록이 모이고, 맥락이 다듬어지고, 새로운 가치로 연결됩니다.
+      세 역할은 같은 무게로 움직입니다.</p>
+    <div class="roles">
+      <div class="role">
+        <p class="no">PLANNER</p>
+        <h3>콘텐츠 기획자</h3>
+        <p>문화적 영감을 모아 콘텐츠의 방향을 세웁니다.</p>
+      </div>
+      <div class="role">
+        <p class="no">ARCHIVIST</p>
+        <h3>아키비스트</h3>
+        <p>기록을 수집하고 분류해 오래 남깁니다.</p>
+      </div>
+      <div class="role">
+        <p class="no">EDITOR</p>
+        <h3>에디터</h3>
+        <p>모은 기록을 재해석해 가치 있는 콘텐츠로 엮습니다.</p>
+      </div>
+    </div>
+    <p class="deliver-t">이런 일을 맡습니다</p>
+    <div class="deliver">
+      <span>콘텐츠 제작 (글·사진·영상)</span>
+      <span>콘텐츠 편집 · 에디팅</span>
+      <span>아카이브 구축 · 정리</span>
+      <span>기록물 · 자료집</span>
+      <span>온라인 아카이브</span>
+      <span>컨설팅</span>
+    </div>
+  </div>
+</section>
+
+<!-- ④ ARCHIVE -->
+<section id="archive">
+  <div class="wrap">
+    <p class="sec-label">03 · ARCHIVE</p>
+    <h2>머물렀다 가는<br>기록들</h2>
+    <p class="lead">전시의 팸플릿과 도록, 현장의 사진, 사람의 인터뷰 —
+      문화적 가치가 있는 기록을 모으고 맥락을 붙여 남깁니다.</p>
+    <div class="cards">
+      <article class="card">
+        <div class="ph"><img src="images/ar-01.jpg" alt="" onerror="this.remove()"><b>AR-01 · 4:5</b>전시 팸플릿·도록 기록 사진</div>
+        <p class="cat">전시 기록</p>
+        <h3>전시 팸플릿 · 도록 아카이브</h3>
+        <p>전시가 끝나도 사라지지 않도록, 인쇄물과 기획안을 주제별로 분류해 남깁니다.</p>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="images/ar-02.jpg" alt="" onerror="this.remove()"><b>AR-02 · 4:5</b>인터뷰 현장 사진</div>
+        <p class="cat">사람의 이야기</p>
+        <h3>현장 인터뷰 기록</h3>
+        <p>창작자·관계자·지역 주민의 목소리를 텍스트로 수집하고 에디토리얼 해설을 붙입니다.</p>
+      </article>
+      <article class="card">
+        <div class="ph"><img src="images/ar-03.jpg" alt="" onerror="this.remove()"><b>AR-03 · 4:5</b>브랜드 아카이빙 북</div>
+        <p class="cat">브랜드 서사</p>
+        <h3>브랜드 아카이빙 북</h3>
+        <p>흩어진 브랜드의 기록을 모아 기록집·도록·인터뷰집의 형태로 완성합니다.</p>
+      </article>
+    </div>
+    <p class="note-ex">위 카드는 구성 예시입니다 — 실제 기록으로 교체됩니다. 기록이 쌓이면 독립된 아카이브 페이지로 확장됩니다.</p>
+  </div>
+</section>
+
+<!-- ⑤ PROJECTS -->
+<section class="proj" id="projects">
+  <div class="wrap">
+    <p class="sec-label">04 · PROJECTS</p>
+    <h2>지나온 정거장</h2>
+    <p class="lead">박물관과 미술관, 웹진과 연구 현장에서 쌓아 온 10년의 기록입니다.</p>
+    <div class="rows">
+      <div class="row">
+        <p class="pd">10 YEARS</p>
+        <div>
+          <h3>박물관 · 미술관 전시기획과 아카이브 관리</h3>
+          <p>국공립·사립 박물관과 미술관에서 유물·자료·아카이브 관리, 전시기획, 도록 제작.</p>
+        </div>
+        <p class="tag">연구원 · 큐레이터</p>
+      </div>
+      <div class="row">
+        <p class="pd">3 YEARS</p>
+        <div>
+          <h3>문화예술 웹진 창간과 운영</h3>
+          <p>디자인 전문 기업에서 웹진을 창간하고 기획·운영. 국문과 영문 콘텐츠 에디팅.</p>
+        </div>
+        <p class="tag">에디터</p>
+      </div>
+      <div class="row">
+        <p class="pd">ONGOING</p>
+        <div>
+          <h3>문화예술 연구 · 아트 프로젝트</h3>
+          <p>다수의 미술 분야 아트 프로젝트와 문화예술 연구 프로젝트에 참여.</p>
+        </div>
+        <p class="tag">기획 · 리서치</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ NOTES -->
+<section id="notes">
+  <div class="wrap">
+    <p class="sec-label">05 · NOTES</p>
+    <h2>소식과 일정</h2>
+    <div class="notes-list">
+      <div class="note">
+        <p class="dt">2026.11</p>
+        <p class="tp">공지</p>
+        <h3>문화정거장 홈페이지를 준비하고 있습니다.</h3>
+      </div>
+      <div class="note">
+        <p class="dt">2026.11</p>
+        <p class="tp">소식</p>
+        <h3>아카이브 첫 기록을 정리하는 중입니다.</h3>
+      </div>
+      <div class="note">
+        <p class="dt">—</p>
+        <p class="tp">일정</p>
+        <h3>진행 중인 프로젝트 일정이 이곳에 올라옵니다.</h3>
+      </div>
+    </div>
+    <p class="note-ex">예시 목록입니다 — 오픈 후 관리자 화면에서 직접 쓰고 고칠 수 있습니다.</p>
+  </div>
+</section>
+
+<!-- ⑦ CONTACT -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <p class="sec-label">06 · CONTACT</p>
+    <h2>다음 정거장을<br>함께 그려요</h2>
+    <div class="ct-grid">
+      <div class="ct-info">
+        <h3>프로젝트 의뢰 · 협업 제안</h3>
+        <p>기획, 아카이빙, 에디팅이 필요한 모든 이야기를 환영합니다.</p>
+        <a class="kakao" href="#" onclick="draftAlert();return false">카카오톡으로 상담하기</a>
+        <div class="ct-meta">
+          <b>이메일</b> only6565@naver.com<br>
+          답변은 오전 10시 – 밤 10시 사이에 드립니다.
+        </div>
+        <div class="clients">
+          <span>지자체 · 공공기관</span>
+          <span>문화재단 · 예술단체</span>
+          <span>기업 · 브랜드</span>
+          <span>지역 상점 · 소상공인</span>
+          <span>개인 · 작가</span>
+        </div>
+      </div>
+      <form onsubmit="draftAlert();return false">
+        <div class="fld">
+          <label for="f-name">이름</label>
+          <input id="f-name" type="text" placeholder="성함 또는 단체명">
+        </div>
+        <div class="fld">
+          <label for="f-contact">연락처 또는 이메일</label>
+          <input id="f-contact" type="text" placeholder="회신받으실 곳">
+        </div>
+        <div class="fld">
+          <label for="f-type">문의 유형</label>
+          <select id="f-type">
+            <option>프로젝트 의뢰</option>
+            <option>협업 제안</option>
+            <option>기타 문의</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label for="f-body">내용</label>
+          <textarea id="f-body" placeholder="어떤 기록과 이야기를 생각하고 계신가요?"></textarea>
+        </div>
+        <div class="agree">
+          <input id="f-agree" type="checkbox">
+          <label for="f-agree" style="margin:0">개인정보 수집·이용에 동의합니다. 문의 답변 목적으로만 사용합니다.</label>
+        </div>
+        <button class="submit" type="submit">문의 보내기</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ⑧ 푸터 -->
+<footer>
+  <div class="wrap">
+    <p class="f-brand"><span class="dot"></span>문화정거장 · Culture Station</p>
+    <p>
+      대표 이윤서 · 사업자등록번호 000-00-00000 (확정 후 기재) · only6565@naver.com<br>
+      <a href="#" onclick="draftAlert();return false">개인정보처리방침</a>
+    </p>
+  </div>
+</footer>
+
+<!-- 모바일 하단 고정 CTA -->
+<div class="m-cta">
+  <a href="#" onclick="draftAlert();return false">카카오톡으로 상담하기</a>
+</div>
+
+<!-- 시안 도구 — 오픈 전 제거 -->
+<div class="draft-bar">
+  <span class="lb">원페이지 시안 · <b>A안</b> 화이트 × 블랙 · 갤러리형</span>
+  <a class="go" href="b.html">B안 보기</a>
+</div>
+
+<script>
+/* 임베드 모드: 모음 페이지 썸네일용 — ?embed=1 도구 숨김 */
+(function(){
+  var q = new URLSearchParams(location.search);
+  if(q.get('embed')==='1'){
+    document.querySelector('.draft-bar').style.display='none';
+    document.querySelector('.m-cta').style.display='none';
+  }
+})();
+function draftAlert(){
+  alert('시안 화면입니다 — 실제로 전송·연결되지 않습니다.');
+}
+</script>
+</body>
+</html>
