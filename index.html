@@ -124,7 +124,7 @@ input::placeholder,textarea::placeholder{color:#5B6270}
 .ref td em{font-style:normal;color:var(--ink-2);font-weight:400;margin-left:4px;font-size:14px}
 .ref col.hl{background:var(--pale)}
 /* 단계별 안내(gd): 길게 풀어 쓴 설명 대신 번호 카드 + 버튼으로 보여주는 안내 상자 */
-.ref.gd{margin-top:32px;padding:22px;background:var(--ground);border:1px solid var(--rule)}
+.ref.gd{margin-top:20px;margin-bottom:28px;padding:22px;background:var(--ground);border:1px solid var(--rule)}
 .gd h4{font-family:var(--sans);font-size:18px;letter-spacing:-.01em;text-transform:none;color:var(--ink);margin:0 0 14px;font-weight:700}
 .gd .gd-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .gd .gd-card{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--panel)}
@@ -453,8 +453,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     $("step-t").innerHTML = s.head;
     $("step-i").textContent = s.intro;
     $("step-w").innerHTML = s.warn ? '<p class="warn"><b>주의</b>' + s.warn + '</p>' : "";
-    $("step-r").innerHTML = s.ref || "";
-    $("qs").innerHTML = s.qs.map(qHtml).join("");
+    /* refTop:true 인 단계는 설명 상자(ref)를 질문 위에 둔다 — 설명을 먼저 읽고 답하게 */
+    $("step-r").innerHTML = s.refTop ? "" : (s.ref || "");
+    $("qs").innerHTML = (s.refTop && s.ref ? s.ref : "") + s.qs.map(qHtml).join("");
     bindInputs();
     renderSide();
     renderDone();
