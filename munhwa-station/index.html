@@ -80,7 +80,7 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
 .hero{padding:190px 0 130px; position:relative; overflow:hidden}
 .hero .wrap{position:relative; z-index:2}
 /* 배경 전체 영상 자리 — images/a-hero.mp4 를 넣으면 자동 재생 (Flow 제작 예정)
-   영상 전에는 images/a-hero.jpg 가 배경 — 파일 없으면 임시 스톡 */
+   영상 전에는 images/a-hero-f1.jpg 가 배경 — 파일 없으면 임시 스톡 */
 .hero-media{position:absolute; inset:0; z-index:0}
 .hero-media img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
 .hero-media video{position:relative; z-index:1; width:100%; height:100%; object-fit:cover}
@@ -329,7 +329,7 @@ footer a{text-decoration:underline; text-underline-offset:3px}
 <!-- ① 인트로 -->
 <header class="hero" id="top">
   <div class="hero-media">
-    <img src="images/a-hero.jpg" alt=""
+    <img src="images/a-hero-f1.jpg" alt=""
       onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=2000&q=75'">
     <video autoplay muted loop playsinline>
       <source src="images/a-hero.mp4" type="video/mp4"
