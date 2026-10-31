@@ -98,6 +98,9 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
 .quote{font-family:var(--serif); font-size:21.5px; line-height:2.1; max-width:680px}
 .quote .mark{color:var(--accent)}
 .about-sub{margin-top:30px; color:var(--mut); max-width:640px}
+.ab-num{margin-top:40px; font-family:var(--serif); font-size:19px; color:var(--mut)}
+.ab-num b{font-size:34px; color:var(--accent); font-weight:600; margin-right:2px}
+.ab-num i{font-style:normal; color:var(--faint); margin:0 10px}
 .ceo-line{margin-top:48px; padding-top:26px; border-top:1px solid var(--line);
   display:flex; flex-wrap:wrap; gap:6px 26px; align-items:baseline}
 .ceo-line .en{font-size:16px; letter-spacing:.26em; color:var(--accent)}
@@ -107,8 +110,11 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(25px,3vw,34px);
 
 /* ── WORK: 목차형 행 ── */
 .toc{border-top:1px solid var(--ink)}
-.toc .t-row{display:grid; grid-template-columns:70px 200px 1fr; gap:22px;
-  align-items:baseline; padding:30px 2px; border-bottom:1px solid var(--line)}
+.toc .t-row{display:grid; grid-template-columns:70px 200px 1fr 110px; gap:22px;
+  align-items:center; padding:26px 2px; border-bottom:1px solid var(--line)}
+.toc .t-ph{position:relative; aspect-ratio:1/1; overflow:hidden; background:var(--ph);
+  border:1px solid var(--line)}
+.toc .t-ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
 .toc .t-no{font-family:var(--serif); font-size:16px; color:var(--accent)}
 .toc h3{font-family:var(--serif); font-size:21px; font-weight:600}
 .toc .t-en{display:block; font-family:var(--sans); font-size:16px;
@@ -219,6 +225,7 @@ footer a{text-decoration:underline; text-underline-offset:3px}
   .hero{min-height:78vh; padding:110px 0}
   .toc .t-row{grid-template-columns:48px 1fr; gap:10px}
   .toc .t-row p{grid-column:2}
+  .toc .t-ph{display:none}
   .cat-item{grid-template-columns:1fr 110px; gap:18px}
   .m-cta{display:block}
   footer{padding-bottom:170px}
@@ -289,6 +296,7 @@ footer a{text-decoration:underline; text-underline-offset:3px}
       <span class="rl">콘텐츠 기획자 · 아키비스트 · 에디터</span>
       <p>박물관·미술관 10년 — 유물·아카이브 관리와 전시기획 · 디자인 기업 에디터 3년 — 웹진 창간과 운영 · 다수의 문화예술 연구 프로젝트</p>
     </div>
+    <p class="ab-num"><b>10</b>년의 박물관·미술관 <i>·</i> <b>3</b>년의 웹진 에디팅 <i>·</i> <b>多</b>수의 연구 프로젝트</p>
     <div class="plate"><img src="images/b-about.jpg" alt=""
       onerror="this.onerror=function(){this.remove()};this.src='images/hero-f2.jpg'"><b>도판 1 — 머무는 서가</b></div>
   </div>
@@ -306,16 +314,19 @@ footer a{text-decoration:underline; text-underline-offset:3px}
         <span class="t-no">Ⅰ.</span>
         <h3>콘텐츠 기획자<span class="t-en">PLANNER</span></h3>
         <p>문화적 영감을 모아 콘텐츠의 방향을 세웁니다.</p>
+        <div class="t-ph"><img src="images/b-wk-01.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='images/ar-01.jpg'"></div>
       </div>
       <div class="t-row">
         <span class="t-no">Ⅱ.</span>
         <h3>아키비스트<span class="t-en">ARCHIVIST</span></h3>
         <p>기록을 수집하고 분류해 오래 남깁니다.</p>
+        <div class="t-ph"><img src="images/b-wk-02.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='images/ar-02.jpg'"></div>
       </div>
       <div class="t-row">
         <span class="t-no">Ⅲ.</span>
         <h3>에디터<span class="t-en">EDITOR</span></h3>
         <p>모은 기록을 재해석해 가치 있는 콘텐츠로 엮습니다.</p>
+        <div class="t-ph"><img src="images/b-wk-03.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='images/ar-03.jpg'"></div>
       </div>
     </div>
     <div class="deliver">

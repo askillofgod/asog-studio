@@ -165,6 +165,18 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
 .sp.r45{aspect-ratio:4/5}
 .sp.wide{aspect-ratio:21/9; margin-top:46px}
 .proj .sp.wide{border-color:rgba(255,255,255,.2)}
+/* ABOUT 스탯 밴드 */
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line);
+  border:1px solid var(--line); margin-top:70px}
+.stats>div{background:var(--paper); padding:30px 28px}
+.stats b{display:block; font-family:var(--mono); font-weight:500; font-size:44px; line-height:1;
+  color:var(--accent); margin-bottom:12px}
+.stats b i{font-style:normal; font-size:16px; letter-spacing:.14em; color:var(--faint); margin-left:6px}
+.stats span{font-size:16px; color:var(--mut)}
+/* WORK 역할 카드 이미지 */
+.role .rp{position:relative; aspect-ratio:16/10; margin:-40px -32px 26px; overflow:hidden;
+  background:#efede8; border-bottom:1px solid var(--line)}
+.role .rp img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:grayscale(1)}
 .card .cat{font-size:16px; letter-spacing:.18em; color:var(--accent); margin:20px 0 8px}
 .card h3{font-family:var(--serif); font-size:19px; margin-bottom:8px; line-height:1.5}
 .card p{font-size:16px; color:var(--mut)}
@@ -192,14 +204,13 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
   opacity:.85}
 
 /* ── NOTES ── */
-.notes-list{margin-top:50px; border-top:1px solid var(--line)}
-.note{
-  display:grid; grid-template-columns:120px 90px 1fr; gap:20px; align-items:baseline;
-  padding:24px 4px; border-bottom:1px solid var(--line);
-}
-.note .dt{font-size:16px; color:var(--faint); letter-spacing:.06em}
-.note .tp{font-size:16px; letter-spacing:.14em; color:var(--accent)}
-.note h3{font-size:16.5px; font-weight:500}
+.notes-list{margin-top:50px; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1px; background:var(--line); border:1px solid var(--line)}
+.note{background:var(--paper); padding:30px 28px 36px}
+.note .dt{display:block; font-size:16px; color:var(--faint); letter-spacing:.06em; margin-bottom:16px}
+.note .tp{display:inline-block; font-size:16px; letter-spacing:.14em; color:var(--accent);
+  border:1px solid color-mix(in srgb, var(--accent) 45%, transparent); padding:2px 12px; margin-bottom:14px}
+.note h3{font-size:18px; font-weight:500; line-height:1.6}
 
 /* ── CONTACT ── */
 .contact{background:var(--paper); border-top:1px solid var(--line)}
@@ -276,13 +287,14 @@ footer a{text-decoration:underline; text-underline-offset:3px}
   .hero{padding:140px 0 90px}
   .hero .bracket{font-size:260px; top:auto; bottom:-40px}
   .about-grid,.ct-grid{grid-template-columns:1fr; gap:46px}
+  .stats{grid-template-columns:1fr}
   .about-side{border-left:none; padding-left:0; border-top:1px solid var(--line); padding-top:34px}
   .roles{grid-template-columns:1fr}
   .cards{grid-template-columns:1fr; gap:40px}
   .card .ph{aspect-ratio:16/10}
   .row{grid-template-columns:1fr; gap:6px; padding:26px 0}
   .row .tag{text-align:left}
-  .note{grid-template-columns:86px 70px 1fr; gap:12px}
+  .notes-list{grid-template-columns:1fr}
   .m-cta{display:block}
   footer{padding-bottom:160px}
   .draft-bar{left:12px; bottom:calc(84px + env(safe-area-inset-bottom))}
@@ -367,6 +379,11 @@ footer a{text-decoration:underline; text-underline-offset:3px}
         </p>
       </aside>
     </div>
+    <div class="stats">
+      <div><b>10<i>YEARS</i></b><span>박물관·미술관 — 유물·아카이브 관리, 전시기획</span></div>
+      <div><b>3<i>YEARS</i></b><span>디자인 기업 — 문화예술 웹진 창간·운영</span></div>
+      <div><b>N<i>PROJECTS</i></b><span>문화예술 연구·아트 프로젝트 다수</span></div>
+    </div>
   </div>
 </section>
 
@@ -379,23 +396,24 @@ footer a{text-decoration:underline; text-underline-offset:3px}
       세 역할은 같은 무게로 움직입니다.</p>
     <div class="roles">
       <div class="role">
+        <div class="rp"><img src="images/a-wk-01.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=75'"></div>
         <p class="no">PLANNER</p>
         <h3>콘텐츠 기획자</h3>
         <p>문화적 영감을 모아 콘텐츠의 방향을 세웁니다.</p>
       </div>
       <div class="role">
+        <div class="rp"><img src="images/a-wk-02.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=1200&q=75'"></div>
         <p class="no">ARCHIVIST</p>
         <h3>아키비스트</h3>
         <p>기록을 수집하고 분류해 오래 남깁니다.</p>
       </div>
       <div class="role">
+        <div class="rp"><img src="images/a-wk-03.jpg" alt="" onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=1200&q=75'"></div>
         <p class="no">EDITOR</p>
         <h3>에디터</h3>
         <p>모은 기록을 재해석해 가치 있는 콘텐츠로 엮습니다.</p>
       </div>
     </div>
-    <div class="sp wide"><img src="images/a-wk.jpg" alt=""
-      onerror="this.onerror=function(){this.remove()};this.src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=2000&q=75'"><b>A-WK · 21:9</b></div>
     <p class="deliver-t">이런 일을 맡습니다</p>
     <div class="deliver">
       <span>콘텐츠 제작 (글·사진·영상)</span>
