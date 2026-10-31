@@ -406,6 +406,18 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
           "만료되었거나 잘못된 주소입니다. 010-2835-5878로 연락 주세요.");
       }
       brief = r.data;
+      /* 브라우저가 예전 questions.js 를 기억하고 있으면(새 질문 묶음이 없으면) 새 파일을 받아 한 번만 다시 연다.
+         이게 없으면 새 묶음이 빠진 채 '마무리' 단계만 보인다. */
+      var missing = (brief.modules || []).filter(function(id){
+        return !MODULES.some(function(m){ return m.id === id; });
+      });
+      if(missing.length && !/[?&]_r=1(&|$)/.test(location.search)){
+        var again = function(){
+          location.replace(location.pathname + location.search + (location.search ? "&" : "?") + "_r=1" + location.hash);
+        };
+        fetch("questions.js", { cache: "reload" }).then(again, again);
+        return;
+      }
       answers = brief.answers || {};
       submitted = !!brief.submitted_at;
       buildSteps(brief.modules || ["common"]);
