@@ -18,19 +18,19 @@
 :root[data-accent="b"]{ --bg:#f7f4ee; --paper:#fffdf8; --ink:#171512; --mut:#6f6a60; --faint:#a39d90; --line:#e2dccf; }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg); color:var(--ink); font-family:var(--sans);
-  font-size:16px; line-height:1.8; word-break:keep-all; overflow-wrap:break-word}
+  font-size:18px; line-height:1.8; word-break:keep-all; overflow-wrap:break-word}
 .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
 header{padding:90px 0 30px}
-.kicker{font-size:13px; letter-spacing:.22em; color:var(--accent); margin-bottom:16px}
+.kicker{font-size:16px; letter-spacing:.22em; color:var(--accent); margin-bottom:16px}
 h1{font-family:var(--serif); font-weight:600; font-size:clamp(26px,4vw,38px); line-height:1.45}
-header p{color:var(--mut); margin-top:14px; max-width:620px; font-size:15px}
+header p{color:var(--mut); margin-top:14px; max-width:620px; font-size:16px}
 
 .prop{padding:70px 0}
 .prop + .prop{border-top:1px solid var(--line)}
 .p-head{display:flex; align-items:baseline; gap:16px; margin-bottom:10px}
-.p-no{font-size:13px; letter-spacing:.2em; color:var(--accent)}
+.p-no{font-size:16px; letter-spacing:.2em; color:var(--accent)}
 .p-head h2{font-family:var(--serif); font-size:24px; font-weight:600}
-.p-desc{color:var(--mut); font-size:15px; max-width:640px; margin-bottom:36px}
+.p-desc{color:var(--mut); font-size:16px; max-width:640px; margin-bottom:36px}
 
 .board{display:grid; grid-template-columns:2fr 1fr; gap:22px}
 .tile{
@@ -40,7 +40,7 @@ header p{color:var(--mut); margin-top:14px; max-width:620px; font-size:15px}
 }
 .tile.dark{background:var(--ink); border-color:var(--ink)}
 .tile .tag{
-  position:absolute; top:14px; left:16px; font-size:11.5px;
+  position:absolute; top:14px; left:16px; font-size:16px;
   letter-spacing:.14em; color:var(--faint);
 }
 .tile.dark .tag{color:rgba(255,255,255,.45)}
@@ -59,19 +59,19 @@ svg text{font-family:var(--serif)}
 .dark .ac{fill:#e2ae9f}
 .dark .ac-st{stroke:#e2ae9f}
 
-footer{padding:60px 0 120px; color:var(--faint); font-size:13.5px}
+footer{padding:60px 0 120px; color:var(--faint); font-size:16px}
 
 .draft-bar{
   position:fixed; z-index:70; left:18px; bottom:18px;
   background:var(--ink); color:#fff; border-radius:999px;
   display:flex; align-items:center; gap:4px; padding:6px 8px 6px 16px;
-  font-size:12.5px; box-shadow:0 6px 24px rgba(0,0,0,.18);
+  font-size:16px; box-shadow:0 6px 24px rgba(0,0,0,.18);
 }
 .draft-bar .lb{opacity:.65; margin-right:6px}
 .draft-bar button{font:inherit; border:none; cursor:pointer; border-radius:999px;
   padding:7px 14px; background:transparent; color:#fff; opacity:.55}
 .draft-bar button.on{opacity:1; background:var(--accent)}
-.back{display:inline-block; margin:22px 0 0 24px; font-size:13px;
+.back{display:inline-block; margin:22px 0 0 24px; font-size:16px;
   background:var(--paper); border:1px solid var(--line); border-radius:999px;
   padding:8px 16px; color:var(--mut); text-decoration:none}
 .back:hover{color:var(--accent)}

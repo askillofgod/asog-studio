@@ -8,7 +8,7 @@
 <meta name="description" content="영감을 모으고 맥락을 다듬어 기록으로 남기는 문화예술 플랫폼, 문화정거장.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ──────────────────────────────────────────
    문화정거장 원페이지 시안 v0.1
@@ -18,8 +18,9 @@
   --accent:#6d2434;      /* 포인트: 버건디 (확정) */
   --accent-deep:#521a27;
   --accent-soft:#f0e5e4;
-  --serif:'Noto Serif KR', serif;
-  --sans:'Noto Sans KR', sans-serif;
+  --serif:'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; /* A안: 쇼룸 interior-studio 폰트 */
+  --sans:'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
 }
 /* A안: 흰색·블랙 바탕 */
 :root[data-accent="a"]{
@@ -36,7 +37,7 @@
 html{scroll-behavior:smooth}
 body{
   background:var(--bg); color:var(--ink);
-  font-family:var(--sans); font-weight:400; font-size:17px; line-height:1.8;
+  font-family:var(--sans); font-weight:400; font-size:18px; line-height:1.8;
   word-break:keep-all; overflow-wrap:break-word;
   letter-spacing:-0.01em;
 }
@@ -56,10 +57,10 @@ nav{
   display:flex; align-items:center; justify-content:space-between}
 .brand{font-family:var(--serif); font-weight:600; font-size:19px; display:flex; align-items:center; gap:9px}
 .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block}
-.nav-links{display:flex; gap:26px; font-size:13.5px; letter-spacing:.08em; color:var(--mut)}
+.nav-links{display:flex; gap:26px; font-size:16px; letter-spacing:.08em; color:var(--mut)}
 .nav-links a:hover{color:var(--accent)}
 .nav-cta{
-  font-size:13.5px; padding:9px 18px; border-radius:999px;
+  font-size:16px; padding:9px 18px; border-radius:999px;
   background:var(--accent); color:#fff; letter-spacing:.02em;
 }
 .nav-cta:hover{background:var(--accent-deep)}
@@ -67,7 +68,7 @@ nav{
 /* ── 섹션 공통 ── */
 section{padding:110px 0}
 .sec-label{
-  font-size:13px; letter-spacing:.22em; color:var(--accent);
+  font-size:16px; letter-spacing:.22em; color:var(--accent);
   display:flex; align-items:center; gap:10px; margin-bottom:22px;
 }
 .sec-label::before{content:""; width:26px; height:1px; background:var(--accent)}
@@ -86,7 +87,7 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
     color-mix(in srgb, var(--bg) 74%, transparent) 48%,
     color-mix(in srgb, var(--bg) 30%, transparent) 100%)}
 .hero-media .hv-tag{position:absolute; right:16px; bottom:14px; z-index:2;
-  font-size:11.5px; letter-spacing:.1em; color:var(--faint);
+  font-size:16px; letter-spacing:.1em; color:var(--faint);
   border:1px dashed var(--line); border-radius:3px; padding:4px 10px;
   background:color-mix(in srgb, var(--bg) 72%, transparent)}
 .hero-media.empty video{display:none}
@@ -95,7 +96,7 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
   font-family:var(--serif); font-size:420px; line-height:1;
   color:var(--accent); opacity:.07; user-select:none; pointer-events:none;
 }
-.hero-kicker{font-size:14px; letter-spacing:.3em; color:var(--accent); margin-bottom:26px}
+.hero-kicker{font-size:16px; letter-spacing:.3em; color:var(--accent); margin-bottom:26px}
 .hero h1{
   font-family:var(--serif); font-weight:600;
   font-size:clamp(34px,6vw,62px); line-height:1.4; margin-bottom:26px;
@@ -105,13 +106,13 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
 .btns{display:flex; gap:12px; flex-wrap:wrap}
 .btn{
   display:inline-flex; align-items:center; gap:8px;
-  padding:15px 30px; border-radius:999px; font-size:15.5px; font-weight:500;
+  padding:15px 30px; border-radius:999px; font-size:16px; font-weight:500;
 }
 .btn-fill{background:var(--accent); color:#fff}
 .btn-fill:hover{background:var(--accent-deep)}
 .btn-line{border:1px solid var(--ink); }
 .btn-line:hover{border-color:var(--accent); color:var(--accent)}
-.hero-roles{margin-top:64px; font-size:14px; letter-spacing:.14em; color:var(--faint)}
+.hero-roles{margin-top:64px; font-size:16px; letter-spacing:.14em; color:var(--faint)}
 .hero-roles em{font-style:normal; color:var(--mut)}
 
 /* ── ABOUT ── */
@@ -123,45 +124,45 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
 .about-sub{margin-top:34px; color:var(--mut)}
 .about-side{border-left:1px solid var(--line); padding-left:36px}
 .about-side h3{font-family:var(--serif); font-size:17px; margin-bottom:14px}
-.about-side p{font-size:15px; color:var(--mut); margin-bottom:26px}
+.about-side p{font-size:16px; color:var(--mut); margin-bottom:26px}
 .ceo{display:flex; flex-direction:column; gap:4px}
 .ceo .nm{font-family:var(--serif); font-size:18px}
-.ceo .en{font-size:12.5px; letter-spacing:.24em; color:var(--accent)}
-.ceo .rl{font-size:14px; color:var(--mut)}
+.ceo .en{font-size:16px; letter-spacing:.24em; color:var(--accent)}
+.ceo .rl{font-size:16px; color:var(--mut)}
 
 /* ── WORK ── */
 .work{background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
 .roles{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line);
   border:1px solid var(--line); margin:54px 0 64px}
 .role{background:var(--paper); padding:40px 32px}
-.role .no{font-size:12.5px; letter-spacing:.2em; color:var(--accent); margin-bottom:18px}
+.role .no{font-size:16px; letter-spacing:.2em; color:var(--accent); margin-bottom:18px}
 .role h3{font-family:var(--serif); font-size:21px; margin-bottom:12px}
-.role p{font-size:15px; color:var(--mut)}
+.role p{font-size:16px; color:var(--mut)}
 .deliver{display:flex; flex-wrap:wrap; gap:10px}
 .deliver span{
-  font-size:14px; padding:9px 18px; border-radius:999px;
+  font-size:16px; padding:9px 18px; border-radius:999px;
   border:1px solid var(--line); background:var(--bg); color:var(--mut);
 }
-.deliver-t{font-size:14px; color:var(--faint); margin-bottom:16px; letter-spacing:.08em}
+.deliver-t{font-size:16px; color:var(--faint); margin-bottom:16px; letter-spacing:.08em}
 
 /* ── ARCHIVE ── */
 .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:34px; margin-top:54px}
 .card .ph{
   aspect-ratio:4/5; background:var(--ph); border:1px solid var(--line);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-  color:var(--faint); font-size:12.5px; letter-spacing:.06em; text-align:center; padding:12px;
+  color:var(--faint); font-size:16px; letter-spacing:.06em; text-align:center; padding:12px;
   position:relative; overflow:hidden;
 }
 .card .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
 .card .ph b{font-weight:500; letter-spacing:.12em}
-.card .cat{font-size:12.5px; letter-spacing:.18em; color:var(--accent); margin:20px 0 8px}
+.card .cat{font-size:16px; letter-spacing:.18em; color:var(--accent); margin:20px 0 8px}
 .card h3{font-family:var(--serif); font-size:19px; margin-bottom:8px; line-height:1.5}
-.card p{font-size:14.5px; color:var(--mut)}
+.card p{font-size:16px; color:var(--mut)}
 .note-ex{
-  margin-top:44px; font-size:13.5px; color:var(--faint);
+  margin-top:44px; font-size:16px; color:var(--faint);
   display:flex; align-items:center; gap:8px;
 }
-.note-ex::before{content:"●"; font-size:8px; color:var(--accent)}
+.note-ex::before{content:"●"; font-size:16px; color:var(--accent)}
 
 /* ── PROJECTS ── */
 .proj{background:var(--ink); color:#efece6}
@@ -174,10 +175,10 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
   display:grid; grid-template-columns:150px 1fr 170px; gap:24px; align-items:baseline;
   padding:30px 4px; border-bottom:1px solid rgba(255,255,255,.16);
 }
-.row .pd{font-size:13.5px; letter-spacing:.1em; color:#8f897d}
+.row .pd{font-size:16px; letter-spacing:.1em; color:#8f897d}
 .row h3{font-family:var(--serif); font-size:20px; font-weight:500; color:#fff; line-height:1.55}
-.row p{font-size:14px; color:#b4afa4; margin-top:6px}
-.row .tag{font-size:12.5px; letter-spacing:.14em; text-align:right; color:var(--bg);
+.row p{font-size:16px; color:#b4afa4; margin-top:6px}
+.row .tag{font-size:16px; letter-spacing:.14em; text-align:right; color:var(--bg);
   opacity:.85}
 
 /* ── NOTES ── */
@@ -186,34 +187,34 @@ h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); 
   display:grid; grid-template-columns:120px 90px 1fr; gap:20px; align-items:baseline;
   padding:24px 4px; border-bottom:1px solid var(--line);
 }
-.note .dt{font-size:13.5px; color:var(--faint); letter-spacing:.06em}
-.note .tp{font-size:12.5px; letter-spacing:.14em; color:var(--accent)}
+.note .dt{font-size:16px; color:var(--faint); letter-spacing:.06em}
+.note .tp{font-size:16px; letter-spacing:.14em; color:var(--accent)}
 .note h3{font-size:16.5px; font-weight:500}
 
 /* ── CONTACT ── */
 .contact{background:var(--paper); border-top:1px solid var(--line)}
 .ct-grid{display:grid; grid-template-columns:.9fr 1.1fr; gap:80px; margin-top:54px}
 .ct-info h3{font-family:var(--serif); font-size:19px; margin-bottom:12px}
-.ct-info p{font-size:15px; color:var(--mut); margin-bottom:30px}
+.ct-info p{font-size:16px; color:var(--mut); margin-bottom:30px}
 .ct-info .kakao{
   display:inline-flex; align-items:center; gap:10px; padding:16px 30px;
-  background:var(--accent); border-radius:999px; color:#fff; font-weight:500; font-size:15.5px;
+  background:var(--accent); border-radius:999px; color:#fff; font-weight:500; font-size:16px;
   margin-bottom:34px;
 }
 .ct-info .kakao:hover{background:var(--accent-deep)}
-.ct-meta{font-size:14px; color:var(--mut); line-height:2.1}
+.ct-meta{font-size:16px; color:var(--mut); line-height:2.1}
 .ct-meta b{font-weight:500; color:var(--ink)}
 .clients{margin-top:30px; display:flex; flex-wrap:wrap; gap:8px}
-.clients span{font-size:13px; padding:7px 14px; border:1px solid var(--line); border-radius:999px; color:var(--mut)}
+.clients span{font-size:16px; padding:7px 14px; border:1px solid var(--line); border-radius:999px; color:var(--mut)}
 form .fld{margin-bottom:20px}
-label{display:block; font-size:13.5px; letter-spacing:.06em; color:var(--mut); margin-bottom:8px}
+label{display:block; font-size:16px; letter-spacing:.06em; color:var(--mut); margin-bottom:8px}
 input,select,textarea{
-  width:100%; padding:14px 16px; font:inherit; font-size:15.5px;
+  width:100%; padding:14px 16px; font:inherit; font-size:16px;
   border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--ink);
 }
 input:focus,select:focus,textarea:focus{outline:none; border-color:var(--accent)}
 textarea{min-height:140px; resize:vertical}
-.agree{display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:var(--mut); margin-bottom:26px}
+.agree{display:flex; gap:10px; align-items:flex-start; font-size:16px; color:var(--mut); margin-bottom:26px}
 .agree input{width:auto; margin-top:5px}
 .submit{
   width:100%; padding:17px; border:none; border-radius:4px; cursor:pointer;
@@ -222,7 +223,7 @@ textarea{min-height:140px; resize:vertical}
 .submit:hover{background:var(--accent-deep)}
 
 /* ── 푸터 ── */
-footer{padding:54px 0 120px; font-size:13.5px; color:var(--faint); line-height:2.1}
+footer{padding:54px 0 120px; font-size:16px; color:var(--faint); line-height:2.1}
 footer .f-brand{font-family:var(--serif); font-size:16px; color:var(--mut); margin-bottom:14px;
   display:flex; align-items:center; gap:8px}
 footer .f-brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
@@ -240,12 +241,16 @@ footer a{text-decoration:underline; text-underline-offset:3px}
   background:var(--accent); color:#fff; border-radius:999px; font-weight:500;
 }
 
+/* 라벨류는 모노 서체 — interior-studio 방식 */
+.hero-kicker,.sec-label,.nav-links,.role .no,.card .cat,.row .pd,.row .tag,
+.note .tp,.note .dt,.deliver-t,.hero-roles,.hv-tag{font-family:var(--mono)}
+
 /* ── 시안 도구 (오픈 전 제거) ── */
 .draft-bar{
   position:fixed; z-index:70; left:18px; bottom:18px;
   background:var(--ink); color:#fff; border-radius:999px;
   display:flex; align-items:center; gap:4px; padding:6px 8px 6px 16px;
-  font-size:12.5px; box-shadow:0 6px 24px rgba(0,0,0,.18);
+  font-size:16px; box-shadow:0 6px 24px rgba(0,0,0,.18);
 }
 .draft-bar .lb{opacity:.65; margin-right:6px; letter-spacing:.04em}
 .draft-bar .go{
