@@ -122,6 +122,48 @@ input::placeholder,textarea::placeholder{color:#9AA4B8}
 .ref .p{color:#B07800;font-weight:700}
 .ref td em{font-style:normal;color:var(--ink-2);font-weight:400;margin-left:4px;font-size:14px}
 .ref col.hl{background:var(--pale)}
+/* 단계별 안내(gd): 길게 풀어 쓴 설명 대신 번호 카드 + 버튼으로 보여주는 안내 상자 */
+.ref.gd{margin-top:32px;padding:22px;background:var(--ground);border:1px solid var(--rule)}
+.gd h4{font-family:var(--sans);font-size:18px;letter-spacing:-.01em;text-transform:none;color:var(--ink);margin:0 0 14px;font-weight:700}
+.gd .gd-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gd .gd-card{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--panel)}
+.gd .gd-card.need{border-color:var(--brand);background:var(--pale)}
+.gd .gd-tag{display:inline-block;font-size:12.5px;font-weight:700;color:#fff;background:var(--brand);border-radius:99px;padding:3px 10px;margin-bottom:8px}
+.gd .gd-tag.sub{background:#6F7A8F}
+.gd .gd-card b{display:block;font-size:17px;margin-bottom:6px;color:var(--ink)}
+.gd .gd-card .t{display:block;font-size:15px;line-height:1.7;color:var(--ink-2)}
+.gd .gd-flow{margin-top:14px;padding:12px 16px;border-radius:8px;background:var(--navy);color:#fff;font-size:15.5px;line-height:1.6}
+.gd .gd-flow b{color:#fff}
+.gd ol.gd-steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.gd .gd-step{display:grid;grid-template-columns:42px 1fr;gap:16px;align-items:start;padding:18px;border:1px solid var(--rule);border-radius:12px;background:#fff}
+.gd .gd-num{width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;font-size:19px;display:grid;place-items:center}
+.gd .gd-step.opt{border-color:var(--brand);background:var(--pale)}
+.gd .gd-step.opt .gd-num{background:var(--brand)}
+.gd .gd-t{font-size:18px;font-weight:700;color:var(--ink);line-height:1.4;margin:2px 0 6px}
+.gd .gd-t small{font-size:12.5px;font-weight:700;color:var(--brand);margin-left:6px;vertical-align:2px}
+.gd .gd-d{font-size:15.5px;line-height:1.75;color:var(--ink-2)}
+.gd .gd-d b{color:var(--ink)}
+.gd .gd-list{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.gd .gd-list li{position:relative;padding-left:16px;font-size:15px;line-height:1.65;color:var(--ink-2)}
+.gd .gd-list li::before{content:"";position:absolute;left:2px;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--brand)}
+.gd .gd-list b{color:var(--ink)}
+.gd .gd-btn{display:inline-flex;align-items:center;gap:6px;margin:12px 8px 0 0;padding:10px 16px;border-radius:8px;background:var(--brand);color:#fff!important;font-size:15px;font-weight:600;text-decoration:none}
+.gd .gd-btn.ghost{background:#fff;color:var(--brand)!important;border:1px solid var(--brand)}
+.gd .gd-btn:hover{filter:brightness(1.12)}
+.gd .gd-mail{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;padding:12px 14px;background:#fff;border:1px dashed var(--brand);border-radius:8px}
+.gd .gd-mail code{font-family:var(--mono);font-size:15.5px;font-weight:600;color:var(--navy);word-break:break-all;user-select:all}
+.gd .gd-copy{border:1px solid var(--brand);background:#fff;color:var(--brand);border-radius:6px;padding:6px 14px;font-size:14px;font-weight:600;cursor:pointer}
+.gd .gd-tip{margin-top:12px;padding:10px 14px;border-radius:8px;background:#FFF7E0;color:#7A5200;font-size:14.5px;line-height:1.65}
+.gd .gd-note{margin-top:16px;font-size:14px;line-height:1.7;color:var(--ink-2)}
+.gd .gd-menu{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;margin:2px 0 18px;padding:14px 18px;border-radius:10px;background:var(--navy);color:#fff;font-size:15.5px;font-weight:600}
+.gd .gd-menu .logo{margin-right:auto;font-size:16px;letter-spacing:-.01em}
+.gd .gd-menu .cta{padding:6px 14px;border:1px solid #fff;border-radius:99px}
+.gd .gd-row{display:grid;grid-template-columns:96px 1fr;gap:6px 16px;padding:12px 0;border-top:1px solid var(--rule-soft);font-size:15.5px;line-height:1.65}
+.gd .gd-row:first-of-type{border-top:0}
+.gd .gd-row b{color:var(--ink)}
+.gd .gd-row span{color:var(--ink-2)}
+.gd .gd-card .mini{display:block;margin:2px 0 8px;font-size:14.5px;font-weight:700;color:var(--brand)}
+@media (max-width:640px){.gd .gd-two{grid-template-columns:1fr}.gd .gd-step{grid-template-columns:34px 1fr;gap:12px;padding:14px}.gd .gd-row{grid-template-columns:1fr}.gd .gd-num{width:34px;height:34px;font-size:16px}.gd .gd-t{font-size:17px}}
 .ref p{margin-top:14px;font-size:16px;line-height:1.65;color:var(--ink-2)}
 .q{padding:26px 0;border-top:1px solid var(--rule-soft)}
 .q:first-child{border-top:0;padding-top:8px}
