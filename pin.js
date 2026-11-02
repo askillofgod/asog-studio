@@ -129,6 +129,9 @@
   function codeOk() {
     try { return localStorage.getItem("asog_pin_code_ok") === "1"; } catch (e) { return false; }
   }
+  function isLocalHost() {
+    return /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  }
 
   var isAsog = roleGet() === "asog";
 
@@ -145,7 +148,9 @@
     }
     if (q !== "asog" || isAsog) return;
     // 이 브라우저에서 번호를 이미 맞혔다면 다시 묻지 않고 이 탭만 어소그로.
-    if (codeOk()) { isAsog = true; roleSet("asog"); return; }
+    // 내 컴퓨터 주소(localhost·127.0.0.1)는 이 컴퓨터에서만 열리므로 묻지 않는다.
+    // 기억은 주소별이라 사이트·포트가 바뀔 때마다 다시 묻게 되기 때문이다.
+    if (codeOk() || isLocalHost()) { isAsog = true; roleSet("asog"); return; }
     needCode = true;
   })();
 
