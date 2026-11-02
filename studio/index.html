@@ -300,7 +300,7 @@ input:focus{border-color:var(--brand);outline:none}
 .st-on{color:#0a7d2c;font-weight:700}
 .st-stop{background:none;border:1px solid #c7ccd4;border-radius:6px;font-size:12px;padding:1px 8px;cursor:pointer;color:#000}
 .st-stop:hover{border-color:#000}
-.st-links a{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:999px;
+.st-links a{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:5px;
   border:1.5px solid var(--rule);background:var(--ground);font-size:15px;font-weight:600;
   text-decoration:none;color:var(--brand)}
 .st-links a:hover{border-color:var(--brand);background:var(--pale)}
@@ -315,6 +315,15 @@ input:focus{border-color:var(--brand);outline:none}
 .st-thumb{display:block;flex:0 0 172px;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:#F2F5FA}
 .st-thumb img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
 .st-body{flex:1;min-width:0}
+/* 사이트 목록: 왼쪽 고객 메뉴를 숨기고 화면 가로 전체에 카드를 여러 열로 깐다 */
+.shell.wide{max-width:none;grid-template-columns:minmax(0,1fr);gap:0}
+.shell.wide .side{display:none}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px;margin-top:6px}
+.st-grid .st-card{margin-bottom:0}
+.st-grid .st-flex{flex-direction:column;gap:14px;height:100%}
+.st-grid .st-thumb{flex:none;width:100%}
+.st-grid .st-body{flex:1 1 auto;width:100%}
+.st-grid .st-card .st-when{margin-left:0;width:100%}
 .cptx{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:left;word-break:break-all}
 .cptx:hover{color:var(--brand);text-decoration:underline}
 .cptx.ok::after{content:"  ✓ 복사됨 — Finder에서 ⇧⌘G 후 붙여넣기";color:var(--ok);font-weight:700;font-size:12px}
@@ -393,20 +402,20 @@ input:focus{border-color:var(--brand);outline:none}
       <svg viewBox="0 0 206 156.5" aria-label="ASOG"><path fill="currentColor" transform="translate(-100 -191.8516)" d="M 182.105469 192.21875 L 208.84375 192.054688 C 214.707031 192.023438 221.671875 191.851562 227.4375 192.34375 C 229.984375 194.890625 238.457031 212.917969 240.632812 217.242188 L 257.957031 251.289062 L 291.101562 316.398438 C 294.722656 323.558594 304.53125 340.863281 306 347.746094 C 290.953125 347.527344 275.644531 348.308594 260.5625 347.859375 C 258.621094 347.800781 256.699219 347.652344 254.765625 347.464844 C 253.019531 344.929688 249.984375 338.578125 248.535156 335.554688 C 245.238281 328.679688 242.238281 322.019531 238.660156 315.25 C 234.820312 315.757812 231.878906 316.945312 228.308594 318.378906 C 223.046875 320.789062 218.21875 321.585938 212.984375 323.558594 L 167.554688 340.570312 C 163.425781 342.089844 151.210938 347.234375 147.476562 347.457031 C 132.484375 348.347656 115.015625 347.667969 100 347.804688 C 108.871094 329.621094 118.605469 311.1875 127.679688 293.101562 L 178.039062 192.714844 C 178.925781 192.511719 181.109375 192.328125 182.105469 192.21875 Z M 172.667969 301.621094 C 182.664062 301.445312 192.992188 301.992188 203.046875 301.828125 C 210.34375 301.828125 225.570312 302.132812 232.296875 301.238281 C 226.097656 285.265625 217.566406 270.214844 210.613281 254.539062 C 210.042969 253.253906 203.351562 239.644531 203.089844 239.484375 C 193.257812 256.480469 186.019531 276.074219 176.691406 293.441406 C 175.398438 295.847656 173.710938 299.136719 172.667969 301.621094 Z"/></svg>
       <span>ASOG · 스튜디오</span>
     </div>
+    <span class="sp"></span>
     <nav class="tabs" id="topnav">
-      <button id="tab-a" aria-current="true">고객 답변</button>
+      <button id="tab-a">고객 답변</button>
       <button id="tab-f">수정 요청</button>
       <button id="tab-q">문의</button>
-      <button id="tab-s">사이트</button>
+      <button id="tab-s" aria-current="true">사이트</button>
       <button id="tab-l">장부</button>
     </nav>
-    <span class="sp"></span>
     <button class="linkbtn" id="reload">새로고침</button>
     <button class="linkbtn" id="lock">잠그기</button>
     <button class="menubtn" id="menu-btn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
   </header>
 
-  <div class="shell">
+  <div class="shell wide">
     <nav class="side">
       <h2 id="cnt">고객</h2>
       <button class="btn sm" id="add" style="width:100%;margin-bottom:14px">+ 고객 추가</button>
@@ -442,7 +451,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   }
 
   var sb = null, rows = [], pick = null, hideEmpty = true;
-  var view = "answers";      // answers | feedback
+  var view = "sites";        // answers | feedback | inquiry | sites | ledger
   var fbRows = [], fbFilter = "open";
   var $ = function(id){ return document.getElementById(id); };
   function esc(s){ return String(s == null ? "" : s)
@@ -556,7 +565,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
 
   /* 코드가 맞는지는 서버가 판단한다. 화면에서 비교하면 코드가 파일 안에 남아
      아무 의미가 없다. onFail 은 "bad"(코드가 틀림) 또는 "net"(연결 실패). */
-  function tryKey(key, keep, onFail){
+  function tryKey(key, keep, onFail, home){
     sb.rpc("admin_ok", { p_key: key }).then(function(r){
       if(r.error) return onFail("net");
       if(r.data !== true) return onFail("bad");
@@ -569,11 +578,33 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
         pinPending = key; pinFirst = "";
         return askPin("set");
       }
-      try { localStorage.removeItem(STORE); localStorage.removeItem(LOCK); } catch(e){}
+      if(!home){ try { localStorage.removeItem(STORE); localStorage.removeItem(LOCK); } catch(e){} }
       $("gate").hidden = true;
       $("app").hidden = false;
       load();
     });
+  }
+
+  /* ── 집에서는 묻지 않고 열기 ──────────────────────────────
+     이 맥의 로컬 서버에서 연 화면(127.0.0.1·localhost)일 때만 서버에 코드를 받아 온다.
+     배포 주소(pages.dev)나 밖에서는 서버가 없으니 아래의 코드·숫자 잠금이 그대로 나온다.
+     받은 코드는 이 브라우저에 저장하지 않는다. */
+  function isLocalPage(){
+    return location.protocol === "http:" && /^(127\.0\.0\.1|localhost):8001$/.test(location.host);
+  }
+  function homeStart(then){
+    if(!isLocalPage() || /[?&]a=/.test(location.search)) return then();
+    var ac = ("AbortController" in window) ? new AbortController() : null;
+    var timer = ac ? setTimeout(function(){ ac.abort(); }, 1500) : null;
+    fetch("/__studio_key", ac ? { cache: "no-store", signal: ac.signal } : { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.text() : ""; })
+      .catch(function(){ return ""; })
+      .then(function(k){
+        if(timer) clearTimeout(timer);
+        k = (k || "").trim();
+        if(!k) return then();
+        tryKey(k, false, function(){ then(); }, true);
+      });
   }
 
   /* 모든 질문을 한 줄로 펼쳐 둡니다 (모듈 → 단계 → 질문) */
@@ -628,26 +659,28 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       askKey("스튜디오 코드를 입력하면 비밀번호를 새로 정합니다.");
     });
 
-    var urlKey = /[?&]a=/.test(location.search) ? savedKey() : "";
-    if(urlKey) return tryKey(urlKey, true, function(why){
-      askKey(why === "bad" ? "코드가 맞지 않습니다." : "연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
-    });
-    if(hasLock() && CR) return askPin("ask");
+    homeStart(function(){   // 집 맥이면 여기까지 오지 않고 바로 열린다
+      var urlKey = /[?&]a=/.test(location.search) ? savedKey() : "";
+      if(urlKey) return tryKey(urlKey, true, function(why){
+        askKey(why === "bad" ? "코드가 맞지 않습니다." : "연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+      });
+      if(hasLock() && CR) return askPin("ask");
 
-    var have = savedKey();   // 잠금을 넣기 전에 저장해 둔 코드
-    if(!have) return askKey("");
-    if(CR) return tryKey(have, true, function(why){   // 이번에 숫자를 정하게 된다
-      try { localStorage.removeItem(STORE); } catch(e){}
-      askKey(why === "bad" ? "저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요."
-                           : "연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
-    });
-    // 저장해 둔 코드가 아직 유효한지 확인하고 들어간다
-    tryKey(have, true, function(why){
-      if(why === "bad"){
+      var have = savedKey();   // 잠금을 넣기 전에 저장해 둔 코드
+      if(!have) return askKey("");
+      if(CR) return tryKey(have, true, function(why){   // 이번에 숫자를 정하게 된다
         try { localStorage.removeItem(STORE); } catch(e){}
-        return askKey("저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요.");
-      }
-      askKey("연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+        askKey(why === "bad" ? "저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요."
+                             : "연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+      });
+      // 저장해 둔 코드가 아직 유효한지 확인하고 들어간다
+      tryKey(have, true, function(why){
+        if(why === "bad"){
+          try { localStorage.removeItem(STORE); } catch(e){}
+          return askKey("저장된 코드가 더 이상 맞지 않습니다. 다시 입력해 주세요.");
+        }
+        askKey("연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+      });
     });
   }
 
@@ -792,6 +825,9 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     view = "answers";
     $("tab-a").setAttribute("aria-current", "true");
     $("tab-f").setAttribute("aria-current", "false");
+    $("tab-q").setAttribute("aria-current", "false");
+    $("tab-s").setAttribute("aria-current", "false");
+    $("tab-l").setAttribute("aria-current", "false");
     renderAdd();
   });
 
@@ -845,6 +881,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   }
 
   function renderList(){
+    document.querySelector(".shell").classList.toggle("wide", view === "sites");
     if(view === "inquiry" || view === "sites" || view === "ledger"){
       $("cnt").textContent = "고객 " + rows.length + "곳";
       $("list").innerHTML = '<p class="blank" style="padding:10px 0;font-size:15px">' +
@@ -1212,8 +1249,12 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     if(!u) return "";
     var m = u.match(/^http:\/\/(?:127\.0\.0\.1|localhost):(\d+)/);
     if(!m) return stLink("로컬주소", url);
+    var note = u;
+    try { var nu = new URL(u); nu.searchParams.set("as", "asog"); note = nu.href; } catch(e){}
     return '<a class="st-local" href="' + att(u) + '" data-port="' + m[1] +
       '" target="_blank" rel="noopener noreferrer">로컬주소 ↗</a>' +
+      '<a class="st-local st-note" href="' + att(note) + '" data-port="' + m[1] +
+      '" target="_blank" rel="noopener noreferrer" title="어소그 역할로 열어 화면에 직접 주석(수정 요청)을 남깁니다">로컬 주석 ↗</a>' +
       '<span class="st-run" data-port="' + m[1] + '"></span>';
   }
 
@@ -1362,7 +1403,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
 
     var formHtml = (stEdit === "new" || editing)
       ? '<div class="modal" id="st-modal">' + stForm(editing || {}) + '</div>' : "";
-    var body = list.length ? list.map(stCard).join("")
+    var body = list.length ? '<div class="st-grid">' + list.map(stCard).join("") + '</div>'
       : '<p class="blank">해당하는 사이트가 없습니다. 오른쪽 위 <b>+ 사이트 추가</b>로 넣을 수 있습니다.</p>';
 
     $("main").innerHTML = head + formHtml + body;
