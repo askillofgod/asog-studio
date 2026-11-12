@@ -468,6 +468,12 @@
     /* 조상으로 물러선 핀과, 지금 화면에 자리가 없는 핀 */
     '.pin.near{border-style:dashed}',
     '.pin.lost{border-style:dashed;opacity:.82}',
+    /*
+     * 지난 차수의 핀은 반쯤 비친다. 끝난 요청이 화면의 글자를 덮어 지금 볼
+     * 것을 가렸다. 마우스를 올리거나 목록에서 짚으면 또렷해진다.
+     */
+    '.pin.old{opacity:.5}',
+    '.pin.old:hover,.pin.old.sel{opacity:1}',
     '.pin.lost::after{content:"?";position:absolute;right:-5px;bottom:-5px;width:17px;height:17px;',
     ' border-radius:50%;background:#0C2141;color:#fff;font-size:11px;font-weight:800;',
     ' display:flex;align-items:center;justify-content:center;transform:rotate(45deg)}',
@@ -903,7 +909,8 @@
       var pt = pointOf(it);
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
-      el.className = "pin" + (pt ? (pt.exact ? "" : " near") : " lost");
+      el.className = "pin" + (pt ? (pt.exact ? "" : " near") : " lost") +
+                     (roundOf(it) <= cuts.length ? " old" : "");
       el.style.setProperty("--c", hueOf(it));
       el.style.setProperty("--t", inkOf(it));
       if (pt) {
