@@ -495,7 +495,7 @@
      * 지난 차수의 핀은 반쯤 비친다. 끝난 요청이 화면의 글자를 덮어 지금 볼
      * 것을 가렸다. 마우스를 올리거나 목록에서 짚으면 또렷해진다.
      */
-    '.pin.old{opacity:.5}',
+    '.pin.old{opacity:.3}',
     '.pin.old:hover,.pin.old.sel{opacity:1}',
     '.pin.lost::after{content:"?";position:absolute;right:-5px;bottom:-5px;width:17px;height:17px;',
     ' border-radius:50%;background:#0C2141;color:#fff;font-size:11px;font-weight:800;',
