@@ -58,6 +58,19 @@
   var ZONES = ((me && me.getAttribute("data-split")) || "")
     .split(",").map(function (z) { return z.trim(); }).filter(Boolean);
 
+  /*
+   * 핀을 세우지 않는 자리.
+   *
+   *   data-mute="#c-hero"        (CSS 선택자. 쉼표로 여럿도 된다)
+   *
+   * 그 안에 남긴 이번 차수의 요청은 화면에 핀을 세우지 않는다. 목록에는
+   * 그대로 있다. 비전필름의 첫 화면 히어로는 여러 장이 한 자리에서 넘어가,
+   * 장마다 남긴 핀이 한곳에 겹쳐 어느 장의 것인지 알 수 없었다. 그런 자리는
+   * 장을 펼쳐 놓은 화면을 따로 두고 거기서 확인한다.
+   * 지난 차수의 핀은 건드리지 않는다 — 그것은 주고받은 기록이다.
+   */
+  var MUTE = ((me && me.getAttribute("data-mute")) || "").trim();
+
   function zoneOf(p) {
     for (var i = 0; i < ZONES.length; i++) {
       var z = ZONES[i];
@@ -398,6 +411,16 @@
     var r = 1;
     cuts.forEach(function (c) { if (it.num > c) r++; });
     return r;
+  }
+  /* 핀을 세우지 않는 자리(data-mute)에 남긴 이번 차수의 요청인가 */
+  function isMuted(it) {
+    if (!MUTE || roundOf(it) <= cuts.length) return false;
+    try {
+      var a = anchorOf(it), el = a && a.el;
+      /* 그 요소가 지금 화면에 없으면, 경로의 맨 앞 마디로 어느 구역인지 본다. */
+      if (!el) el = document.querySelector(String(it.selector || "").split(">")[0]);
+      return !!(el && el.closest(MUTE));
+    } catch (e) { return false; }
   }
   /*
    * 보여 주는 번호. 차수마다 1번부터 다시 센다.
@@ -906,6 +929,7 @@
       if (!sameView(it)) return;
       /* 지난 차수의 끝난 핀은 목록에서 「지난 차수」를 펴 둔 동안만 세운다. */
       if (isPast(it) && !showPast) return;
+      if (isMuted(it)) return;
       var pt = pointOf(it);
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
@@ -1340,6 +1364,7 @@
           (it.status === "new" ? "#141A26" : st.color) + '">' + st.label + '</span>' +
         (it.scope_out ? '<span class="so">별도 협의</span>' : '') +
         (cuts.length ? '<span class="rd">' + roundOf(it) + '차</span>' : '') +
+        (sameView(it) && isMuted(it) ? '<span class="rd">핀 숨김</span>' : '') +
         '<span class="ago">' + when(it.created_at) + '</span>' +
       '</div>' +
       '<p>' + esc(it.body) + '</p>' +
