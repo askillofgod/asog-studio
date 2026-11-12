@@ -1591,6 +1591,37 @@
   }
 
   /*
+   * 펼치고 접는 것도 따라간다.
+   *
+   * 위의 감시는 요소가 생기고 사라지는 것만 본다. 질문을 눌러 답을 펼치는
+   * 자리는 요소를 새로 만들지 않고 `hidden` 만 떼므로 걸리지 않았고, 그 안의
+   * 핀은 화면을 굴리거나 다른 일이 생길 때까지 나타나지 않았다. 고객은 답을
+   * 펼쳐 놓고 핀이 없는 줄 알았다.
+   *
+   * 속성이 바뀌는 것(펼침·접힘·탭 전환)을 따로 보고, 페이지를 누른 직후에도
+   * 몇 번 다시 그린다. 미루지 않고 솎아서 그린다 — 움직임이 이어지는 동안
+   * 계속 미루면 끝날 때까지 한 번도 그리지 못한다.
+   */
+  var soonTick = null;
+  function drawSoon() {
+    if (soonTick) return;
+    soonTick = setTimeout(function () { soonTick = null; renderPins(); }, 40);
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(drawSoon).observe(document.documentElement, {
+      attributes: true, subtree: true,
+      attributeFilter: ["hidden", "open", "aria-expanded", "class"]
+    });
+  }
+  document.addEventListener("click", function (e) {
+    if (e.target === host || host.contains(e.target)) return;
+    drawSoon();
+    /* 펼치는 움직임이 끝난 뒤의 자리도 한 번 더 잡는다. */
+    setTimeout(renderPins, 200);
+    setTimeout(renderPins, 450);
+  }, true);
+
+  /*
    * 사이트 안에서 화면을 옮겨도 주소만 바뀌고 새로고침은 일어나지 않는다.
    * 그때도 핀을 다시 셈해야 그 화면의 것만 남는다.
    */
