@@ -492,8 +492,10 @@
     '.pin.near{border-style:dashed}',
     '.pin.lost{border-style:dashed;opacity:.82}',
     /*
-     * 지난 차수의 핀은 반쯤 비친다. 끝난 요청이 화면의 글자를 덮어 지금 볼
-     * 것을 가렸다. 마우스를 올리거나 목록에서 짚으면 또렷해진다.
+     * 차수를 나눠 받는 프로젝트의 핀은 옅게 비친다. 요청이 수백 건 쌓이면
+     * 핀이 화면의 글자를 덮어, 정작 고칠 글이 보이지 않았다. 처음에는 지난
+     * 차수만 옅게 했는데 이번 차수의 핀도 같은 자리를 가려 함께 옅게 둔다.
+     * 마우스를 올리거나 목록에서 짚으면 또렷해진다.
      */
     '.pin.old{opacity:.3}',
     '.pin.old:hover,.pin.old.sel{opacity:1}',
@@ -934,7 +936,7 @@
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
       el.className = "pin" + (pt ? (pt.exact ? "" : " near") : " lost") +
-                     (roundOf(it) <= cuts.length ? " old" : "");
+                     (cuts.length ? " old" : "");
       el.style.setProperty("--c", hueOf(it));
       el.style.setProperty("--t", inkOf(it));
       if (pt) {
