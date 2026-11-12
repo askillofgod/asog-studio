@@ -1087,20 +1087,29 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     fbCuts(f.fb_key).forEach(function(c){ if(f.num > c) n++; });
     return n;
   }
+  /* 보여 주는 번호 — 차수마다 1번부터. 고객 화면(pin.js)과 같은 셈이다. */
+  function fbNoOf(f){
+    var b = 0;
+    fbCuts(f.fb_key).forEach(function(c){ if(f.num > c) b = c; });
+    return f.num - b;
+  }
+  function fbNameOf(f){
+    return (fbCuts(f.fb_key).length ? fbRoundOf(f) + "차 " : "") + "#" + fbNoOf(f);
+  }
   function fbRoundBox(base){
     if(!pick || !pick.fb_key || !base.length) return "";
     var cuts = fbCuts(pick.fb_key);
     var last = cuts.length ? cuts[cuts.length - 1] : 0;
     var top = Math.max.apply(null, base.map(function(f){ return f.num; }));
     var spans = cuts.map(function(c, i){
-      return (i + 1) + '차 #' + ((i ? cuts[i - 1] : 0) + 1) + '~#' + c;
+      return (i + 1) + '차 ' + (c - (i ? cuts[i - 1] : 0)) + '건';
     });
     return '<div class="linkbox" id="fbround">' +
       '<b>지금 ' + (cuts.length + 1) + '차</b>' +
       (spans.length ? ' · ' + spans.join(' · ') : ' · 아직 마감한 차수가 없습니다') +
       '<p style="margin-top:10px">' +
         (top > last
-          ? '<input type="number" id="fbcutnum" min="' + (last + 1) + '" max="' + top + '" value="' + top +
+          ? '<input type="number" id="fbcutnum" min="1" max="' + (top - last) + '" value="' + (top - last) +
             '" style="width:90px;height:42px;padding:0 10px;font:inherit;border:1.5px solid var(--rule);border-radius:5px"> ' +
             '번까지 <button class="btn sm ghost" id="fbcut">' + (cuts.length + 1) + '차 마감</button> '
           : '새로 들어온 요청이 없어 마감할 것이 없습니다. ') +
@@ -1111,14 +1120,18 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
   }
   function bindFbRound(base){
     var num = $("fbcutnum"), hint = $("fbcuthint");
+    var cutsNow = pick ? fbCuts(pick.fb_key) : [];
+    var lastCut = cutsNow.length ? cutsNow[cutsNow.length - 1] : 0;
+    /* 칸에는 이번 차수 안의 번호를 적는다. 서버에는 이어지는 번호로 보낸다. */
+    var abs = function(){ return lastCut + Number(num.value); };
     var say = function(){
       if(!num || !hint) return;
-      var n = Number(num.value);
+      var n = abs();
       var hit = base.filter(function(f){ return f.num <= n; })
                     .sort(function(a, b){ return b.num - a.num; })[0];
       var left = base.filter(function(f){ return f.num <= n && f.status !== "done"; }).length;
       hint.textContent = hit
-        ? '#' + hit.num + ' (' + when(hit.created_at) + ' 접수)까지 묶습니다. 고객 화면에서 그 안의 완료 핀이 사라지고 목록에서 접힙니다.' +
+        ? fbNameOf(hit) + ' (' + when(hit.created_at) + ' 접수)까지 묶습니다. 고객 화면에서 그 안의 완료 핀이 사라지고 목록에서 접힙니다.' +
           (left ? ' 아직 끝나지 않은 ' + left + '건은 계속 보입니다.' : '')
         : '';
     };
@@ -1132,8 +1145,8 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
       });
     };
     if($("fbcut")) $("fbcut").addEventListener("click", function(){
-      var n = Number(num.value);
-      cut(n, pick.company + " — #" + n + "번까지 마감할까요? 고객 화면에 바로 반영됩니다.");
+      cut(abs(), pick.company + " — " + (cutsNow.length + 1) + "차를 #" + Number(num.value) +
+          "번까지 마감할까요? 고객 화면에 바로 반영됩니다.");
     });
     if($("fbuncut")) $("fbuncut").addEventListener("click", function(){
       cut(null, pick.company + " — 마지막 마감을 취소할까요? 가려졌던 핀이 고객 화면에 다시 보입니다.");
@@ -1144,7 +1157,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     var st = FST[f.status] || FST["new"];
     return '<div class="fb' + (f.status === "done" ? " done" : "") + '" data-id="' + f.id + '">' +
       '<div class="line">' +
-        '<span class="no" style="background:' + st.color + '">#' + f.num + '</span>' +
+        '<span class="no" style="background:' + st.color + '">#' + fbNoOf(f) + '</span>' +
         '<span class="co">' + esc(f.company) + '</span>' +
         '<span class="st" style="color:' + st.color + '">' + st.label + '</span>' +
         (f.scope_out ? '<span class="so">별도 협의</span>' : '') +
@@ -1212,7 +1225,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
               .then(function(){ loadFb(); });
           }
           if(act === "del"){
-            if(!confirm(f.company + " #" + f.num + " 요청을 지울까요? 되돌릴 수 없습니다.")) return;
+            if(!confirm(f.company + " " + fbNameOf(f) + " 요청을 지울까요? 되돌릴 수 없습니다.")) return;
             sb.rpc("admin_fb_del", { p_key: AKEY, p_id: id }).then(function(){ loadFb(); });
           }
         });
@@ -1266,7 +1279,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
     var out = ["수정 요청 목록", when(new Date().toISOString()), ""];
     list.forEach(function(f){
       var st = FST[f.status] || FST["new"];
-      out.push("#" + f.num + " [" + st.label + "]" + (f.scope_out ? " [별도 협의]" : "") +
+      out.push(fbNameOf(f) + " [" + st.label + "]" + (f.scope_out ? " [별도 협의]" : "") +
                " · " + f.company + " · " + f.path);
       out.push(f.body);
       if(f.reply) out.push("→ 답변: " + f.reply);

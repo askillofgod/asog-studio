@@ -391,6 +391,22 @@
     return r;
   }
   /*
+   * 보여 주는 번호. 차수마다 1번부터 다시 센다.
+   *
+   * 서버의 번호(num)는 프로젝트 내내 이어지지만, 3차를 276번부터 부르면
+   * 고객은 지난 요청 수백 건을 등에 지고 시작하는 느낌을 받는다. 보이는
+   * 번호만 그 차수 안의 순서로 바꾸고, 몇 차인지는 옆에 따로 적는다.
+   */
+  function noOf(it) {
+    var base = 0;
+    cuts.forEach(function (c) { if (it.num > c) base = c; });
+    return it.num - base;
+  }
+  /* 글 속에서 부르는 이름 — 「2차 #5」. 마감한 적이 없으면 전처럼 「#5」. */
+  function nameOf(it) {
+    return (cuts.length ? roundOf(it) + "차 " : "") + "#" + noOf(it);
+  }
+  /*
    * 지난 차수에서 이미 끝난 요청인가.
    *
    * 차수가 쌓이면 끝난 핀이 화면을 덮어, 지금 봐야 할 것이 묻힌다. 마감한
@@ -848,7 +864,7 @@
     boxEl.style.width = (r.width + 8) + "px";
     boxEl.style.height = (r.height + 8) + "px";
     boxEl.innerHTML = '<b' + (r.top < 32 ? ' style="top:4px;border-radius:5px"' : '') +
-                      '>#' + it.num + " 여기</b>";
+                      '>' + nameOf(it) + " 여기</b>";
     boxEl.classList.add("on");
     clearTimeout(boxTimer);
     if (hold) boxTimer = setTimeout(hideBox, 2600);
@@ -878,15 +894,16 @@
       if (pt) {
         el.style.left = (pt.x - window.pageXOffset) + "px";
         el.style.top = (pt.y - window.pageYOffset) + "px";
-        el.title = "#" + it.num + " · " + st.label +
+        el.title = nameOf(it) + " · " + st.label +
                    (pt.exact ? "" : " · 가까운 자리에 세웠습니다");
       } else {
         el.style.left = (window.innerWidth - 42) + "px";
         el.style.top = (210 + docked * 54) + "px";
-        el.title = "#" + it.num + " · " + st.label + " · 이 자리는 지금 화면에 없습니다";
+        el.title = nameOf(it) + " · " + st.label + " · 이 자리는 지금 화면에 없습니다";
         docked++;
       }
-      el.innerHTML = "<span>" + it.num + "</span>";
+      el.setAttribute("data-id", it.id);
+      el.innerHTML = "<span>" + noOf(it) + "</span>";
       el.onmouseenter = function () { if (pt) showBox(it); };
       el.onmouseleave = hideBox;
       el.onclick = function (e) {
@@ -1249,7 +1266,7 @@
         }
         if (act === "del") {
           e.stopPropagation();
-          if (!confirm("#" + it.num + " 요청을 삭제할까요?")) return;
+          if (!confirm(nameOf(it) + " 요청을 삭제할까요?")) return;
           rpc("fb_remove", { p_key: KEY, p_id: id }).then(function () { load(); });
           return;
         }
@@ -1289,7 +1306,7 @@
        */
       '<div class="rq">' +
       '<div class="top">' +
-        '<span class="no" style="background:' + hueOf(it) + '"><i>' + it.num + '</i></span>' +
+        '<span class="no" style="background:' + hueOf(it) + '"><i>' + noOf(it) + '</i></span>' +
         /*
          * 「접수」만 검은 글자로 둔다.
          *
@@ -1420,7 +1437,7 @@
       showBox(it, true);
       var pins = layer.querySelectorAll(".pin");
       for (var i = 0; i < pins.length; i++) {
-        if (pins[i].textContent === String(it.num)) { pins[i].classList.add("sel"); break; }
+        if (pins[i].getAttribute("data-id") === String(it.id)) { pins[i].classList.add("sel"); break; }
       }
       setTimeout(function () {
         layer.querySelectorAll(".pin.sel").forEach(function (p) { p.classList.remove("sel"); });
