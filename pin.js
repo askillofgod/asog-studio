@@ -79,6 +79,11 @@
 
   var items = [];          // 이 프로젝트의 전체 수정 요청
   var company = "";
+  /*
+   * 차수를 끊은 번호들. [231] 이면 #1~#231 이 1차, #232부터 2차.
+   * 스튜디오에서 「차수 마감」을 누른 프로젝트만 값이 있고, 없으면 전과 똑같이 보인다.
+   */
+  var cuts = [];
   var placing = false;     // 핀 찍기 모드
   var panelOpen = false;
   var editingId = null;
@@ -379,6 +384,22 @@
   function sameZone(it) { return zoneOf(pageOf(it)) === zoneOf(pageNow()); }
   function visibleItems() { return ZONES.length ? items.filter(sameZone) : items; }
   function sameView(it) { return it.path === pathNow(); }
+  /* 몇 차에 들어온 요청인가 */
+  function roundOf(it) {
+    var r = 1;
+    cuts.forEach(function (c) { if (it.num > c) r++; });
+    return r;
+  }
+  /*
+   * 지난 차수에서 이미 끝난 요청인가.
+   *
+   * 차수가 쌓이면 끝난 핀이 화면을 덮어, 지금 봐야 할 것이 묻힌다. 마감한
+   * 번호 이하이면서 「완료」인 것만 물린다 — 지난 차수에 들어왔어도 아직
+   * 끝나지 않은 것은 가리지 않는다. 가리면 고객은 잊힌 줄 안다.
+   */
+  function isPast(it) {
+    return cuts.length > 0 && it.num <= cuts[cuts.length - 1] && it.status === "done";
+  }
   function isMobile() { return Math.min(window.innerWidth, window.innerHeight) < 700; }
   function esc(s) {
     return String(s == null ? "" : s)
@@ -571,6 +592,7 @@
     '.it .no:hover{scale:1.14}',
     '.it .st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid currentColor}',
     '.it .so{font-size:11px;font-weight:700;color:#B07800;background:#FFF6E0;border-radius:999px;padding:2px 8px}',
+    '.it .rd{font-size:11px;font-weight:700;color:#5A6475;background:#EEF1F6;border-radius:999px;padding:2px 8px}',
     '.it .ago{margin-left:auto;font-size:12px;color:#8A93A3;flex:none}',
     '.it p{font-size:14.5px;line-height:1.55;color:#0C2141;white-space:pre-wrap;word-break:break-word}',
     '.it .who{margin-top:5px;font-size:12px;color:#8A93A3}',
@@ -846,6 +868,8 @@
        * 그런 것은 목록의 「다른 페이지」에서 찾아 그 화면으로 가면 된다.
        */
       if (!sameView(it)) return;
+      /* 지난 차수의 끝난 핀은 목록에서 「지난 차수」를 펴 둔 동안만 세운다. */
+      if (isPast(it) && !showPast) return;
       var pt = pointOf(it);
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
@@ -1011,11 +1035,20 @@
      * 「이 화면」으로 끼었다. 핀은 세 개가 안 보이는데 목록에는 세 건이 있어,
      * 어느 자리를 말하는지 찾을 수 없었다.
      */
-    visibleItems().forEach(function (i) { (sameView(i) ? here : other).push(i); });
+    var past = [];
+    visibleItems().forEach(function (i) {
+      if (isPast(i)) past.push(i);
+      else (sameView(i) ? here : other).push(i);
+    });
+    /* 지난 차수도 지금 보는 화면의 것을 앞에 세운다. */
+    past.sort(function (a, b) {
+      return (sameView(b) ? 1 : 0) - (sameView(a) ? 1 : 0) || a.num - b.num;
+    });
 
     panel.innerHTML =
       '<div class="pscroll"><div class="ph">' +
-      '<h3>수정 요청 ' + visibleItems().length + '건' +
+      '<h3>' + (cuts.length ? (cuts.length + 1) + '차 ' : '') +
+        '수정 요청 ' + (here.length + other.length) + '건' +
         (company ? ' · ' + esc(company) : '') + '</h3>' +
       /*
        * 지금 누구로 쓰는지.
@@ -1074,9 +1107,11 @@
     if (addBtn) addBtn.onclick = function () { setPlacing(true); };
 
     var pb = panel.querySelector("#pb"), html = "";
-    var moreBtn;
+    var moreBtn, pastBtn;
     if (!here.length && !other.length) {
-      html = '<div class="empty">아직 등록된 수정 요청이 없습니다.<br>' +
+      html = '<div class="empty">' +
+             (past.length ? '이번 차수에 등록된 수정 요청이 아직 없습니다.'
+                          : '아직 등록된 수정 요청이 없습니다.') + '<br>' +
              '아래 <b>수정할곳 선택하기</b>를 누른 뒤 고치고 싶은 곳을 클릭해 보세요.</div>';
     } else {
       /*
@@ -1100,7 +1135,26 @@
                 (showOther ? other.map(card).join("") : '');
       }
     }
+    /*
+     * 지난 차수에서 끝난 것은 맨 아래 한 줄로 접는다.
+     *
+     * 지우지 않고 접어만 둔다 — 무엇을 요청했고 어떻게 답했는지는 기록이라
+     * 언제든 펴 볼 수 있어야 한다. 펴 둔 동안에는 그 핀도 화면에 다시 선다.
+     */
+    if (past.length) {
+      html += '<button class="more" id="past">' +
+                '지난 차수 완료 ' + past.length + '건 ' + (showPast ? '접기' : '보기') +
+              '</button>' +
+              (showPast ? past.map(card).join("") : '');
+    }
     pb.innerHTML = html;
+
+    pastBtn = pb.querySelector("#past");
+    if (pastBtn) pastBtn.onclick = function () {
+      showPast = !showPast;
+      renderPins();
+      openPanel(true);
+    };
 
     moreBtn = pb.querySelector("#more");
     if (moreBtn) moreBtn.onclick = function () {
@@ -1246,6 +1300,7 @@
         '<span class="st" style="color:' +
           (it.status === "new" ? "#141A26" : st.color) + '">' + st.label + '</span>' +
         (it.scope_out ? '<span class="so">별도 협의</span>' : '') +
+        (cuts.length ? '<span class="rd">' + roundOf(it) + '차</span>' : '') +
         '<span class="ago">' + when(it.created_at) + '</span>' +
       '</div>' +
       '<p>' + esc(it.body) + '</p>' +
@@ -1311,6 +1366,8 @@
 
   /* 다른 화면의 요청을 펴 두었는지. 목록을 닫으면 다시 접힌다. */
   var showOther = false;
+  /* 지난 차수의 끝난 요청을 펴 두었는지. 다시 누를 때까지 그대로 둔다. */
+  var showPast = false;
 
   function thread(it) {
     var th = Array.isArray(it.thread) ? it.thread : [];
@@ -1498,6 +1555,7 @@
       if (!d) { items = []; renderFab(); return; }
       company = d.company || "";
       items = d.items || [];
+      cuts = Array.isArray(d.cuts) ? d.cuts : [];
       renderFab();
       renderPins();
       catchUp();
