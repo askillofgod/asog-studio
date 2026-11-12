@@ -98,6 +98,7 @@
    */
   var cuts = [];
   var ROUND_HUE = { 1: "#E5342B", 2: "#F5C400" };
+  var DONE_NOW = "#1E6BFF";   // 이번 차수에서 끝낸 요청
   var placing = false;     // 핀 찍기 모드
   var panelOpen = false;
   var editingId = null;
@@ -394,6 +395,12 @@
      * 전처럼 보라 하나다.
      */
     if (it.status === "new" && cuts.length) return ROUND_HUE[roundOf(it)] || st.color;
+    /*
+     * 이번 차수에서 끝낸 것은 파랑, 지난 차수에서 끝난 것은 초록.
+     * 둘 다 초록이면 방금 고친 것이 지난 기록에 묻혀, 고객이 무엇을 다시
+     * 확인해야 하는지 찾지 못한다.
+     */
+    if (it.status === "done" && cuts.length && roundOf(it) > cuts.length) return DONE_NOW;
     return st.color;
   }
   /* 노랑 위의 흰 글자는 읽히지 않아, 그 색일 때만 글자를 검게 둔다. */
@@ -1363,7 +1370,8 @@
          * 아니다. 작업 중·완료·협의 필요는 제 색을 그대로 쓴다.
          */
         '<span class="st" style="color:' +
-          (it.status === "new" ? "#141A26" : st.color) + '">' + st.label + '</span>' +
+          (it.status === "new" ? "#141A26" : it.status === "done" ? hueOf(it) : st.color) +
+          '">' + st.label + '</span>' +
         (it.scope_out ? '<span class="so">별도 협의</span>' : '') +
         (cuts.length ? '<span class="rd">' + roundOf(it) + '차</span>' : '') +
         (sameView(it) && isMuted(it) ? '<span class="rd">핀 숨김</span>' : '') +
