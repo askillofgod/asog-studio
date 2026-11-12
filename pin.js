@@ -84,6 +84,7 @@
    * 스튜디오에서 「차수 마감」을 누른 프로젝트만 값이 있고, 없으면 전과 똑같이 보인다.
    */
   var cuts = [];
+  var ROUND_HUE = { 1: "#E5342B", 2: "#F5C400" };
   var placing = false;     // 핀 찍기 모드
   var panelOpen = false;
   var editingId = null;
@@ -374,8 +375,16 @@
   function hueOf(it) {
     var st = STATUS[it.status] || STATUS["new"];
     if (it.status === "new" && it.by_asog) return ASOG_BLUE;
+    /*
+     * 고객이 남긴 「접수」는 몇 차에 들어왔는지로 색을 가른다 — 1차 빨강,
+     * 2차 노랑, 그 뒤는 원래의 보라. 차수를 마감한 적이 없는 프로젝트는
+     * 전처럼 보라 하나다.
+     */
+    if (it.status === "new" && cuts.length) return ROUND_HUE[roundOf(it)] || st.color;
     return st.color;
   }
+  /* 노랑 위의 흰 글자는 읽히지 않아, 그 색일 때만 글자를 검게 둔다. */
+  function inkOf(it) { return hueOf(it) === ROUND_HUE[2] ? "#141A26" : "#fff"; }
 
   function pathNow() { return location.pathname + stripAs(location.search); }
   function pageNow() { return location.pathname; }
@@ -444,7 +453,7 @@
     /* 핀 — 고칠 자리를 크게 표시합니다 */
     '.pin{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50% 50% 50% 4px;',
     ' transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;',
-    ' background:var(--c);color:#fff;font-size:16px;font-weight:800;cursor:pointer;pointer-events:auto;',
+    ' background:var(--c);color:var(--t,#fff);font-size:16px;font-weight:800;cursor:pointer;pointer-events:auto;',
     ' box-shadow:0 4px 14px rgba(0,0,0,.34);border:3px solid #fff;transition:transform .14s}',
     '.pin span{transform:rotate(45deg);letter-spacing:-.02em}',
     '.pin::before{content:"";position:absolute;inset:-10px;border-radius:inherit;',
@@ -891,6 +900,7 @@
       var el = document.createElement("div");
       el.className = "pin" + (pt ? (pt.exact ? "" : " near") : " lost");
       el.style.setProperty("--c", hueOf(it));
+      el.style.setProperty("--t", inkOf(it));
       if (pt) {
         el.style.left = (pt.x - window.pageXOffset) + "px";
         el.style.top = (pt.y - window.pageYOffset) + "px";
@@ -1306,7 +1316,7 @@
        */
       '<div class="rq">' +
       '<div class="top">' +
-        '<span class="no" style="background:' + hueOf(it) + '"><i>' + noOf(it) + '</i></span>' +
+        '<span class="no" style="background:' + hueOf(it) + ';color:' + inkOf(it) + '"><i>' + noOf(it) + '</i></span>' +
         /*
          * 「접수」만 검은 글자로 둔다.
          *
