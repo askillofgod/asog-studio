@@ -607,18 +607,11 @@ footer a{text-decoration:underline; text-underline-offset:3px}
   </button>
 </div>
 
-<!-- 시안 도구 — 오픈 전 제거 -->
-<div class="draft-bar">
-  <span class="lb">원페이지 시안 · <b>A안</b> 화이트 × 블랙 · 갤러리형</span>
-  <a class="go" href="b.html">B안 보기</a>
-</div>
-
 <script>
 /* 임베드 모드: 모음 페이지 썸네일용 — ?embed=1 도구 숨김 */
 (function(){
   var q = new URLSearchParams(location.search);
   if(q.get('embed')==='1'){
-    document.querySelector('.draft-bar').style.display='none';
     document.querySelector('.m-cta').style.display='none';
     document.querySelector('.fab').style.display='none';
   }
