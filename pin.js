@@ -423,7 +423,12 @@
    * 끝나지 않은 것은 가리지 않는다. 가리면 고객은 잊힌 줄 안다.
    */
   function isPast(it) {
-    return cuts.length > 0 && it.num <= cuts[cuts.length - 1] && it.status === "done";
+    /*
+     * 바로 앞 차수는 물리지 않는다. 3차를 적는 동안 고객은 2차에 무엇을
+     * 요청했고 어떻게 답을 받았는지 화면에서 견줘 본다. 물리는 것은 그보다
+     * 앞선 차수다 — 3차 중이면 1차만.
+     */
+    return cuts.length > 1 && it.num <= cuts[cuts.length - 2] && it.status === "done";
   }
   function isMobile() { return Math.min(window.innerWidth, window.innerHeight) < 700; }
   function esc(s) {
@@ -1074,7 +1079,7 @@
 
     panel.innerHTML =
       '<div class="pscroll"><div class="ph">' +
-      '<h3>' + (cuts.length ? (cuts.length + 1) + '차 ' : '') +
+      '<h3>' + (cuts.length ? (cuts.length + 1) + '차 진행 중 · ' : '') +
         '수정 요청 ' + (here.length + other.length) + '건' +
         (company ? ' · ' + esc(company) : '') + '</h3>' +
       /*

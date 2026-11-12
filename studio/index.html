@@ -1131,7 +1131,7 @@ var SUPABASE_KEY = "sb_publishable_bKsdXn04F_MCXT9YgCiYZg_biJjPRZC";
                     .sort(function(a, b){ return b.num - a.num; })[0];
       var left = base.filter(function(f){ return f.num <= n && f.status !== "done"; }).length;
       hint.textContent = hit
-        ? fbNameOf(hit) + ' (' + when(hit.created_at) + ' 접수)까지 묶습니다. 고객 화면에서 그 안의 완료 핀이 사라지고 목록에서 접힙니다.' +
+        ? fbNameOf(hit) + ' (' + when(hit.created_at) + ' 접수)까지 묶습니다. 고객 화면에는 새 차수와 바로 앞 차수만 보이고, 그보다 앞선 차수의 완료 핀은 목록에서 접힙니다.' +
           (left ? ' 아직 끝나지 않은 ' + left + '건은 계속 보입니다.' : '')
         : '';
     };
