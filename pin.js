@@ -101,6 +101,7 @@
   var DONE_NOW = "#1E6BFF";   // 이번 차수에서 끝낸 요청
   var placing = false;     // 핀 찍기 모드
   var panelOpen = false;
+  var searchQ = "";   // 목록 맨 위 검색어(번호·내용)
   var editingId = null;
   /*
    * 작성자 이름.
@@ -617,6 +618,12 @@
     ' border:7px solid #E7EBF1}',
     '.pscroll::-webkit-scrollbar-thumb:hover{background:#0C2141}',
     '.pb{padding:6px 0 18px}',
+    /* 목록 맨 위 검색칸. 목록을 굴려도 따라 내려오지 않고 맨 위에 붙어 있다. */
+    '.srch{position:sticky;top:0;z-index:3;padding:10px 14px;background:#fff;border-bottom:1px solid #D8DEE8}',
+    '.srch input{width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #9AA5B5;border-radius:8px;',
+    ' font:inherit;font-size:16px;color:#141A26;background:#fff;outline:none}',
+    '.srch input:focus{border-color:#141A26}',
+    '.srch .sn{margin:6px 2px 0;font-size:13px;color:#6B7488}',
     /* 머리글은 옅은 회색 면에 올려, 쌓인 글과 한 흐름으로 읽히지 않게 둔다. */
     /* 다른 화면의 것을 펴고 접는 줄 */
     '.more{display:block;width:100%;padding:13px 18px;border:0;border-top:2px solid #141A26;',
@@ -1085,12 +1092,13 @@
   var panel = null;
   function closePanel() {
     panelOpen = false;
+    searchQ = "";
     showOther = false;
     if (panel) { panel.classList.remove("on"); var p = panel; panel = null; setTimeout(function () { p.remove(); }, 240); }
     renderFab();
   }
 
-  function openPanel(on, focusId) {
+  function openPanel(on, focusId, instant) {
     if (!on) return closePanel();
     closePop();
     if (panel) panel.remove();
@@ -1135,6 +1143,9 @@
         (!isAsog && author ? ' · ' + esc(author) : '') +
       '</span>' +
       '</div>' +
+      '<div class="srch"><input id="q" type="search" autocomplete="off" ' +
+        'placeholder="번호·내용으로 검색 (예: 70)" value="' + esc(searchQ) + '">' +
+        '<div class="sn" id="sn"></div></div>' +
       '<div class="pb" id="pb"></div>' +
       '</div>' +
       '<div class="pact">' +
@@ -1158,7 +1169,8 @@
       '<div class="pf">핀을 눌러 그 자리로 이동할 수 있습니다. ' +
       '<b>접수</b> 상태인 요청은 직접 글수정하거나 삭제할 수 있습니다.</div>';
     ui.appendChild(panel);
-    setTimeout(function () { if (panel) panel.classList.add("on"); }, 10);
+    if (instant) { panel.style.transition = "none"; panel.classList.add("on"); }
+    else setTimeout(function () { if (panel) panel.classList.add("on"); }, 10);
 
     /*
      * 패널 위에서 굴린 바퀴는 패널 안에서만 쓴다.
@@ -1181,7 +1193,37 @@
 
     var pb = panel.querySelector("#pb"), html = "";
     var moreBtn, pastBtn;
-    if (!here.length && !other.length) {
+
+    /*
+     * 검색. 번호만 치면(70 · #70 · 3차 70) 화면에 보이는 그 번호로 시작하는 요청을, 글자를 치면 글 내용·
+     * 주소·작성자에서 찾는다. 찾는 동안에는 접어 둔 「다른 화면」·「지난 차수」도
+     * 함께 뒤져 한 줄로 늘어놓는다 — 같은 번호가 1차·2차·3차에 따로 있어서다.
+     */
+    var qraw = searchQ.trim(), found = null;
+    if (qraw) {
+      var qn = qraw.toLowerCase();
+      /* 「70」「#70」「3차 70」「3차 #70」 — 화면에 보이는 번호(차수마다 1번부터)로 찾는다. */
+      var nm = qn.match(/^(?:(\d+)\s*차)?\s*#?\s*(\d+)$/);
+      var hit = function (i) {
+        if (nm) {
+          return (!nm[1] || roundOf(i) === Number(nm[1])) &&
+                 String(noOf(i)).indexOf(nm[2]) === 0;
+        }
+        return ((i.body || "") + " " + (i.path || "") + " " + (i.author || ""))
+          .toLowerCase().indexOf(qn) !== -1;
+      };
+      found = here.concat(other, past).filter(hit);
+      /* 같은 번호가 여러 차수에 있으니 이번 차수를 앞에 세운다. */
+      found.sort(function (x, y) { return roundOf(y) - roundOf(x) || noOf(x) - noOf(y); });
+      var sn = panel.querySelector("#sn");
+      if (sn) sn.textContent = "검색 결과 " + found.length + "건";
+    }
+
+    if (found) {
+      html = found.length
+        ? found.map(card).join("")
+        : '<div class="empty">찾는 요청이 없습니다.<br>번호나 글 내용을 다시 확인해 주세요.</div>';
+    } else if (!here.length && !other.length) {
       html = '<div class="empty">' +
              (past.length ? '이번 차수에 등록된 수정 요청이 아직 없습니다.'
                           : '아직 등록된 수정 요청이 없습니다.') + '<br>' +
@@ -1221,6 +1263,22 @@
               (showPast ? past.map(card).join("") : '');
     }
     pb.innerHTML = html;
+
+    var qi = panel.querySelector("#q"), qTimer = null;
+    if (qi) {
+      qi.oninput = function () {
+        var v = qi.value;
+        clearTimeout(qTimer);
+        qTimer = setTimeout(function () {
+          searchQ = v;
+          openPanel(true, null, true);
+          var again = panel && panel.querySelector("#q");
+          if (again) { again.focus(); again.setSelectionRange(v.length, v.length); }
+        }, 250);
+      };
+      /* 다시 그려도 검색칸에 쓰던 자리를 잃지 않게, 그려진 뒤에 포커스를 돌려준다. */
+      if (instant) qi.focus();
+    }
 
     pastBtn = pb.querySelector("#past");
     if (pastBtn) pastBtn.onclick = function () {
