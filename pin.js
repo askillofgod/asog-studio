@@ -1610,7 +1610,8 @@
     el.style.animationDelay = "-" + e + "s, -" + e + "s";
   }
 
-  function goSpot(it) {
+  /* fast = 주소(#pin=)로 막 들어온 경우. 부드럽게 굴리지 않고 곧장 그 자리에 놓는다. */
+  function goSpot(it, fast) {
     /*
      * 다른 화면의 요청이면 그 화면으로 가면서 핀 번호를 주소에 붙인다(`#pin=번호`).
      * 새 화면이 뜨면 jumpFromHash가 곧장 그 핀 자리로 옮겨 글을 펼친다 — 전에는 이동한 뒤
@@ -1620,7 +1621,7 @@
     var pt = pointOf(it);
     if (!pt) return;
     closePanel();
-    window.scrollTo({ top: Math.max(0, pt.y - window.innerHeight / 2), behavior: "smooth" });
+    window.scrollTo({ top: Math.max(0, pt.y - window.innerHeight / 2), behavior: fast ? "auto" : "smooth" });
     setTimeout(function () {
       showBox(it, true);
       var pins = layer.querySelectorAll(".pin");
@@ -1634,8 +1635,11 @@
           break;
         }
       }
-      setTimeout(function () {
-        if (!lit || lit.id !== it.id || Date.now() - lit.t0 < LIT_MS - 50) return;
+      setTimeout(function clean() {
+        if (!lit || lit.id !== it.id) return;
+        /* 강조를 처음부터 다시 보여 준 경우(lit.t0 를 늦춤)에는 그만큼 더 기다린다 */
+        var left = LIT_MS - (Date.now() - lit.t0);
+        if (left > 50) { setTimeout(clean, left); return; }
         lit = null;
         hideBox();
         if (boxEl) { boxEl.style.animation = ""; boxEl.style.animationDelay = ""; }
@@ -1644,7 +1648,7 @@
       setTimeout(function () {
         layer.querySelectorAll(".pin.sel").forEach(function (p) { p.classList.remove("sel"); });
       }, 2400);
-    }, 480);
+    }, fast ? 0 : 480);
   }
 
   /* 항목을 누르는 것만으로는 아무 일도 하지 않는다. */
@@ -1840,25 +1844,36 @@
      * 한 번 찾아 없으면 포기하던 것을, 자리가 나타날 때까지 0.4초씩 최대 6초 기다린다.
      */
     /*
-     * 자리가 「나타난 것」만으로는 모자란 화면이 있다(견적 화면). 내용이 차례로 채워지는 동안
-     * 자리가 계속 밀리고, 화면이 스스로 맨 위로 되돌아가기도 한다. 그래서 자리가 두 번 연달아
-     * 같게 나올 때까지 기다렸다가 옮기고, 옮긴 뒤에도 핀이 화면 밖이면 몇 번 더 맞춘다.
+     * 기다리지 않고, 자리가 잡히는 대로 곧장 옮긴다. 그 뒤로도 한동안 자리를 계속 지켜보다가
+     * 밀리면 바로 다시 맞춘다 — 견적 화면처럼 내용이 차례로 채워지며 자리가 밀리거나 화면이
+     * 스스로 맨 위로 되돌아가는 곳이 있어서다. 전에는 자리가 안정될 때까지 기다린 뒤에 옮겨서
+     * 열린 뒤 몇 초씩 걸렸다. 사용자가 직접 굴리거나 누르면 그때부터는 손대지 않는다.
      */
-    var tries = 0, lastY = null;
-    function settle(left) {
-      setTimeout(function () {
-        var p = pointOf(it);
-        if (p && Math.abs(p.y - (window.scrollY + window.innerHeight / 2)) > window.innerHeight / 3) {
-          window.scrollTo({ top: Math.max(0, p.y - window.innerHeight / 2), behavior: "smooth" });
-        }
-        if (left > 1) settle(left - 1);
-      }, 1200);
-    }
-    (function tryGo() {
+    var t0 = Date.now(), went = false, lastTop = 0, stableAt = 0, stop = false;
+    function halt() { stop = true; }
+    ["wheel", "touchstart", "mousedown", "keydown"].forEach(function (ev) {
+      window.addEventListener(ev, halt, { capture: true, passive: true, once: true });
+    });
+    (function follow() {
+      var now = Date.now();
+      if (stop || now - t0 > 12000) return;
       var pt = pointOf(it);
-      if (pt && lastY !== null && Math.abs(pt.y - lastY) < 2) { goSpot(it); settle(3); return; }
-      lastY = pt ? pt.y : null;
-      if (++tries < 25) setTimeout(tryGo, 400);
+      if (pt) {
+        var room = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        var top = Math.min(room, Math.max(0, pt.y - window.innerHeight / 2));
+        if (!went) {
+          went = true; lastTop = top; stableAt = now;
+          goSpot(it, true);
+        } else if (Math.abs(window.scrollY - top) > 4) {
+          window.scrollTo(0, top);
+          /* 자리가 크게 밀려 다시 옮겼으면 강조도 처음부터 다시 보여 준다 */
+          if (Math.abs(top - lastTop) > 120 && lit) { lit.t0 = now; renderPins(); }
+          lastTop = top; stableAt = now;
+        } else if (now - stableAt > 2500) {
+          return;
+        }
+      }
+      setTimeout(follow, 100);
     })();
   }
 
