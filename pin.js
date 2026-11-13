@@ -1549,7 +1549,12 @@
    * 하지 않는다. 「화면 이동」 단추를 눌렀을 때만 움직인다.
    */
   function goSpot(it) {
-    if (!sameView(it)) { location.href = it.path; return; }
+    /*
+     * 다른 화면의 요청이면 그 화면으로 가면서 핀 번호를 주소에 붙인다(`#pin=번호`).
+     * 새 화면이 뜨면 jumpFromHash가 곧장 그 핀 자리로 옮겨 글을 펼친다 — 전에는 이동한 뒤
+     * 목록을 다시 열어 같은 번호를 또 찾고 「화면 이동」을 한 번 더 눌러야 했다.
+     */
+    if (!sameView(it)) { location.href = String(it.path).split("#")[0] + "#pin=" + it.num; return; }
     var pt = pointOf(it);
     if (!pt) return;
     closePanel();
@@ -1747,7 +1752,15 @@
     var it = null;
     for (var i = 0; i < items.length; i++) if (String(items[i].num) === m[1]) { it = items[i]; break; }
     if (!it || !sameView(it)) return;
-    setTimeout(function () { goSpot(it); }, 900);
+    /*
+     * 새 화면이 막 뜬 뒤에는 그 자리의 요소가 아직 없을 수 있다(목록·그림이 뒤늦게 그려진다).
+     * 한 번 찾아 없으면 포기하던 것을, 자리가 나타날 때까지 0.4초씩 최대 6초 기다린다.
+     */
+    var tries = 0;
+    (function tryGo() {
+      if (pointOf(it)) { goSpot(it); return; }
+      if (++tries < 15) setTimeout(tryGo, 400);
+    })();
   }
 
   /*
