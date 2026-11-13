@@ -498,6 +498,8 @@
     '.pin.sel{animation:asogpulse 1s ease-out 2}',
     /* 「화면 이동」으로 찾아간 핀: 잠깐 또렷하게 보였다가 원래 농도(30%)로 서서히 돌아간다 */
     '@keyframes asoglit{0%,42%{opacity:1}100%{opacity:.3}}',
+    /* 그 핀이 찍힌 영역의 네모도 같은 박자로 보였다가 사라진다 */
+    '@keyframes asogboxlit{0%,42%{opacity:1}100%{opacity:0}}',
     /* 조상으로 물러선 핀과, 지금 화면에 자리가 없는 핀 */
     '.pin.near{border-style:dashed}',
     '.pin.lost{border-style:dashed;opacity:.82}',
@@ -920,6 +922,7 @@
     if (!r.width && !r.height) return;
     var st = STATUS[it.status] || STATUS["new"];
     if (!boxEl) { boxEl = document.createElement("div"); boxEl.className = "box"; layer.appendChild(boxEl); }
+    boxEl.style.animation = ""; boxEl.style.animationDelay = "";
     boxEl.style.setProperty("--c", st.color);
     boxEl.style.left = (r.left - 4) + "px";
     boxEl.style.top = (r.top - 4) + "px";
@@ -979,6 +982,7 @@
       };
       layer.appendChild(el);
     });
+    litBox();
   }
 
   /* ── 작성 상자 ───────────────────────────────────────── */
@@ -1558,6 +1562,22 @@
    * 끝나면 흔적을 지워, 마우스를 올리면 다시 또렷해지는 원래 동작으로 돌아간다.
    */
   var lit = null, LIT_MS = 6000;
+  /*
+   * 찾아간 핀이 찍힌 영역(고객이 고른 요소)을 네모로 감싸 보여 준다. 핀과 같은 박자로 사라진다.
+   * 화면을 굴리면 핀 층이 통째로 다시 그려져 네모도 지워지므로, 다시 그릴 때마다 이어서 그린다.
+   */
+  function litBox() {
+    if (!lit) return;
+    var e = (Date.now() - lit.t0) / 1000;
+    if (e >= LIT_MS / 1000) return;
+    var it = null;
+    for (var i = 0; i < items.length; i++) if (String(items[i].id) === String(lit.id)) { it = items[i]; break; }
+    if (!it || !sameView(it)) return;
+    showBox(it);
+    if (!boxEl) return;
+    boxEl.style.animation = "asogboxlit " + (LIT_MS / 1000) + "s linear forwards";
+    boxEl.style.animationDelay = "-" + e + "s";
+  }
   function litOn(el, it) {
     if (!lit || String(lit.id) !== String(it.id) || !cuts.length) return;
     var e = (Date.now() - lit.t0) / 1000;
@@ -1585,12 +1605,16 @@
           pins[i].classList.add("sel");
           lit = { id: it.id, t0: Date.now() };
           litOn(pins[i], it);
+          clearTimeout(boxTimer);
+          litBox();
           break;
         }
       }
       setTimeout(function () {
         if (!lit || lit.id !== it.id || Date.now() - lit.t0 < LIT_MS - 50) return;
         lit = null;
+        hideBox();
+        if (boxEl) { boxEl.style.animation = ""; boxEl.style.animationDelay = ""; }
         layer.querySelectorAll(".pin").forEach(function (p) { p.style.animation = ""; p.style.animationDelay = ""; });
       }, LIT_MS);
       setTimeout(function () {
