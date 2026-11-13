@@ -939,12 +939,24 @@
   }
   function hideBox() { if (boxEl) boxEl.classList.remove("on"); }
 
+  /* 지금 화면에 떠 있는 팝업(모달). 여러 개면 가장 나중에 열린(문서에서 뒤쪽) 것. */
+  function openModal() {
+    var all;
+    try { all = document.querySelectorAll('[aria-modal="true"], dialog[open]'); } catch (e) { return null; }
+    for (var i = all.length - 1; i >= 0; i--) {
+      var r = all[i].getBoundingClientRect();
+      if (r.width && r.height) return all[i];
+    }
+    return null;
+  }
+
   function renderPins() {
     layer.innerHTML = "";
     boxEl = null; hbox = null;
     // 자리를 아주 잃은 핀은 오른쪽 가장자리에 차곡차곡 세운다. 번호가
     // 화면에서 사라지면 고객은 자기가 적은 것이 지워진 줄 안다.
     var docked = 0;
+    var modal = openModal();
     items.forEach(function (it) {
       /*
        * 다른 탭의 핀은 그리지 않는다. 전에는 가장자리에 세워 뒀는데, 지금
@@ -955,6 +967,14 @@
       /* 지난 차수의 끝난 핀은 목록에서 「지난 차수」를 펴 둔 동안만 세운다. */
       if (isPast(it) && !showPast) return;
       if (isMuted(it)) return;
+      /*
+       * 팝업(모달)이 떠 있는 동안에는 그 팝업 안에 찍힌 핀만 세운다.
+       * 핀 층은 화면 맨 위에 있어서, 가리지 않으면 뒤 페이지의 핀이 팝업 위에 떠 보인다.
+       */
+      if (modal) {
+        var an = anchorOf(it);
+        if (!an || !modal.contains(an.el)) return;
+      }
       var pt = pointOf(it);
       var st = STATUS[it.status] || STATUS["new"];
       var el = document.createElement("div");
@@ -1744,6 +1764,13 @@
     /* 펼치는 움직임이 끝난 뒤의 자리도 한 번 더 잡는다. */
     setTimeout(renderPins, 200);
     setTimeout(renderPins, 450);
+  }, true);
+
+  /* Esc 로 팝업을 닫은 뒤에도 다시 그려야 가려 뒀던 핀이 돌아온다. */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    drawSoon();
+    setTimeout(renderPins, 250);
   }, true);
 
   /*
