@@ -1729,7 +1729,25 @@
       renderPins();
       catchUp();
       if (panelOpen) openPanel(true);
+      jumpFromHash();
     });
+  }
+
+  /*
+   * 주소 끝에 `#pin=352`(핀의 통번호)가 붙어 있으면 그 핀 자리로 화면을 옮기고 글을 펼친다.
+   * 검수 문서나 메신저에서 「이 요청이 화면 어디인지」를 주소 하나로 건넬 때 쓴다.
+   * 그림이 뒤늦게 뜨면서 자리가 밀리는 화면이 있어, 조금 기다렸다가 한 번만 옮긴다.
+   */
+  var jumped = false;
+  function jumpFromHash() {
+    if (jumped) return;
+    var m = /[#&]pin=(\d+)/.exec(location.hash || "");
+    if (!m) return;
+    jumped = true;
+    var it = null;
+    for (var i = 0; i < items.length; i++) if (String(items[i].num) === m[1]) { it = items[i]; break; }
+    if (!it || !sameView(it)) return;
+    setTimeout(function () { goSpot(it); }, 900);
   }
 
   /*
