@@ -1756,10 +1756,26 @@
      * 새 화면이 막 뜬 뒤에는 그 자리의 요소가 아직 없을 수 있다(목록·그림이 뒤늦게 그려진다).
      * 한 번 찾아 없으면 포기하던 것을, 자리가 나타날 때까지 0.4초씩 최대 6초 기다린다.
      */
-    var tries = 0;
+    /*
+     * 자리가 「나타난 것」만으로는 모자란 화면이 있다(견적 화면). 내용이 차례로 채워지는 동안
+     * 자리가 계속 밀리고, 화면이 스스로 맨 위로 되돌아가기도 한다. 그래서 자리가 두 번 연달아
+     * 같게 나올 때까지 기다렸다가 옮기고, 옮긴 뒤에도 핀이 화면 밖이면 몇 번 더 맞춘다.
+     */
+    var tries = 0, lastY = null;
+    function settle(left) {
+      setTimeout(function () {
+        var p = pointOf(it);
+        if (p && Math.abs(p.y - (window.scrollY + window.innerHeight / 2)) > window.innerHeight / 3) {
+          window.scrollTo({ top: Math.max(0, p.y - window.innerHeight / 2), behavior: "smooth" });
+        }
+        if (left > 1) settle(left - 1);
+      }, 1200);
+    }
     (function tryGo() {
-      if (pointOf(it)) { goSpot(it); return; }
-      if (++tries < 15) setTimeout(tryGo, 400);
+      var pt = pointOf(it);
+      if (pt && lastY !== null && Math.abs(pt.y - lastY) < 2) { goSpot(it); settle(3); return; }
+      lastY = pt ? pt.y : null;
+      if (++tries < 25) setTimeout(tryGo, 400);
     })();
   }
 
