@@ -786,6 +786,7 @@
     '.it .acts a[data-act="del"]{background:#D98090;border-color:#D98090;color:#fff}',
     '.it .acts a[data-act="del"]:hover{background:#C8102E;border-color:#C8102E}',
     /* 화면 이동은 고치는 일이 아니라 옮기는 일이라 선만 둔다 */
+    '.it .nomod{margin:8px 0 0;font-size:13.5px;line-height:1.5;color:#6B7488}',
     '.it .acts a.go{background:#fff;color:#0C2141;border-color:#9AA5B5}',
     '.it .acts a.go:hover{background:#0C2141;border-color:#0C2141;color:#fff}',
     '.it .lost{margin-top:6px;font-size:12px;color:#B07800}',
@@ -1398,6 +1399,10 @@
        * 전에는 카드 맨 아래에 있어서, 주고받은 말이 길어지면 맨 처음 글에서
        * 한참 떨어졌다. 그 자리에서는 어느 글을 고치는 단추인지 흐려진다.
        */
+      /* 접수 상태가 아니면 고칠 수 없다(서버도 막는다). 고객에게는 새로 쓰라고 알린다. */
+      (it.status !== "new" && !isAsog
+        ? '<p class="nomod">처리가 시작된 요청은 수정할 수 없습니다. 바꾸고 싶은 내용은 새 요청으로 작성해 주세요.</p>'
+        : '') +
       '<div class="acts">' +
         (it.status === "new"
           ? '<a data-act="edit">글수정</a><a data-act="del">삭제</a>'
@@ -1449,7 +1454,8 @@
     if (!th.length) return "";
     return '<div class="th">' + th.map(function (m) {
       var fromAsog = m && m.who === "asog";
-      var mine = fromAsog === isAsog;   // 자기 쪽 줄만 손댈 수 있다
+      /* 자기 쪽 줄만 손댈 수 있다. 고객은 접수 상태 글에서만(서버도 막는다). */
+      var mine = fromAsog === isAsog && (isAsog || it.status === "new");
       var at = esc(m.at || "");
       var editing = editingSay && editingSay.id === it.id && editingSay.at === m.at;
 
