@@ -496,6 +496,8 @@
     ' border:2px solid var(--c);opacity:.32;pointer-events:none}',
     '.pin:hover{transform:rotate(-45deg) scale(1.14)}',
     '.pin.sel{animation:asogpulse 1s ease-out 2}',
+    /* 「화면 이동」으로 찾아간 핀: 잠깐 또렷하게 보였다가 원래 농도(30%)로 서서히 돌아간다 */
+    '@keyframes asoglit{0%,42%{opacity:1}100%{opacity:.3}}',
     /* 조상으로 물러선 핀과, 지금 화면에 자리가 없는 핀 */
     '.pin.near{border-style:dashed}',
     '.pin.lost{border-style:dashed;opacity:.82}',
@@ -967,6 +969,7 @@
       }
       el.setAttribute("data-id", it.id);
       el.innerHTML = "<span>" + noOf(it) + "</span>";
+      litOn(el, it);
       el.onmouseenter = function () { if (pt) showBox(it); };
       el.onmouseleave = hideBox;
       el.onclick = function (e) {
@@ -1548,6 +1551,21 @@
    * 글을 읽다가 실수로 눌러도 화면이 움직이지 않게, 항목을 누르는 것으로는
    * 하지 않는다. 「화면 이동」 단추를 눌렀을 때만 움직인다.
    */
+  /*
+   * 찾아간 핀을 또렷하게(100%) 보여 주다가 서서히 원래 농도로 되돌린다.
+   * 핀은 화면이 바뀔 때마다 통째로 다시 그려지므로, 「언제 시작했는지」를 기억해 두고
+   * 다시 그릴 때 그만큼 지난 지점부터 이어서 흐려지게 한다(animation-delay 를 음수로).
+   * 끝나면 흔적을 지워, 마우스를 올리면 다시 또렷해지는 원래 동작으로 돌아간다.
+   */
+  var lit = null, LIT_MS = 6000;
+  function litOn(el, it) {
+    if (!lit || String(lit.id) !== String(it.id) || !cuts.length) return;
+    var e = (Date.now() - lit.t0) / 1000;
+    if (e >= LIT_MS / 1000) return;
+    el.style.animation = "asogpulse 1s ease-out 2, asoglit " + (LIT_MS / 1000) + "s linear forwards";
+    el.style.animationDelay = "-" + e + "s, -" + e + "s";
+  }
+
   function goSpot(it) {
     /*
      * 다른 화면의 요청이면 그 화면으로 가면서 핀 번호를 주소에 붙인다(`#pin=번호`).
@@ -1563,8 +1581,18 @@
       showBox(it, true);
       var pins = layer.querySelectorAll(".pin");
       for (var i = 0; i < pins.length; i++) {
-        if (pins[i].getAttribute("data-id") === String(it.id)) { pins[i].classList.add("sel"); break; }
+        if (pins[i].getAttribute("data-id") === String(it.id)) {
+          pins[i].classList.add("sel");
+          lit = { id: it.id, t0: Date.now() };
+          litOn(pins[i], it);
+          break;
+        }
       }
+      setTimeout(function () {
+        if (!lit || lit.id !== it.id || Date.now() - lit.t0 < LIT_MS - 50) return;
+        lit = null;
+        layer.querySelectorAll(".pin").forEach(function (p) { p.style.animation = ""; p.style.animationDelay = ""; });
+      }, LIT_MS);
       setTimeout(function () {
         layer.querySelectorAll(".pin.sel").forEach(function (p) { p.classList.remove("sel"); });
       }, 2400);
