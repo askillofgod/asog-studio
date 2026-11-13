@@ -943,6 +943,13 @@
     if (!el) return;
     var r = el.getBoundingClientRect();
     if (!r.width && !r.height) return;
+    /* 그림(svg 안의 image)은 눈에 보이는 칸보다 크게 잡힐 때가 있어, 보이는 칸(svg)과 겹치는 만큼만 감싼다 */
+    var sv = el.ownerSVGElement;
+    if (sv && sv !== el) {
+      var s = sv.getBoundingClientRect();
+      var cl = Math.max(r.left, s.left), ct = Math.max(r.top, s.top), cr = Math.min(r.right, s.right), cb = Math.min(r.bottom, s.bottom);
+      if (cr > cl && cb > ct) r = { left: cl, top: ct, width: cr - cl, height: cb - ct };
+    }
     var st = STATUS[it.status] || STATUS["new"];
     if (!boxEl) { boxEl = document.createElement("div"); boxEl.className = "box"; layer.appendChild(boxEl); }
     boxEl.style.animation = ""; boxEl.style.animationDelay = "";
@@ -1869,7 +1876,7 @@
      * 스스로 맨 위로 되돌아가는 곳이 있어서다. 전에는 자리가 안정될 때까지 기다린 뒤에 옮겨서
      * 열린 뒤 몇 초씩 걸렸다. 사용자가 직접 굴리거나 누르면 그때부터는 손대지 않는다.
      */
-    var t0 = Date.now(), went = false, lastTop = 0, stableAt = 0, stop = false;
+    var t0 = Date.now(), went = false, lastTop = 0, stableAt = 0, stop = false, opened = 0;
     function halt() { stop = true; }
     ["wheel", "touchstart", "mousedown", "keydown"].forEach(function (ev) {
       window.addEventListener(ev, halt, { capture: true, passive: true, once: true });
@@ -1878,6 +1885,24 @@
       var now = Date.now();
       if (stop || now - t0 > 12000) return;
       var pt = pointOf(it);
+      /*
+       * 핀이 가리키는 그림이 접힌 칸 안에 있어서 근처(점선)로만 세워졌다면, 그 근처 칸 안의
+       * 접힌 버튼(aria-expanded="false")을 눌러 펼친다. 그러면 핀이 정확한 자리로 옮겨 붙는다.
+       * 버튼이 1~2개뿐인 좁은 칸일 때만 누른다 — 넓은 칸에서는 어느 것인지 알 수 없어 누르지 않는다.
+       * 주소(#pin=)로 찾아온 경우에만 하며, 평소에 고객이 보는 화면은 건드리지 않는다.
+       */
+      if (pt && !pt.exact && opened < 4) {
+        var an = anchorOf(it);
+        if (an && !an.exact) {
+          var tg = an.el.querySelectorAll('button[aria-expanded="false"]');
+          if (tg.length >= 1 && tg.length <= 2) {
+            opened++;
+            tg[0].click();
+            setTimeout(follow, 450);
+            return;
+          }
+        }
+      }
       if (pt) {
         var room = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
         var top = Math.min(room, Math.max(0, pt.y - window.innerHeight / 2));
