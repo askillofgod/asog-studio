@@ -498,6 +498,9 @@
     '.pin.sel{animation:asogpulse 1s ease-out 2}',
     /* 「화면 이동」으로 찾아간 핀: 잠깐 또렷하게 보였다가 원래 농도(30%)로 서서히 돌아간다 */
     '@keyframes asoglit{0%,42%{opacity:1}100%{opacity:.3}}',
+    /* 찾아간 핀은 3배로 커졌다가 제 크기로 돌아온다 — 흐린 핀들 사이에서 한눈에 띄게 */
+    '@keyframes asogbig{0%{transform:rotate(-45deg) scale(1)}25%{transform:rotate(-45deg) scale(3)}',
+    ' 55%{transform:rotate(-45deg) scale(3)}100%{transform:rotate(-45deg) scale(1)}}',
     /* 그 핀이 찍힌 영역의 네모도 같은 박자로 보였다가 사라진다 */
     '@keyframes asogboxlit{0%,42%{opacity:1}100%{opacity:0}}',
     /* 조상으로 물러선 핀과, 지금 화면에 자리가 없는 핀 */
@@ -1582,7 +1585,8 @@
     if (!lit || String(lit.id) !== String(it.id) || !cuts.length) return;
     var e = (Date.now() - lit.t0) / 1000;
     if (e >= LIT_MS / 1000) return;
-    el.style.animation = "asogpulse 1s ease-out 2, asoglit " + (LIT_MS / 1000) + "s linear forwards";
+    el.style.animation = "asogbig 2s ease-in-out 1, asoglit " + (LIT_MS / 1000) + "s linear forwards";
+    el.style.zIndex = "5"; /* 커지는 동안 옆 핀에 가리지 않게 */
     el.style.animationDelay = "-" + e + "s, -" + e + "s";
   }
 
@@ -1615,7 +1619,7 @@
         lit = null;
         hideBox();
         if (boxEl) { boxEl.style.animation = ""; boxEl.style.animationDelay = ""; }
-        layer.querySelectorAll(".pin").forEach(function (p) { p.style.animation = ""; p.style.animationDelay = ""; });
+        layer.querySelectorAll(".pin").forEach(function (p) { p.style.animation = ""; p.style.animationDelay = ""; p.style.zIndex = ""; });
       }, LIT_MS);
       setTimeout(function () {
         layer.querySelectorAll(".pin.sel").forEach(function (p) { p.classList.remove("sel"); });
