@@ -312,8 +312,10 @@
   function selectorOf(el) {
     if (!el || el.nodeType !== 1) return "";
     if (el === document.body) return "body";
-    var parts = [], n = el, guard = 0;
-    while (n && n.nodeType === 1 && n !== document.body && guard++ < 12) {
+    var parts = [], n = el, guard = 0, cut = false;
+    while (n && n.nodeType === 1 && n !== document.body) {
+      /* 12단계까지만 적는다. 그보다 깊으면 윗부분을 잘라 낸 「꼬리」만 남는다 */
+      if (guard++ >= 12) { cut = true; break; }
       if (n.id && /^[A-Za-z][\w-]*$/.test(n.id)) { parts.unshift("#" + n.id); return parts.join(">"); }
       var tag = n.tagName.toLowerCase(), par = n.parentNode, idx = 1, same = 0;
       if (par && par.children) {
@@ -325,12 +327,27 @@
       parts.unshift(tag);
       n = par;
     }
-    return "body>" + parts.join(">");
+    /*
+     * 잘라 낸 경우에는 「body>」를 붙이지 않는다. 붙이면 body 바로 아래에서 시작하는 길이 되어
+     * 어느 화면에서도 맞지 않는다(전에는 깊은 자리에 찍은 핀이 전부 이렇게 저장돼, 자리를 못 찾고
+     * 화면 한가운데에 대충 세워졌다). 꼬리만 적으면 화면 어디에서든 그 모양을 찾는다.
+     */
+    return (cut ? "" : "body>") + parts.join(">");
   }
 
   function findEl(sel) {
     if (!sel) return null;
-    try { return document.querySelector(sel); } catch (e) { return null; }
+    try {
+      var el = document.querySelector(sel);
+      if (el) return el;
+      /*
+       * 예전에 저장된 핀 중에는 12단계에서 잘린 길에 「body>」만 앞에 붙은 것이 있다. 그 길은
+       * 어느 화면에서도 맞지 않으므로, 맨 앞의 「body>」를 떼고 꼬리만으로 다시 찾는다.
+       * (단계가 12개 미만인 길은 body 바로 아래에서 시작하므로 이 경우에 해당하지 않는다.)
+       */
+      if (sel.indexOf("body>") === 0 && sel.split(">").length >= 12) return document.querySelector(sel.slice(5));
+    } catch (e) {}
+    return null;
   }
 
   // 적어 둔 길이 그대로 맞지 않으면 윗단으로 한 단계씩 줄여 가장 가까운
@@ -339,10 +356,13 @@
     var el = findEl(it.selector);
     if (el) return { el: el, exact: true };
     var parts = String(it.selector || "").split(">");
+    /* 12단계에서 잘린 예전 저장분(findEl 설명 참고)은 「body>」를 뗀 꼬리로 윗단을 찾는다 */
+    if (parts.length >= 12 && parts[0] === "body") parts.shift();
     while (parts.length > 1) {
       parts.pop();
       var up = findEl(parts.join(">"));
-      if (up) return { el: up, exact: false };
+      /* 접혀 있어 크기가 없는 윗단은 건너뛰고, 눈에 보이는 가장 가까운 윗단을 쓴다 */
+      if (up) { var ur = up.getBoundingClientRect(); if (ur.width || ur.height) return { el: up, exact: false }; }
     }
     return null;
   }
